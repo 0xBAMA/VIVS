@@ -43,12 +43,12 @@ typedef glm::vec4 vec;
 
 
 
-// image dimensions, based on a quarter of my laptop screen resolution
-const int image_height = 768/2;
-const int image_width = 1366/2;
+// // image dimensions, based on a quarter of my laptop screen resolution
+// const int image_height = 768/2;
+// const int image_width = 1366/2;
 
-// const int image_height = 768;
-// const int image_width = 1366;
+const int image_height = 768;
+const int image_width = 1366;
 
 
 //How many verticies to use, to represent all the voxels
@@ -82,11 +82,11 @@ int sphere_radius_position;
 int numTriangles = 10;
 
 // not worrying about location, using glGetUniformLocation in the initialization to get the values
-int triangle_1_point1_position;
-int triangle_1_point2_position;
-int triangle_1_point3_position;
+int point1_position;
+int point2_position;
+int point3_position;
 
-int triangle_1_thickness_position;
+int thickness_position;
 
 
 // used to hold the geometry values CPU-side
@@ -96,11 +96,11 @@ float sphere_radius_value;
 glm::vec3 sphere_center_value;
 
 //TRIANGLE
-glm::vec3 triangle_1_point1;
-glm::vec3 triangle_1_point2;
-glm::vec3 triangle_1_point3;
+glm::vec3 point1;
+glm::vec3 point2;
+glm::vec3 point3;
 
-float triangle_1_thickness;
+float thickness;
 
 
 
@@ -311,31 +311,33 @@ void init()
 
 // TRIANGLE VALUES
 
-	triangle_1_point1_position = glGetUniformLocation( shader_handle, "point1" );
-	triangle_1_point2_position = glGetUniformLocation( shader_handle, "point2" );
-	triangle_1_point3_position = glGetUniformLocation( shader_handle, "point3" );
+	point1_position = glGetUniformLocation( shader_handle, "triangle.point1" );
+	point2_position = glGetUniformLocation( shader_handle, "triangle.point2" );
+	point3_position = glGetUniformLocation( shader_handle, "triangle.point3" );
 
-	triangle_1_thickness_position = glGetUniformLocation( shader_handle, "thickness" );
+	thickness_position = glGetUniformLocation( shader_handle, "triangle.thickness" );
+
+	cout << endl << point1_position << " " << point2_position << " " << point3_position << " " << thickness_position << endl;
 
 
 // INITIAL TRIANGLE DATA
 
-	// triangle_1_point1 = glm::vec3(  0.3f, -0.1f, -0.1f );
-	// triangle_1_point2 = glm::vec3( -0.1f,  0.3f, -0.1f );
-	// triangle_1_point3 = glm::vec3( -0.1f, -0.1f,  0.3f );
+	// point1 = glm::vec3(  0.3f, -0.1f, -0.1f );
+	// point2 = glm::vec3( -0.1f,  0.3f, -0.1f );
+	// point3 = glm::vec3( -0.1f, -0.1f,  0.3f );
 
-	triangle_1_point1 = glm::vec3(  0.0f, -0.2f, -0.2f );
-	triangle_1_point2 = glm::vec3( -0.2f,  0.0f, -0.2f );
-	triangle_1_point3 = glm::vec3( -0.2f, -0.2f,  0.0f );
+	point1 = glm::vec3(  0.0f, -0.2f, -0.2f );
+	point2 = glm::vec3( -0.2f,  0.0f, -0.2f );
+	point3 = glm::vec3( -0.2f, -0.2f,  0.0f );
 
-	triangle_1_thickness = 0.05f;
+	thickness = 0.05f;
 
- 	glUniform3fv( triangle_1_point1_position, 1, glm::value_ptr( triangle_1_point1 ) );
-	glUniform3fv( triangle_1_point2_position, 1, glm::value_ptr( triangle_1_point2 ) );
-	glUniform3fv( triangle_1_point3_position, 1, glm::value_ptr( triangle_1_point3 ) );
+ 	glUniform3fv( point1_position, 1, glm::value_ptr( point1 ) );
+	glUniform3fv( point2_position, 1, glm::value_ptr( point2 ) );
+	glUniform3fv( point3_position, 1, glm::value_ptr( point3 ) );
 
 
-	glUniform1fv( triangle_1_thickness_position, 1, &triangle_1_thickness);
+	glUniform1fv( thickness_position, 1, &thickness);
 
 }
 
@@ -365,17 +367,17 @@ void timer(int)
 	if(rotate_triangle)
 	{
 
-		vec triangle_1_point1_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(triangle_1_point1, 1.0f);
-		vec triangle_1_point2_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(triangle_1_point2, 1.0f);
-		vec triangle_1_point3_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(triangle_1_point3, 1.0f);
+		vec point1_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point1, 1.0f);
+		vec point2_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point2, 1.0f);
+		vec point3_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point3, 1.0f);
 
-		triangle_1_point1 = triangle_1_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
-		triangle_1_point2 = triangle_1_point2_temp;
-		triangle_1_point3 = triangle_1_point3_temp;
+		point1 = point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
+		point2 = point2_temp;
+		point3 = point3_temp;
 
-	 	glUniform3fv( triangle_1_point1_position, 1, glm::value_ptr( triangle_1_point1 ) );
-		glUniform3fv( triangle_1_point2_position, 1, glm::value_ptr( triangle_1_point2 ) );
-		glUniform3fv( triangle_1_point3_position, 1, glm::value_ptr( triangle_1_point3 ) );
+	 	glUniform3fv( point1_position, 1, glm::value_ptr( point1 ) );
+		glUniform3fv( point2_position, 1, glm::value_ptr( point2 ) );
+		glUniform3fv( point3_position, 1, glm::value_ptr( point3 ) );
 
 	}
 
