@@ -13,17 +13,16 @@ layout(location = 5)  uniform float sphere_radius;
 
 
 
+#define NUM_TRIANGLES 6
+
 // going to need to read up on uniform blocks
-uniform triangle
-{
 
-	vec3 point1;
-	vec3 point2;
-	vec3 point3;
+uniform vec3 point1[NUM_TRIANGLES];
+uniform vec3 point2[NUM_TRIANGLES];
+uniform vec3 point3[NUM_TRIANGLES];
 
-	float thickness;
+uniform float thickness;
 
-}triangle_points;
 
 
 
@@ -59,7 +58,8 @@ void main()
 	}
 	else if( the_distance < sphere_radius) // THE NEXT LAYER
 	{
-		color = vec4(0.3, 0.2, pow(the_distance, 3), 0.5f);
+		// color = vec4(0.3, 0.2, pow(the_distance, 3), 0.5f);
+		color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 	}
 
 
@@ -70,7 +70,7 @@ void main()
 	{
 		if(vPosition.x + 0.30 < height * 0.05 && vPosition.x > -0.34)
 		{
-			color = vec4( height, 0.2f, 0.1f, 1.0f);
+			color = vec4( height, 0.2f, 0.1f, 0.7f);
 		}
 	}
 
@@ -91,51 +91,74 @@ void main()
 	vec3 calculated_side_2_3_normal;
 	vec3 calculated_side_3_1_normal;
 
-	//calculate the center of the triangle
-	calculated_triangle_center = ( triangle_points.point1 + triangle_points.point2 + triangle_points.point3 ) / 3.0f;
+	bool draw_triangles[NUM_TRIANGLES];
+	vec4 colors[NUM_TRIANGLES];
 
-	//calculate the top normal vector of the triangle
-	calculated_top_normal = normalize( cross( triangle_points.point1 - triangle_points.point2, triangle_points.point1 - triangle_points.point3 ) );
-	calculated_top_normal = planetest( triangle_points.point1 + triangle_points.thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+	int how_many_being_drawn = 0;
+	vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
-	//calculate the side normal vectors
 
-	//       *
-	//      / \
-	//     /   \
-	//    /     \
-	//   *-------* <--- the side being considered
-	//
-	//	looking at this edge-on:
-	//
-	//   *
-	//   | <----------- the triangle's top normal
-	//   *-------* <--- vector representing the side being considered
-	//
-	//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
+// TRIANGLES
 
-	calculated_side_1_2_normal = normalize( cross( calculated_top_normal, triangle_points.point2 - triangle_points.point1 ) );
-	calculated_side_1_2_normal = planetest( triangle_points.point1, calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
-
-	calculated_side_2_3_normal = normalize( cross( calculated_top_normal, triangle_points.point3 - triangle_points.point2 ) );
-	calculated_side_2_3_normal = planetest( triangle_points.point2, calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
-
-	calculated_side_3_1_normal = normalize( cross( calculated_top_normal, triangle_points.point1 - triangle_points.point3 ) );
-	calculated_side_3_1_normal = planetest( triangle_points.point3, calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
-
-	// do the tests
-	bool draw_the_triangle = planetest( triangle_points.point1 + ( triangle_points.thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
-														planetest( triangle_points.point1 - ( triangle_points.thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
-														planetest( triangle_points.point1, calculated_side_1_2_normal, vPosition.xyz ) &&
-														planetest( triangle_points.point2, calculated_side_2_3_normal, vPosition.xyz ) &&
-														planetest( triangle_points.point3, calculated_side_3_1_normal, vPosition.xyz );
-
-	if( draw_the_triangle )
+	for(int i = 0; i < NUM_TRIANGLES; i++)
 	{
-		color = vec4(1.0f, 0.5f, 0.0f, 1.0f);
+
+		colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
+
+		//calculate the center of the triangle
+		calculated_triangle_center = ( point1[i] + point2[i] + point3[i] ) / 3.0f;
+
+		//calculate the top normal vector of the triangle
+		calculated_top_normal = normalize( cross( point1[i] - point2[i], point1[i] - point3[i] ) );
+		calculated_top_normal = planetest( point1[i] + thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+
+		//calculate the side normal vectors
+
+		//       *
+		//      / \
+		//     /   \
+		//    /     \
+		//   *-------* <--- the side being considered
+		//
+		//	looking at this edge-on:
+		//
+		//   *
+		//   | <----------- the triangle's top normal
+		//   *-------* <--- vector representing the side being considered
+		//
+		//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
+
+		calculated_side_1_2_normal = normalize( cross( calculated_top_normal, point2[i] - point1[i] ) );
+		calculated_side_1_2_normal = planetest( point1[i], calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
+
+		calculated_side_2_3_normal = normalize( cross( calculated_top_normal, point3[i] - point2[i] ) );
+		calculated_side_2_3_normal = planetest( point2[i], calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
+
+		calculated_side_3_1_normal = normalize( cross( calculated_top_normal, point1[i] - point3[i] ) );
+		calculated_side_3_1_normal = planetest( point3[i], calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
+
+		// do the tests
+		draw_triangles[i] = planetest( point1[i] + ( thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
+		planetest( point1[i] - ( thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
+		planetest( point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
+		planetest( point2[i], calculated_side_2_3_normal, vPosition.xyz ) &&
+		planetest( point3[i], calculated_side_3_1_normal, vPosition.xyz );
+
+		if(draw_triangles[i])
+		{
+			how_many_being_drawn++;
+			sum += colors[i];
+		}
 	}
 
 
+
+
+	if(how_many_being_drawn > 0)
+	{
+		color = sum / how_many_being_drawn;
+		// color = colors[how_many_being_drawn-1];
+	}
 
 
 }
