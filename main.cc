@@ -642,7 +642,11 @@ void mouse( int button, int state, int x, int y )
 
 }
 
+
+
 // ----------------------
+
+
 
 int main( int argc, char **argv )
 {
@@ -658,7 +662,12 @@ int main( int argc, char **argv )
 	glutCreateWindow( "GLUT Window" );
 	glutFullScreen();
 
-
+	// glutGameModeString("640x480");
+	//
+	// if(glutGameModeGet(GLUT_GAME_MODE_POSSIBLE))
+	// {
+	// 	glutEnterGameMode();
+	// }
 
 	cout << "\rGLUT Initialization Complete." << endl;
 
@@ -709,7 +718,7 @@ int main( int argc, char **argv )
 }
 
 
-
+//UTILITIES
 
 void update_rotation()
 { // uses global x rotation, y rotation, z rotation

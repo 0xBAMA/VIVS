@@ -21,6 +21,8 @@ uniform vec3 point1[NUM_TRIANGLES];
 uniform vec3 point2[NUM_TRIANGLES];
 uniform vec3 point3[NUM_TRIANGLES];
 
+uniform vec3 tricol[NUM_TRIANGLES];
+
 uniform float thickness;
 
 
@@ -103,7 +105,9 @@ void main()
 	for(int i = 0; i < NUM_TRIANGLES; i++)
 	{
 
-		colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
+		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
+
+		colors[i] = vec4(tricol[i], 1.0f);
 
 		//calculate the center of the triangle
 		calculated_triangle_center = ( point1[i] + point2[i] + point3[i] ) / 3.0f;
