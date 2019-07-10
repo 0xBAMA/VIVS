@@ -145,7 +145,6 @@ GLuint texture; //handle for the texture
 
 
 
-// bool planetest(glm::vec3 plane_point, glm::vec3 plane_normal, glm::vec3 test_point);
 void update_rotation();
 
 
@@ -319,8 +318,6 @@ void init()
 
 	thickness_position = glGetUniformLocation( shader_handle, "thickness" );
 
-	cout << endl << point1_position << " " << point2_position << " " << point3_position << " " << thickness_position << endl;
-
 
 // INITIAL TRIANGLE DATA
 
@@ -385,57 +382,40 @@ void timer(int)
 	//rotate the points making up the triangle - this requires the use of a 4 unit vector, to use the 4x4 rotation matrix
 	// (still simpler than writing out the whole rotation matrix)
 
+	// need to use vec4s to multiply by a 4x4 rotation matrix
+	vec point1_temp;
+	vec point2_temp;
+	vec point3_temp;
+
+	// variable axis of rotation
+	glm::vec3 axis;
 
 	if(rotate_triangle)
 	{
+		for(int i = 0; i < NUM_TRIANGLES; i++)
+		{
 
-		vec point1_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point1[0], 1.0f);
-		vec point2_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point2[0], 1.0f);
-		vec point3_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point3[0], 1.0f);
+			switch(i % 3)
+			{
+				case 0:
+					axis = glm::vec3(1.0f, 0.0f, 0.0f);
+					break;
+				case 1:
+					axis = glm::vec3(0.0f, 1.0f, 0.0f);
+					break;
+				case 2:
+					axis = glm::vec3(0.0f, 0.0f, 1.0f);
+					break;
+			}
 
-		point1[0] = point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
-		point2[0] = point2_temp;
-		point3[0] = point3_temp;
+			point1_temp = glm::rotate(0.01f, axis) * vec(point1[i], 1.0f);
+			point2_temp = glm::rotate(0.01f, axis) * vec(point2[i], 1.0f);
+			point3_temp = glm::rotate(0.01f, axis) * vec(point3[i], 1.0f);
 
-		point1_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point1[1], 1.0f);
-		point2_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point2[1], 1.0f);
-		point3_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point3[1], 1.0f);
-
-		point1[1] = point1_temp;
-		point2[1] = point2_temp;
-		point3[1] = point3_temp;
-
-		point1_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point1[2], 1.0f);
-		point2_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point2[2], 1.0f);
-		point3_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point3[2], 1.0f);
-
-		point1[2] = point1_temp;
-		point2[2] = point2_temp;
-		point3[2] = point3_temp;
-
-		point1_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point1[3], 1.0f);
-		point2_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point2[3], 1.0f);
-		point3_temp = glm::rotate(0.01f, glm::vec3(1.0f, 0.0f, 0.0f)) * vec(point3[3], 1.0f);
-
-		point1[3] = point1_temp;
-		point2[3] = point2_temp;
-		point3[3] = point3_temp;
-
-		point1_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point1[4], 1.0f);
-		point2_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point2[4], 1.0f);
-		point3_temp = glm::rotate(0.01f, glm::vec3(0.0f, 1.0f, 0.0f)) * vec(point3[4], 1.0f);
-
-		point1[4] = point1_temp;
-		point2[4] = point2_temp;
-		point3[4] = point3_temp;
-
-		point1_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point1[5], 1.0f);
-		point2_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point2[5], 1.0f);
-		point3_temp = glm::rotate(0.01f, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(point3[5], 1.0f);
-
-		point1[5] = point1_temp;
-		point2[5] = point2_temp;
-		point3[5] = point3_temp;
+			point1[i] = point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
+			point2[i] = point2_temp;
+			point3[i] = point3_temp;
+		}
 
 	 	glUniform3fv( point1_position, NUM_TRIANGLES, glm::value_ptr( point1[0] ) );
 		glUniform3fv( point2_position, NUM_TRIANGLES, glm::value_ptr( point2[0] ) );
@@ -682,35 +662,6 @@ int main( int argc, char **argv )
 }
 
 
-// // PLANETEST for computing the various components of the triangle
-//
-// bool planetest(glm::vec3 plane_point, glm::vec3 plane_normal, glm::vec3 test_point)
-// {
-//   //return false if the point is above the plane
-// 	//return true if the point is below the plane
-//
-// 	float result = 0.0;
-//
-// 	//equation of plane
-//
-// 	// a (x-x1) + b (y-y1) + c (z-z1) = 0
-//
-// 	float a = plane_normal.x;
-// 	float b = plane_normal.y;
-// 	float c = plane_normal.z;
-//
-// 	float x1 = plane_point.x;
-// 	float y1 = plane_point.y;
-// 	float z1 = plane_point.z;
-//
-// 	float x = test_point.x;
-// 	float y = test_point.y;
-// 	float z = test_point.z;
-//
-// 	result = a * (x - x1) + b * (y - y1) + c * (z - z1);
-//
-// 	return (result < 0)?true:false;
-// }
 
 
 void update_rotation(){
