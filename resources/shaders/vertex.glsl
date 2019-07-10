@@ -13,7 +13,7 @@ layout(location = 5)  uniform float sphere_radius;
 
 
 
-#define NUM_TRIANGLES 6
+#define NUM_TRIANGLES 12
 
 // going to need to read up on uniform blocks
 

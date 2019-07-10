@@ -95,7 +95,7 @@ float sphere_radius_value;
 glm::vec3 sphere_center_value;
 
 
-#define NUM_TRIANGLES 6
+#define NUM_TRIANGLES 12
 
 //TRIANGLE
 glm::vec3 point1[NUM_TRIANGLES];
@@ -187,7 +187,11 @@ void generate_points()
 	}
 }
 
+
+
 // ----------------------
+
+
 
 void init()
 {
@@ -321,10 +325,6 @@ void init()
 
 // INITIAL TRIANGLE DATA
 
-	// point1 = glm::vec3(  0.3f, -0.1f, -0.1f );
-	// point2 = glm::vec3( -0.1f,  0.3f, -0.1f );
-	// point3 = glm::vec3( -0.1f, -0.1f,  0.3f );
-
 	point1[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
 	point2[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
 	point3[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
@@ -336,6 +336,7 @@ void init()
 	point1[2] = glm::vec3(  0.0f, -0.2f, -0.2f );
 	point2[2] = glm::vec3( -0.2f,  0.0f, -0.2f );
 	point3[2] = glm::vec3( -0.2f, -0.2f,  0.0f );
+
 
 	point1[3] = glm::vec3(  0.0f,  0.2f,  0.2f );
 	point2[3] = glm::vec3(  0.2f,  0.0f,  0.2f );
@@ -349,6 +350,32 @@ void init()
 	point2[5] = glm::vec3(  0.2f,  0.0f,  0.2f );
 	point3[5] = glm::vec3(  0.2f,  0.2f,  0.0f );
 
+
+	point1[6] = glm::vec3(  0.3f, -0.1f, -0.1f );
+	point2[6] = glm::vec3( -0.1f,  0.3f, -0.1f );
+	point3[6] = glm::vec3( -0.1f, -0.1f,  0.3f );
+
+	point1[7] = glm::vec3(  0.3f, -0.1f, -0.1f );
+	point2[7] = glm::vec3( -0.1f,  0.3f, -0.1f );
+	point3[7] = glm::vec3( -0.1f, -0.1f,  0.3f );
+
+	point1[8] = glm::vec3(  0.3f, -0.1f, -0.1f );
+	point2[8] = glm::vec3( -0.1f,  0.3f, -0.1f );
+	point3[8] = glm::vec3( -0.1f, -0.1f,  0.3f );
+
+
+	point1[9] = glm::vec3(  -0.3f,  0.1f,  0.1f );
+	point2[9] = glm::vec3(  0.1f,  -0.3f,  0.1f );
+	point3[9] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+
+	point1[10] = glm::vec3(  -0.3f,  0.1f,  0.1f );
+	point2[10] = glm::vec3(  0.1f,  -0.3f,  0.1f );
+	point3[10] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+
+	point1[11] = glm::vec3(  -0.3f,  0.1f,  0.1f );
+	point2[11] = glm::vec3(  0.1f,  -0.3f,  0.1f );
+	point3[11] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+
 	thickness = 0.05f;
 
  	glUniform3fv( point1_position, NUM_TRIANGLES, glm::value_ptr( point1[0] ) );
@@ -360,7 +387,11 @@ void init()
 
 }
 
+
+
 // ----------------------
+
+
 
 void display( void )
 {
@@ -374,7 +405,11 @@ void display( void )
 
 }
 
+
+
 // ----------------------
+
+
 
 void timer(int)
 {
@@ -431,14 +466,22 @@ void timer(int)
 
 }
 
+
+
 // ----------------------
+
+
 
 void idle( void )
 {
 	// glutPostRedisplay();
 }
 
+
+
 // ----------------------
+
+
 
 void keyboard( unsigned char key, int x, int y )
 {
@@ -468,12 +511,12 @@ void keyboard( unsigned char key, int x, int y )
 
 		case 'z':
 			//zoom out
-			left 		*= 1 / 0.9;
-			right 	*= 1 / 0.9;
-			top 		*= 1 / 0.9;
-			bottom 	*= 1 / 0.9;
-			zNear 	*= 1 / 0.9;
-			zFar 		*= 1 / 0.9;
+			left 		*= ( 1 / 0.9 );
+			right 	*= ( 1 / 0.9 );
+			top 		*= ( 1 / 0.9 );
+			bottom 	*= ( 1 / 0.9 );
+			zNear 	*= ( 1 / 0.9 );
+			zFar 		*= ( 1 / 0.9 );
 
 			projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 
@@ -572,7 +615,11 @@ void keyboard( unsigned char key, int x, int y )
 
 }
 
+
+
 // ----------------------
+
+
 
 void mouse( int button, int state, int x, int y )
 {
@@ -664,7 +711,8 @@ int main( int argc, char **argv )
 
 
 
-void update_rotation(){
+void update_rotation()
+{ // uses global x rotation, y rotation, z rotation
 	rotation = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv( rotation_position, 1, GL_FALSE,  glm::value_ptr( rotation ) );
 }
