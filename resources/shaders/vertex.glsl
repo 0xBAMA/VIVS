@@ -13,7 +13,9 @@ layout(location = 5)  uniform float sphere_radius;
 
 
 
-#define NUM_TRIANGLES 20
+// #define NUM_TRIANGLES 20
+#define NUM_TRIANGLES 12
+
 
 // going to need to read up on uniform blocks
 
@@ -94,7 +96,7 @@ void main()
 	vec3 calculated_side_3_1_normal;
 
 	bool draw_triangles[NUM_TRIANGLES];
-	bool cutout_center = true; //are we doing the thing?
+	bool cutout_center = false; //are we doing the thing?
 
 	bool center_cutout = false;//is the point in the hole?
 	bool cutout_rim = false;   //or is it on the rim?
@@ -110,11 +112,10 @@ void main()
 	for(int i = 0; i < NUM_TRIANGLES; i++)
 	{
 
-		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
+		colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
 		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 0.7f);
 
-
-		colors[i] = vec4(tricol[i], 1.0f);
+		// colors[i] = vec4(tricol[i], 1.0f);
 
 		//calculate the center of the triangle
 		calculated_triangle_center = ( point1[i] + point2[i] + point3[i] ) / 3.0f;
@@ -208,11 +209,7 @@ void main()
 			}
 		}
 
-
-
 	}
-
-
 
 }
 
@@ -228,6 +225,7 @@ void main()
 
 bool planetest(vec3 plane_point, vec3 plane_normal, vec3 test_point)
 {
+
   //return false if the point is above the plane
 	//return true if the point is below the plane
 
@@ -252,4 +250,5 @@ bool planetest(vec3 plane_point, vec3 plane_normal, vec3 test_point)
 	result = a * (x - x1) + b * (y - y1) + c * (z - z1);
 
 	return (result < 0) ? true : false;
+
 }
