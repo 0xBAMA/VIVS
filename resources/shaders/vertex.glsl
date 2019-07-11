@@ -195,7 +195,7 @@ void main()
 
 
 
-		if(cutout_center) // note that we are inside at least one triangle
+		if(cutout_center) // note that we have checked that we are inside at least one triangle
 		{
 			if( center_cutout )
 			{
