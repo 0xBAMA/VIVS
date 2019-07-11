@@ -13,7 +13,7 @@ layout(location = 5)  uniform float sphere_radius;
 
 
 
-#define NUM_TRIANGLES 12
+#define NUM_TRIANGLES 20
 
 // going to need to read up on uniform blocks
 
@@ -94,6 +94,11 @@ void main()
 	vec3 calculated_side_3_1_normal;
 
 	bool draw_triangles[NUM_TRIANGLES];
+	bool cutout_center = true; //are we doing the thing?
+
+	bool center_cutout = false;//is the point in the hole?
+	bool cutout_rim = false;   //or is it on the rim?
+
 	vec4 colors[NUM_TRIANGLES];
 
 	int how_many_being_drawn = 0;
@@ -106,11 +111,32 @@ void main()
 	{
 
 		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
+		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 0.7f);
+
 
 		colors[i] = vec4(tricol[i], 1.0f);
 
 		//calculate the center of the triangle
 		calculated_triangle_center = ( point1[i] + point2[i] + point3[i] ) / 3.0f;
+
+
+
+
+
+		if(cutout_center)
+		{
+			if(distance(calculated_triangle_center, vPosition.xyz) < 0.038)
+			{
+				center_cutout = true;
+			}
+			else if(distance(calculated_triangle_center, vPosition.xyz) < 0.045)
+			{
+				cutout_rim = true;
+			}
+		}
+
+
+
 
 		//calculate the top normal vector of the triangle
 		calculated_top_normal = normalize( cross( point1[i] - point2[i], point1[i] - point3[i] ) );
@@ -159,10 +185,33 @@ void main()
 
 
 	if(how_many_being_drawn > 0)
-	{
+	{// at least one triangle is being drawn
+
 		color = sum / how_many_being_drawn;
 		// color = colors[how_many_being_drawn-1];
+
+
+
+
+
+
+		if(cutout_center) // note that we are inside at least one triangle
+		{
+			if( center_cutout )
+			{
+				color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+			}
+
+			if( cutout_rim )
+			{
+				color = vec4(0.7f, 0.3f, 0.0f, 1.0f);
+			}
+		}
+
+
+
 	}
+
 
 
 }
