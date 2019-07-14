@@ -1,6 +1,6 @@
-CC = g++
+CC = g++ -time
 
-MAKE_EXE = -time -o
+MAKE_EXE = -o
 
 GL_FLAGS = -lglut -lGLEW -lGL -lGLU
 
@@ -10,10 +10,12 @@ UNNECCESARY_DEBUG = -Wall -Wextra -pedantic
 
 
 
-all: exe david ico
+all: exe examples
 
 exe: main.cc
 	$(CC) main.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) exe
+
+examples: david ico
 
 david: examples/david/david.cc
 	$(CC) examples/david/david.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/david/david
