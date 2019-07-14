@@ -5,6 +5,8 @@ using std::cin;
 
 #include <vector>   //container
 
+#include <cstdlib> //atoi
+
 #include <string>
 using std::string;
 
@@ -12,7 +14,7 @@ using std::string;
 
 
 // Good, simple png library
-#include "resources/lodepng.h"
+#include "../../resources/lodepng.h"
 
 
 // GLEW
@@ -26,14 +28,14 @@ using std::string;
 
 
 // Shader Compilation
-#include "resources/shaders/Shader.h"
+#include "../../resources/shaders/Shader.h"
 
 
 // glsl-style Vector and Matrix Library - separate includes for different functionality
-#include "resources/glm/glm.hpp" 									// general types
-#include "resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
-#include "resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
-#include "resources/glm/gtx/transform.hpp"				// rotate()
+#include "../../resources/glm/glm.hpp" 									// general types
+#include "../../resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
+#include "../../resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
+#include "../../resources/glm/gtx/transform.hpp"				// rotate()
 
 typedef glm::vec4 vec;
 
@@ -52,14 +54,17 @@ const int image_height = 768;
 const int image_width = 1366;
 
 
-//How many verticies to use, to represent all the voxels
-const int points_per_side = 100;
-const int NumVertices = points_per_side * points_per_side * points_per_side;
+//How many verticies to use, to represent all the voxels (DEFAULTS)
+int points_per_side = 100;
+int NumVertices = points_per_side * points_per_side * points_per_side;
 
 long int numFrames = 0;
 
 //and the array to hold them
-vec points[NumVertices];
+const int MaxVerticies = 64000000;
+vec points[MaxVerticies];
+
+
 
 
 
@@ -98,7 +103,6 @@ glm::vec3 sphere_center_value;
 
 
 #define NUM_TRIANGLES 12
-// #define NUM_TRIANGLES 20
 
 
 //TRIANGLE
@@ -227,7 +231,7 @@ void init()
 	unsigned width, height;
 	std::vector<unsigned char> image_data;
 
-	unsigned error = lodepng::decode( image_data, width, height, "AustraliaHeightmap.png", LCT_GREY, 8 );
+	unsigned error = lodepng::decode( image_data, width, height, "../../AustraliaHeightmap.png", LCT_GREY, 8 );
 
 	if( error == 0 )
 	{
@@ -270,7 +274,7 @@ void init()
 	// glBufferData( GL_ARRAY_BUFFER, sizeof(points) + sizeof(colors), NULL, GL_STATIC_DRAW );	//replace the above line with this to add buffer space for per-vertex colors
 	// glBufferSubData( GL_ARRAY_BUFFER, sizeof(points), sizeof(colors), colors );					  	//then use this to buffer this data
 
-	glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(points), points );
+	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points );
 
 
 	// Use the shader program ( compiled in the initialization )
@@ -829,11 +833,27 @@ int main( int argc, char **argv )
 
 	cout << "Shader Compilation Starting...";
 
-	Shader theShader( "resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl" );
+	Shader theShader( "vertex_david.glsl", "fragment_david.glsl" );
 
 	shader_handle = theShader.Program;
 
 	cout << "\rShader Compilation Complete.  " << endl;
+
+
+	if(argc == 2) //input argument defines edge length
+	{
+		points_per_side = atoi(argv[1]);
+
+		NumVertices = points_per_side * points_per_side * points_per_side;
+
+		if(NumVertices >= MaxVerticies)
+		{
+			cout << "too big a number, exiting" << endl;
+			exit(-1);
+		}
+	}
+
+	//otherwise use the default
 
 
 

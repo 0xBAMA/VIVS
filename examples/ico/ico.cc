@@ -5,6 +5,8 @@ using std::cin;
 
 #include <vector>   //container
 
+#include <cstdlib> //atoi
+
 #include <string>
 using std::string;
 
@@ -12,7 +14,7 @@ using std::string;
 
 
 // Good, simple png library
-#include "resources/lodepng.h"
+#include "../../resources/lodepng.h"
 
 
 // GLEW
@@ -26,14 +28,14 @@ using std::string;
 
 
 // Shader Compilation
-#include "resources/shaders/Shader.h"
+#include "../../resources/shaders/Shader.h"
 
 
 // glsl-style Vector and Matrix Library - separate includes for different functionality
-#include "resources/glm/glm.hpp" 									// general types
-#include "resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
-#include "resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
-#include "resources/glm/gtx/transform.hpp"				// rotate()
+#include "../../resources/glm/glm.hpp" 									// general types
+#include "../../resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
+#include "../../resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
+#include "../../resources/glm/gtx/transform.hpp"				// rotate()
 
 typedef glm::vec4 vec;
 
@@ -52,14 +54,17 @@ const int image_height = 768;
 const int image_width = 1366;
 
 
-//How many verticies to use, to represent all the voxels
-const int points_per_side = 100;
-const int NumVertices = points_per_side * points_per_side * points_per_side;
+//How many verticies to use, to represent all the voxels (DEFAULTS)
+int points_per_side = 100;
+int NumVertices = points_per_side * points_per_side * points_per_side;
 
 long int numFrames = 0;
 
 //and the array to hold them
-vec points[NumVertices];
+const int MaxVerticies = 64000000;
+vec points[MaxVerticies];
+
+
 
 
 
@@ -97,8 +102,7 @@ float sphere_radius_value;
 glm::vec3 sphere_center_value;
 
 
-#define NUM_TRIANGLES 12
-// #define NUM_TRIANGLES 20
+#define NUM_TRIANGLES 20
 
 
 //TRIANGLE
@@ -227,7 +231,7 @@ void init()
 	unsigned width, height;
 	std::vector<unsigned char> image_data;
 
-	unsigned error = lodepng::decode( image_data, width, height, "AustraliaHeightmap.png", LCT_GREY, 8 );
+	unsigned error = lodepng::decode( image_data, width, height, "../../AustraliaHeightmap.png", LCT_GREY, 8 );
 
 	if( error == 0 )
 	{
@@ -270,7 +274,7 @@ void init()
 	// glBufferData( GL_ARRAY_BUFFER, sizeof(points) + sizeof(colors), NULL, GL_STATIC_DRAW );	//replace the above line with this to add buffer space for per-vertex colors
 	// glBufferSubData( GL_ARRAY_BUFFER, sizeof(points), sizeof(colors), colors );					  	//then use this to buffer this data
 
-	glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(points), points );
+	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points );
 
 
 	// Use the shader program ( compiled in the initialization )
@@ -333,162 +337,108 @@ void init()
 
 // INITIAL TRIANGLE DATA
 
+	float t = (1.0f + std::sqrt( 5.0f ) ) / 2.0f;
+	float nt = t * -1.0f;
 
-//this is for the star of david that aligns once per rotation
+	glm::vec3 i00 = glm::vec3(-1.0f, t, 0.0f);
+	glm::vec3 i01 = glm::vec3( 1.0f, t, 0.0f);
+	glm::vec3 i02 = glm::vec3(-1.0f, nt, 0.0f);
+	glm::vec3 i03 = glm::vec3( 1.0f, nt, 0.0f);
 
-	point1[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
-	point2[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
-	point3[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
+	glm::vec3 i04 = glm::vec3(0.0f, -1.0f, t);
+	glm::vec3 i05 = glm::vec3(0.0f, 1.0f, t);
+	glm::vec3 i06 = glm::vec3(0.0f, -1.0f, nt);
+	glm::vec3 i07 = glm::vec3(0.0f, 1.0f, nt);
 
-	point1[1] = glm::vec3(  0.0f, -0.2f, -0.2f );
-	point2[1] = glm::vec3( -0.2f,  0.0f, -0.2f );
-	point3[1] = glm::vec3( -0.2f, -0.2f,  0.0f );
+	glm::vec3 i08 = glm::vec3(t, 0.0f, -1.0f);
+	glm::vec3 i09 = glm::vec3(t, 0.0f, 1.0f);
+	glm::vec3 i10 = glm::vec3(nt, 0.0f, -1.0f);
+	glm::vec3 i11 = glm::vec3(nt, 0.0f, 1.0f);
 
-	point1[2] = glm::vec3(  0.0f, -0.2f, -0.2f );
-	point2[2] = glm::vec3( -0.2f,  0.0f, -0.2f );
-	point3[2] = glm::vec3( -0.2f, -0.2f,  0.0f );
+	float inc = 1.0f/20.0f;
 
+	for(int i = 0; i < NUM_TRIANGLES; i++)
+		tricol[i] = glm::vec3(i*inc, i*inc, i*inc);
 
-	point1[3] = glm::vec3(  0.0f,  0.2f,  0.2f );
-	point2[3] = glm::vec3(  0.2f,  0.0f,  0.2f );
-	point3[3] = glm::vec3(  0.2f,  0.2f,  0.0f );
+	point1[0] = i00 * 0.1f;
+	point2[0] = i11 * 0.1f;
+	point3[0] = i05 * 0.1f;
 
-	point1[4] = glm::vec3(  0.0f,  0.2f,  0.2f );
-	point2[4] = glm::vec3(  0.2f,  0.0f,  0.2f );
-	point3[4] = glm::vec3(  0.2f,  0.2f,  0.0f );
+	point1[1] = i00 * 0.1f;
+	point2[1] = i05 * 0.1f;
+	point3[1] = i01 * 0.1f;
 
-	point1[5] = glm::vec3(  0.0f,  0.2f,  0.2f );
-	point2[5] = glm::vec3(  0.2f,  0.0f,  0.2f );
-	point3[5] = glm::vec3(  0.2f,  0.2f,  0.0f );
+	point1[2] = i00 * 0.1f;
+	point2[2] = i01 * 0.1f;
+	point3[2] = i07 * 0.1f;
 
+	point1[3] = i00 * 0.1f;
+	point2[3] = i07 * 0.1f;
+	point3[3] = i10 * 0.1f;
 
-	point1[6] = glm::vec3(  0.3f, -0.1f, -0.1f );
-	point2[6] = glm::vec3( -0.1f,  0.3f, -0.1f );
-	point3[6] = glm::vec3( -0.1f, -0.1f,  0.3f );
+	point1[4] = i00 * 0.1f;
+	point2[4] = i10 * 0.1f;
+	point3[4] = i11 * 0.1f;
 
-	point1[7] = glm::vec3(  0.3f, -0.1f, -0.1f );
-	point2[7] = glm::vec3( -0.1f,  0.3f, -0.1f );
-	point3[7] = glm::vec3( -0.1f, -0.1f,  0.3f );
+	point1[5] = i01 * 0.1f;
+	point2[5] = i05 * 0.1f;
+	point3[5] = i09 * 0.1f;
 
-	point1[8] = glm::vec3(  0.3f, -0.1f, -0.1f );
-	point2[8] = glm::vec3( -0.1f,  0.3f, -0.1f );
-	point3[8] = glm::vec3( -0.1f, -0.1f,  0.3f );
+	point1[6] = i05 * 0.1f;
+	point2[6] = i11 * 0.1f;
+	point3[6] = i04 * 0.1f;
 
+	point1[7] = i11 * 0.1f;
+	point2[7] = i10 * 0.1f;
+	point3[7] = i02 * 0.1f;
 
-	point1[9] = glm::vec3(  -0.3f,  0.1f,  0.1f );
-	point2[9] = glm::vec3(  0.1f,  -0.3f,  0.1f );
-	point3[9] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+	point1[8] = i10 * 0.1f;
+	point2[8] = i07 * 0.1f;
+	point3[8] = i06 * 0.1f;
 
-	point1[10] = glm::vec3(  -0.3f,  0.1f,  0.1f );
-	point2[10] = glm::vec3(  0.1f,  -0.3f,  0.1f );
-	point3[10] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+	point1[9] = i07 * 0.1f;
+	point2[9] = i01 * 0.1f;
+	point3[9] = i08 * 0.1f;
 
-	point1[11] = glm::vec3(  -0.3f,  0.1f,  0.1f );
-	point2[11] = glm::vec3(  0.1f,  -0.3f,  0.1f );
-	point3[11] = glm::vec3(  0.1f,  0.1f,  -0.3f );
+	point1[10] = i03 * 0.1f;
+	point2[10] = i09 * 0.1f;
+	point3[10] = i04 * 0.1f;
 
-	// float t = (1.0f + std::sqrt( 5.0f ) ) / 2.0f;
-	// float nt = t * -1.0f;
-	//
-	// glm::vec3 i00 = glm::vec3(-1.0f, t, 0.0f);
-	// glm::vec3 i01 = glm::vec3( 1.0f, t, 0.0f);
-	// glm::vec3 i02 = glm::vec3(-1.0f, nt, 0.0f);
-	// glm::vec3 i03 = glm::vec3( 1.0f, nt, 0.0f);
-	//
-	// glm::vec3 i04 = glm::vec3(0.0f, -1.0f, t);
-	// glm::vec3 i05 = glm::vec3(0.0f, 1.0f, t);
-	// glm::vec3 i06 = glm::vec3(0.0f, -1.0f, nt);
-	// glm::vec3 i07 = glm::vec3(0.0f, 1.0f, nt);
-	//
-	// glm::vec3 i08 = glm::vec3(t, 0.0f, -1.0f);
-	// glm::vec3 i09 = glm::vec3(t, 0.0f, 1.0f);
-	// glm::vec3 i10 = glm::vec3(nt, 0.0f, -1.0f);
-	// glm::vec3 i11 = glm::vec3(nt, 0.0f, 1.0f);
-	//
-	// float inc = 1.0f/20.0f;
-	//
-	// for(int i = 0; i < NUM_TRIANGLES; i++)
-	// 	tricol[i] = glm::vec3(i*inc, i*inc, i*inc);
-	//
-	// point1[0] = i00 * 0.1f;
-	// point2[0] = i11 * 0.1f;
-	// point3[0] = i05 * 0.1f;
-	//
-	// point1[1] = i00 * 0.1f;
-	// point2[1] = i05 * 0.1f;
-	// point3[1] = i01 * 0.1f;
-	//
-	// point1[2] = i00 * 0.1f;
-	// point2[2] = i01 * 0.1f;
-	// point3[2] = i07 * 0.1f;
-	//
-	// point1[3] = i00 * 0.1f;
-	// point2[3] = i07 * 0.1f;
-	// point3[3] = i10 * 0.1f;
-	//
-	// point1[4] = i00 * 0.1f;
-	// point2[4] = i10 * 0.1f;
-	// point3[4] = i11 * 0.1f;
-	//
-	// point1[5] = i01 * 0.1f;
-	// point2[5] = i05 * 0.1f;
-	// point3[5] = i09 * 0.1f;
-	//
-	// point1[6] = i05 * 0.1f;
-	// point2[6] = i11 * 0.1f;
-	// point3[6] = i04 * 0.1f;
-	//
-	// point1[7] = i11 * 0.1f;
-	// point2[7] = i10 * 0.1f;
-	// point3[7] = i02 * 0.1f;
-	//
-	// point1[8] = i10 * 0.1f;
-	// point2[8] = i07 * 0.1f;
-	// point3[8] = i06 * 0.1f;
-	//
-	// point1[9] = i07 * 0.1f;
-	// point2[9] = i01 * 0.1f;
-	// point3[9] = i08 * 0.1f;
-	//
-	// point1[10] = i03 * 0.1f;
-	// point2[10] = i09 * 0.1f;
-	// point3[10] = i04 * 0.1f;
-	//
-	// point1[11] = i03 * 0.1f;
-	// point2[11] = i04 * 0.1f;
-	// point3[11] = i02 * 0.1f;
-	//
-	// point1[12] = i03 * 0.1f;
-	// point2[12] = i02 * 0.1f;
-	// point3[12] = i06 * 0.1f;
-	//
-	// point1[13] = i03 * 0.1f;
-	// point2[13] = i06 * 0.1f;
-	// point3[13] = i08 * 0.1f;
-	//
-	// point1[14] = i03 * 0.1f;
-	// point2[14] = i08 * 0.1f;
-	// point3[14] = i09 * 0.1f;
-	//
-	// point1[15] = i04 * 0.1f;
-	// point2[15] = i09 * 0.1f;
-	// point3[15] = i05 * 0.1f;
-	//
-	// point1[16] = i02 * 0.1f;
-	// point2[16] = i04 * 0.1f;
-	// point3[16] = i11 * 0.1f;
-	//
-	// point1[17] = i06 * 0.1f;
-	// point2[17] = i02 * 0.1f;
-	// point3[17] = i10 * 0.1f;
-	//
-	// point1[18] = i08 * 0.1f;
-	// point2[18] = i06 * 0.1f;
-	// point3[18] = i07 * 0.1f;
-	//
-	// point1[19] = i09 * 0.1f;
-	// point2[19] = i08 * 0.1f;
-	// point3[19] = i01 * 0.1f;
+	point1[11] = i03 * 0.1f;
+	point2[11] = i04 * 0.1f;
+	point3[11] = i02 * 0.1f;
+
+	point1[12] = i03 * 0.1f;
+	point2[12] = i02 * 0.1f;
+	point3[12] = i06 * 0.1f;
+
+	point1[13] = i03 * 0.1f;
+	point2[13] = i06 * 0.1f;
+	point3[13] = i08 * 0.1f;
+
+	point1[14] = i03 * 0.1f;
+	point2[14] = i08 * 0.1f;
+	point3[14] = i09 * 0.1f;
+
+	point1[15] = i04 * 0.1f;
+	point2[15] = i09 * 0.1f;
+	point3[15] = i05 * 0.1f;
+
+	point1[16] = i02 * 0.1f;
+	point2[16] = i04 * 0.1f;
+	point3[16] = i11 * 0.1f;
+
+	point1[17] = i06 * 0.1f;
+	point2[17] = i02 * 0.1f;
+	point3[17] = i10 * 0.1f;
+
+	point1[18] = i08 * 0.1f;
+	point2[18] = i06 * 0.1f;
+	point3[18] = i07 * 0.1f;
+
+	point1[19] = i09 * 0.1f;
+	point2[19] = i08 * 0.1f;
+	point3[19] = i01 * 0.1f;
 
 	thickness = 0.04f;
 
@@ -496,7 +446,7 @@ void init()
 	glUniform3fv( point2_position, NUM_TRIANGLES, glm::value_ptr( point2[0] ) );
 	glUniform3fv( point3_position, NUM_TRIANGLES, glm::value_ptr( point3[0] ) );
 
-	// glUniform3fv( tricol_position, NUM_TRIANGLES, glm::value_ptr( tricol[0] ) );
+	glUniform3fv( tricol_position, NUM_TRIANGLES, glm::value_ptr( tricol[0] ) );
 
 
 	glUniform1fv( thickness_position, 1, &thickness);
@@ -539,28 +489,12 @@ void timer(int)
 	vec point3_temp;
 
 	// variable axis of rotation
-	glm::vec3 axis;
+	glm::vec3 axis = glm::vec3(0.0f, 0.0f, 1.0f);
 
 	if(rotate_triangle)
 	{
 		for(int i = 0; i < NUM_TRIANGLES; i++)
 		{
-
-			switch(i % 3)
-			{
-				case 0:
-					axis = glm::vec3(1.0f, 0.0f, 0.0f);
-					break;
-				case 1:
-					axis = glm::vec3(0.0f, 1.0f, 0.0f);
-					break;
-				case 2:
-					axis = glm::vec3(0.0f, 0.0f, 1.0f);
-					break;
-			}
-
-			// axis = glm::vec3(0.0f, 0.0f, 1.0f);
-
 			point1_temp = glm::rotate(0.01f, axis) * vec(point1[i], 1.0f);
 			point2_temp = glm::rotate(0.01f, axis) * vec(point2[i], 1.0f);
 			point3_temp = glm::rotate(0.01f, axis) * vec(point3[i], 1.0f);
@@ -829,11 +763,27 @@ int main( int argc, char **argv )
 
 	cout << "Shader Compilation Starting...";
 
-	Shader theShader( "resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl" );
+	Shader theShader( "vertex_ico.glsl", "fragment_ico.glsl" );
 
 	shader_handle = theShader.Program;
 
 	cout << "\rShader Compilation Complete.  " << endl;
+
+
+	if(argc == 2) //input argument defines edge length
+	{
+		points_per_side = atoi(argv[1]);
+
+		NumVertices = points_per_side * points_per_side * points_per_side;
+
+		if(NumVertices >= MaxVerticies)
+		{
+			cout << "too big a number, exiting" << endl;
+			exit(-1);
+		}
+	}
+
+	//otherwise use the default
 
 
 
