@@ -72,43 +72,108 @@ vec points[MaxVerticies];
 // const int vColor_index = 0;
 GLuint vPosition_index = 1;
 
-GLuint view_position = 2;
-GLuint rotation_position = 3;
+GLuint view_location = 2;
+GLuint rotation_location = 3;
 
 // shape parameters
 
-GLuint sphere_center_position;
-GLuint sphere_radius_position;
+
 
 
 // not worrying about location, using glGetUniformLocation in the initialization to get the values
-GLuint triangle_point1_position;
-GLuint triangle_point2_position;
-GLuint triangle_point3_position;
 
-GLuint tricol_position;
-
-GLuint thickness_position;
 
 
 // used to hold the geometry values CPU-side
 
-//SPHERE
-float sphere_radius_value;
-glm::vec3 sphere_center_value;
 
-
+#define NUM_SPHERES   1
 #define NUM_TRIANGLES 1
+#define NUM_QUAD_HEXS 1
+#define NUM_CYLINDERS 1
+
+
+//SPHERE
+GLuint sphere_center_location;
+glm::vec3 sphere_center_value[NUM_SPHERES];
+
+GLuint sphere_radius_location;
+float sphere_radius_value[NUM_SPHERES];
+
+GLuint sphere_colors_location;
+vec sphere_colors_values[NUM_SPHERES];
+
+
+
 
 
 //TRIANGLE
-glm::vec3 triangle_point1[NUM_TRIANGLES];
-glm::vec3 triangle_point2[NUM_TRIANGLES];
-glm::vec3 triangle_point3[NUM_TRIANGLES];
+GLuint triangle_point1_location;
+glm::vec3 triangle_point1_values[NUM_TRIANGLES];
 
-glm::vec3 tricol[NUM_TRIANGLES];
+GLuint triangle_point2_location;
+glm::vec3 triangle_point2_values[NUM_TRIANGLES];
 
-float thickness;
+GLuint triangle_point3_location;
+glm::vec3 triangle_point3_values[NUM_TRIANGLES];
+
+GLuint triangle_colors_location;
+vec triangle_color_values[NUM_TRIANGLES];
+
+GLuint triangle_thickness_location;
+float thickness[NUM_TRIANGLES];
+
+
+
+
+
+//QUAD HEX/CUBOID VALUES
+GLuint cuboid_a_location;
+glm::vec3 cuboid_a_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_b_location;
+glm::vec3 cuboid_b_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_c_location;
+glm::vec3 cuboid_c_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_d_location;
+glm::vec3 cuboid_d_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_e_location;
+glm::vec3 cuboid_e_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_f_location;
+glm::vec3 cuboid_f_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_g_location;
+glm::vec3 cuboid_g_values[NUM_QUAD_HEXS];
+
+GLuint cuboid_h_location;
+glm::vec3 cuboid_h_values[NUM_QUAD_HEXS];
+
+
+GLuint cuboid_colors_location;
+vec cuboid_color_values[NUM_QUAD_HEXS];
+
+
+
+
+
+
+//CYLINDER VALUES
+GLuint cylinder_tvec_location;
+glm::vec3 cylinder_tvec_values[NUM_CYLINDERS];
+
+GLuint cylinder_bvec_location;
+glm::vec3 cylinder_bvec_values[NUM_CYLINDERS];
+
+
+GLuint cylinder_radii_location;
+float cylinder_radii_values[NUM_CYLINDERS];
+
+GLuint cylinder_colors_location;
+vec cylinder_color_values[NUM_CYLINDERS];
 
 
 
@@ -139,6 +204,7 @@ glm::mat4 projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 
 float point_size = 2.0;
 bool rotate_triangle = true;
+bool rotate_hexahedrons = true;
 
 
 
@@ -296,60 +362,168 @@ void init()
 
 // TRANSFORMS
 
-	view_position = glGetUniformLocation( shader_handle, "view" );
-	rotation_position = glGetUniformLocation( shader_handle, "rotation" );
+	view_location = glGetUniformLocation( shader_handle, "view" );
+	rotation_location = glGetUniformLocation( shader_handle, "rotation" );
 
 
-	glUniformMatrix4fv( view_position, 1, GL_FALSE,  glm::value_ptr( projection ) );
-	glUniformMatrix4fv( rotation_position, 1, GL_FALSE,  glm::value_ptr( rotation ) );
+	glUniformMatrix4fv( view_location, 1, GL_FALSE,  glm::value_ptr( projection ) );
+	glUniformMatrix4fv( rotation_location, 1, GL_FALSE,  glm::value_ptr( rotation ) );
 
 
 // GEOMETRY
 
-// SPHERE VALUES
-
-	sphere_center_position = glGetUniformLocation( shader_handle, "sphere_center" );
-	sphere_radius_position = glGetUniformLocation( shader_handle, "sphere_radius" );
-
-// INITIAL SPHERE DATA
-
-	sphere_center_value = glm::vec3( 0.0f, 0.0f, 0.0f );
-	sphere_radius_value = 0.7f;
-
-	glUniform3fv(sphere_center_position, 1, glm::value_ptr( sphere_center_value ) );
-	glUniform1fv(sphere_radius_position, 1, &sphere_radius_value );
 
 
-// TRIANGLE VALUES
+//SPHERES
 
-	triangle_point1_position = glGetUniformLocation( shader_handle, "triangle_point1" );
-	triangle_point2_position = glGetUniformLocation( shader_handle, "triangle_point2" );
-	triangle_point3_position = glGetUniformLocation( shader_handle, "triangle_point3" );
+	// SPHERE VALUES
 
-	tricol_position = glGetUniformLocation( shader_handle, "tricol" );
+		sphere_center_location = glGetUniformLocation( shader_handle, "sphere_center" );
+		sphere_radius_location = glGetUniformLocation( shader_handle, "sphere_radius" );
+		sphere_colors_location = glGetUniformLocation( shader_handle, "sphere_colors" );
 
-	thickness_position = glGetUniformLocation( shader_handle, "thickness" );
+	// INITIAL SPHERE DATA
 
+		sphere_center_value[0] = glm::vec3( 0.0f, 0.0f, 0.0f );
+		sphere_radius_value[0] = 0.22f;
+		sphere_colors_values[0] = vec(0.5f, 0.0f, 0.1f, 0.2f);
 
-// INITIAL TRIANGLE DATA
-
-
-//this is just to maintain a placeholder
-
-	triangle_point1[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
-	triangle_point2[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
-	triangle_point3[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
-
-	thickness = 0.04f;
-
- 	glUniform3fv( triangle_point1_position, NUM_TRIANGLES, glm::value_ptr( triangle_point1[0] ) );
-	glUniform3fv( triangle_point2_position, NUM_TRIANGLES, glm::value_ptr( triangle_point2[0] ) );
-	glUniform3fv( triangle_point3_position, NUM_TRIANGLES, glm::value_ptr( triangle_point3[0] ) );
-
-	// glUniform3fv( tricol_position, NUM_TRIANGLES, glm::value_ptr( tricol[0] ) );
+		glUniform3fv(sphere_center_location, NUM_SPHERES, glm::value_ptr( sphere_center_value[0] ) );
+		glUniform1fv(sphere_radius_location, NUM_SPHERES, &sphere_radius_value[0] );
+		glUniform4fv(sphere_colors_location, NUM_SPHERES, glm::value_ptr( sphere_colors_values[0] ) );
 
 
-	glUniform1fv( thickness_position, 1, &thickness);
+
+
+
+
+
+
+
+
+
+
+//TRIANGLES
+
+	// TRIANGLE VALUES
+
+		triangle_point1_location = glGetUniformLocation( shader_handle, "triangle_point1" );
+		triangle_point2_location = glGetUniformLocation( shader_handle, "triangle_point2" );
+		triangle_point3_location = glGetUniformLocation( shader_handle, "triangle_point3" );
+
+		triangle_colors_location = glGetUniformLocation( shader_handle, "triangle_colors" );
+
+		triangle_thickness_location = glGetUniformLocation( shader_handle, "triangle_thickness" );
+
+
+	// INITIAL TRIANGLE DATA
+
+
+	//this is just to maintain a placeholder
+
+		triangle_point1_values[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
+		triangle_point2_values[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
+		triangle_point3_values[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
+
+		triangle_color_values[0] = glm::vec4( 0.99f, 0.25f, 0.29f, 1.0f );
+
+		thickness[0] = 0.04f;
+
+	 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
+		glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
+		glUniform3fv( triangle_point3_location, NUM_TRIANGLES, glm::value_ptr( triangle_point3_values[0] ) );
+
+		glUniform3fv( triangle_colors_location, NUM_TRIANGLES, glm::value_ptr( triangle_color_values[0] ) );
+
+
+		glUniform1fv( triangle_thickness_location, NUM_TRIANGLES, &thickness[0]);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//QUADRILATERAL HEXAHEDRON (CUBOID)
+
+	cuboid_a_location = glGetUniformLocation( shader_handle, "cuboid_a");
+	cuboid_b_location = glGetUniformLocation( shader_handle, "cuboid_b");
+	cuboid_c_location = glGetUniformLocation( shader_handle, "cuboid_c");
+	cuboid_d_location = glGetUniformLocation( shader_handle, "cuboid_d");
+	cuboid_e_location = glGetUniformLocation( shader_handle, "cuboid_e");
+	cuboid_f_location = glGetUniformLocation( shader_handle, "cuboid_f");
+	cuboid_g_location = glGetUniformLocation( shader_handle, "cuboid_g");
+	cuboid_h_location = glGetUniformLocation( shader_handle, "cuboid_h");
+
+	cuboid_colors_location = glGetUniformLocation( shader_handle, "cuboid_colors");
+
+
+	float p =  0.2f;
+	float n = -0.2f;
+
+	cuboid_a_values[0] = glm::vec3( n, p, p);
+	cuboid_b_values[0] = glm::vec3( n, n, p);
+	cuboid_c_values[0] = glm::vec3( p, p, p);
+	cuboid_d_values[0] = glm::vec3( p, n, p);
+	cuboid_e_values[0] = glm::vec3( n, p, n);
+	cuboid_f_values[0] = glm::vec3( n, n, n);
+	cuboid_g_values[0] = glm::vec3( p, p, n);
+	cuboid_h_values[0] = glm::vec3( p, n, n);
+
+	cuboid_color_values[0] = vec(0.0f, 0.0f, 0.0f, 1.0f);
+
+
+	glUniform3fv(cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
+	glUniform3fv(cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
+	glUniform3fv(cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
+	glUniform3fv(cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
+	glUniform3fv(cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
+	glUniform3fv(cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
+	glUniform3fv(cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
+	glUniform3fv(cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
+
+	glUniform4fv(cuboid_colors_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_color_values[0] ) );
+
+
+
+
+
+
+
+
+
+
+
+
+
+//CYLINDERS
+
+	cylinder_tvec_location = glGetUniformLocation( shader_handle, "cylinder_tvec");
+	cylinder_bvec_location = glGetUniformLocation( shader_handle, "cylinder_bvec");
+	cylinder_radii_location = glGetUniformLocation( shader_handle, "cylinder_radii");
+	cylinder_colors_location = glGetUniformLocation( shader_handle, "cylinder_colors");
+
+
+	cylinder_tvec_values[0] = glm::vec3(-1.0f, -1.0f, -1.0f);
+	cylinder_bvec_values[0] = glm::vec3(1.0f, 1.0f, 1.0f);
+	cylinder_radii_values[0] = 0.3f;
+	cylinder_color_values[0] = vec(0.0f, 0.0f, 1.0f, 1.0f);
+
+
+	glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
+	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
+	glUniform1fv(cylinder_radii_location, NUM_CYLINDERS, &cylinder_radii_values[0] );
+	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
+
+
+
 
 }
 
@@ -411,18 +585,67 @@ void timer(int)
 
 			// axis = glm::vec3(0.0f, 0.0f, 1.0f);
 
-			triangle_point1_temp = glm::rotate(0.01f, axis) * vec(triangle_point1[i], 1.0f);
-			triangle_point2_temp = glm::rotate(0.01f, axis) * vec(triangle_point2[i], 1.0f);
-			triangle_point3_temp = glm::rotate(0.01f, axis) * vec(triangle_point3[i], 1.0f);
+			triangle_point1_temp = glm::rotate(0.01f, axis) * vec(triangle_point1_values[i], 1.0f);
+			triangle_point2_temp = glm::rotate(0.01f, axis) * vec(triangle_point2_values[i], 1.0f);
+			triangle_point3_temp = glm::rotate(0.01f, axis) * vec(triangle_point3_values[i], 1.0f);
 
-			triangle_point1[i] = triangle_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
-			triangle_point2[i] = triangle_point2_temp;
-			triangle_point3[i] = triangle_point3_temp;
+			triangle_point1_values[i] = triangle_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
+			triangle_point2_values[i] = triangle_point2_temp;
+			triangle_point3_values[i] = triangle_point3_temp;
+
+		 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
+			glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
+			glUniform3fv( triangle_point3_location, NUM_TRIANGLES, glm::value_ptr( triangle_point3_values[0] ) );
+
+		}
+	}
+
+	vec cuboid_a_temp;
+	vec cuboid_b_temp;
+	vec cuboid_c_temp;
+	vec cuboid_d_temp;
+	vec cuboid_e_temp;
+	vec cuboid_f_temp;
+	vec cuboid_g_temp;
+	vec cuboid_h_temp;
+
+
+	if(rotate_hexahedrons)
+	{
+		for(int i = 0; i < NUM_QUAD_HEXS; i++)
+		{
+
+			axis = glm::vec3(0.0f, 1.0f, 1.0f);
+
+			cuboid_a_temp = glm::rotate(0.01f, axis) * vec(cuboid_a_values[i], 1.0f);
+			cuboid_b_temp = glm::rotate(0.01f, axis) * vec(cuboid_b_values[i], 1.0f);
+			cuboid_c_temp = glm::rotate(0.01f, axis) * vec(cuboid_c_values[i], 1.0f);
+			cuboid_d_temp = glm::rotate(0.01f, axis) * vec(cuboid_d_values[i], 1.0f);
+			cuboid_e_temp = glm::rotate(0.01f, axis) * vec(cuboid_e_values[i], 1.0f);
+			cuboid_f_temp = glm::rotate(0.01f, axis) * vec(cuboid_f_values[i], 1.0f);
+			cuboid_g_temp = glm::rotate(0.01f, axis) * vec(cuboid_g_values[i], 1.0f);
+			cuboid_h_temp = glm::rotate(0.01f, axis) * vec(cuboid_h_values[i], 1.0f);
+
+
+			cuboid_a_values[i] = cuboid_a_temp;
+			cuboid_b_values[i] = cuboid_b_temp;
+			cuboid_c_values[i] = cuboid_c_temp;
+			cuboid_d_values[i] = cuboid_d_temp;
+			cuboid_e_values[i] = cuboid_e_temp;
+			cuboid_f_values[i] = cuboid_f_temp;
+			cuboid_g_values[i] = cuboid_g_temp;
+			cuboid_h_values[i] = cuboid_h_temp;
+
 		}
 
-	 	glUniform3fv( triangle_point1_position, NUM_TRIANGLES, glm::value_ptr( triangle_point1[0] ) );
-		glUniform3fv( triangle_point2_position, NUM_TRIANGLES, glm::value_ptr( triangle_point2[0] ) );
-		glUniform3fv( triangle_point3_position, NUM_TRIANGLES, glm::value_ptr( triangle_point3[0] ) );
+		glUniform3fv( cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
+		glUniform3fv( cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
+		glUniform3fv( cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
+		glUniform3fv( cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
+		glUniform3fv( cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
+		glUniform3fv( cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
+		glUniform3fv( cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
+		glUniform3fv( cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
 
 	}
 
@@ -474,7 +697,7 @@ void keyboard( unsigned char key, int x, int y )
 
 			projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 
-			glUniformMatrix4fv( view_position, 1, GL_FALSE,  glm::value_ptr( projection ) );
+			glUniformMatrix4fv( view_location, 1, GL_FALSE,  glm::value_ptr( projection ) );
 			break;
 
 		case 'z':
@@ -488,7 +711,7 @@ void keyboard( unsigned char key, int x, int y )
 
 			projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 
-			glUniformMatrix4fv( view_position, 1, GL_FALSE,  glm::value_ptr( projection ) );
+			glUniformMatrix4fv( view_location, 1, GL_FALSE,  glm::value_ptr( projection ) );
 			break;
 
 		case 's':
@@ -510,6 +733,8 @@ void keyboard( unsigned char key, int x, int y )
 		case 'w':
 			//toggle rotation of the triangle
 			rotate_triangle = rotate_triangle ? false : true;
+			rotate_hexahedrons = rotate_hexahedrons ? false : true;
+
 			break;
 
 		// CONTROLING THE ROTATION OF THE BLOCK
@@ -735,6 +960,6 @@ void update_rotation()
 { // uses global x rotation, y rotation, z rotation
 
 	rotation = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f));
-	glUniformMatrix4fv( rotation_position, 1, GL_FALSE,  glm::value_ptr( rotation ) );
+	glUniformMatrix4fv( rotation_location, 1, GL_FALSE,  glm::value_ptr( rotation ) );
 
 }

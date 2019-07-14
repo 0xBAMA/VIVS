@@ -8,24 +8,73 @@ layout(location = 3) uniform mat4 rotation;
 
 out vec4 color;
 
-layout(location = 4)  uniform vec3 sphere_center;
-layout(location = 5)  uniform float sphere_radius;
 
 
 
+#define NUM_SPHERES   1
 #define NUM_TRIANGLES 1
+#define NUM_QUAD_HEXS 1
+#define NUM_CYLINDERS 1
 
 
-// going to need to read up on uniform blocks
 
+//SPHERE VALUES
+uniform vec3 sphere_center[NUM_SPHERES];
+uniform float sphere_radius[NUM_SPHERES];
+
+uniform vec4 sphere_colors[NUM_SPHERES];
+
+
+
+
+//TRIANGLE VALUES
 uniform vec3 triangle_point1[NUM_TRIANGLES];
 uniform vec3 triangle_point2[NUM_TRIANGLES];
 uniform vec3 triangle_point3[NUM_TRIANGLES];
 
-uniform vec3 tricol[NUM_TRIANGLES];
+uniform float triangle_thickness[NUM_TRIANGLES];
 
-uniform float thickness;
+uniform vec4 triangle_colors[NUM_TRIANGLES];
 
+
+
+
+
+
+//QUAD HEX/CUBOID VALUES
+uniform vec3 cuboid_a[NUM_QUAD_HEXS];
+uniform vec3 cuboid_b[NUM_QUAD_HEXS];
+uniform vec3 cuboid_c[NUM_QUAD_HEXS];
+uniform vec3 cuboid_d[NUM_QUAD_HEXS];
+uniform vec3 cuboid_e[NUM_QUAD_HEXS];
+uniform vec3 cuboid_f[NUM_QUAD_HEXS];
+uniform vec3 cuboid_g[NUM_QUAD_HEXS];
+uniform vec3 cuboid_h[NUM_QUAD_HEXS];
+
+uniform vec4 cuboid_colors[NUM_QUAD_HEXS];
+
+
+
+
+
+
+//CYLINDER VALUES
+uniform vec3 cylinder_tvec[NUM_CYLINDERS];
+uniform vec3 cylinder_bvec[NUM_CYLINDERS];
+
+uniform float cylinder_radii[NUM_CYLINDERS];
+
+uniform vec4 cylinder_colors[NUM_CYLINDERS];
+
+
+
+
+
+
+
+
+int how_many_being_drawn = 0;
+vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 
@@ -45,25 +94,47 @@ void main()
 	// This is the same, regardless of anything that happens subsequently
 
 	// color = vColor;
-	// color = vec4( 0.0f, 0.0f, 0.0f, 0.0f );
+
+
+
+
 
 
 
 
 	//SPHERE
 
-	float the_distance = distance( vPosition, vec4( sphere_center, 1.0f ) );
+	// float the_distance = distance( vPosition, vec4( sphere_center, 1.0f ) );
+	//
+	// if( the_distance < ( 0.75 * sphere_radius ) ) // INNERMOST LAYER
+	// {
+	// 	// color = vec4(1.0f, 0.3f, 0.5f, 1.0f);
+	// 	color = vec4(0.4, 0.5, the_distance, 0.01f);
+	// }
+	// else if( the_distance < sphere_radius) // THE NEXT LAYER
+	// {
+	// 	// color = vec4(0.3, 0.2, pow(the_distance, 3), 0.5f);
+	// 	color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+	// }
 
-	if( the_distance < ( 0.75 * sphere_radius ) ) // INNERMOST LAYER
+
+	for(int i = 0; i < NUM_SPHERES; i++)
 	{
-		// color = vec4(1.0f, 0.3f, 0.5f, 1.0f);
-		color = vec4(0.4, 0.5, the_distance, 0.01f);
+		if( distance( vPosition.xyz, sphere_center[i]) < sphere_radius[i] )
+		{
+			how_many_being_drawn++;
+			sum += sphere_colors[i];
+		}
 	}
-	else if( the_distance < sphere_radius) // THE NEXT LAYER
-	{
-		// color = vec4(0.3, 0.2, pow(the_distance, 3), 0.5f);
-		color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	}
+
+
+
+
+
+
+
+
+
 
 
 	//HEIGHTMAP
@@ -73,9 +144,25 @@ void main()
 	{
 		if(vPosition.x + 0.30 < height * 0.05 && vPosition.x > -0.34)
 		{
-			color = vec4( height, 0.2f, 0.1f, 0.7f);
+			// color = vec4( height, 0.2f, 0.1f, 0.7f);
+
+			how_many_being_drawn++;
+			sum += vec4( height, 0.2f, 0.1f, 0.7f);
+
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -96,21 +183,12 @@ void main()
 
 	bool draw_triangles[NUM_TRIANGLES];
 
-	vec4 colors[NUM_TRIANGLES];
-
-	int how_many_being_drawn = 0;
-	vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 // TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
 
 	for(int i = 0; i < NUM_TRIANGLES; i++)
 	{
-
-		colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 1.0f);
-		// colors[i] = vec4(0.75f + 0.25 * sin(i + 1.5), 0.25f + 0.25 * sin(i), 0.5f + 0.5 * cos(i + 2.0), 0.7f);
-
-		// colors[i] = vec4(tricol[i], 1.0f);
 
 		//calculate the center of the triangle
 		calculated_triangle_center = ( triangle_point1[i] + triangle_point2[i] + triangle_point3[i] ) / 3.0f;
@@ -129,7 +207,7 @@ void main()
 		//													of these three points)
 
 		calculated_top_normal = normalize( cross( triangle_point1[i] - triangle_point2[i], triangle_point1[i] - triangle_point3[i] ) );
-		calculated_top_normal = planetest( triangle_point1[i] + thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+		calculated_top_normal = planetest( triangle_point1[i] + triangle_thickness[i] * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
 
 		//calculate the side normal vectors
 
@@ -168,8 +246,8 @@ void main()
 		//	'below' all 5 planes - if it is, it is inside this triangular prism
 
 
-		draw_triangles[i] = planetest( triangle_point1[i] + ( thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
-		planetest( triangle_point1[i] - ( thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
+		draw_triangles[i] = planetest( triangle_point1[i] + ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
+		planetest( triangle_point1[i] - ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
 		planetest( triangle_point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
 		planetest( triangle_point2[i], calculated_side_2_3_normal, vPosition.xyz ) &&
 		planetest( triangle_point3[i], calculated_side_3_1_normal, vPosition.xyz );
@@ -177,9 +255,20 @@ void main()
 		if(draw_triangles[i])
 		{
 			how_many_being_drawn++;
-			sum += colors[i];
+			sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
 		}
 	}
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -204,6 +293,80 @@ void main()
 	//		that being said, there is still a degree of freedom allowing a lot of
 	//			potential for non-cube shapes, making use of trapezoidal or
 	//			rhombus-shaped faces which need not be parallel to one another.
+
+	//		the algorithm is very similar to the one used for the triangle - it can
+	//			be generalized to any convex polyhedron - concave shapes do not work
+	//			as there are areas that should be within the shape that will not pass
+	//			all the requisite plane tests, which will exclude some of the area that
+	//			should lie within the shape
+
+	vec3 quad_hex_center;
+
+	vec3 quad_hex_top_normal;
+	vec3 quad_hex_bottom_normal;
+	vec3 quad_hex_left_normal;
+	vec3 quad_hex_right_normal;
+	vec3 quad_hex_front_normal;
+	vec3 quad_hex_back_normal;
+
+	bool draw_cuboid[NUM_QUAD_HEXS];
+
+
+	for(int i = 0; i < NUM_QUAD_HEXS; i++)
+	{
+		quad_hex_center = (cuboid_a[i] + cuboid_b[i] + cuboid_c[i] + cuboid_d[i] + cuboid_e[i] + cuboid_f[i] + cuboid_g[i] + cuboid_h[i]) / 8.0f;
+
+		//TOP - using ACE
+		quad_hex_top_normal = normalize( cross( cuboid_a[i] - cuboid_c[i], cuboid_e[i] - cuboid_c[i] ) );
+		quad_hex_top_normal = planetest( cuboid_a[i], quad_hex_top_normal, quad_hex_center) ? quad_hex_top_normal : ( quad_hex_top_normal * -1.0f );
+
+		//BOTTOM - using BFD
+		quad_hex_bottom_normal = normalize( cross( cuboid_b[i] - cuboid_f[i], cuboid_d[i] - cuboid_f[i] ) );
+		quad_hex_bottom_normal = planetest( cuboid_b[i], quad_hex_bottom_normal, quad_hex_center) ? quad_hex_bottom_normal : ( quad_hex_bottom_normal * -1.0f );
+
+		//LEFT - using FEA
+		quad_hex_left_normal = normalize( cross( cuboid_f[i] - cuboid_e[i], cuboid_a[i] - cuboid_e[i] ) );
+		quad_hex_left_normal = planetest( cuboid_f[i], quad_hex_left_normal, quad_hex_center) ? quad_hex_left_normal : ( quad_hex_left_normal * -1.0f );
+
+		//RIGHT - using CGH
+		quad_hex_right_normal = normalize( cross( cuboid_c[i] - cuboid_g[i], cuboid_h[i] - cuboid_g[i] ) );
+		quad_hex_right_normal = planetest( cuboid_c[i], quad_hex_right_normal, quad_hex_center) ? quad_hex_right_normal : ( quad_hex_right_normal * -1.0f );
+
+		//FRONT - using ABD
+		quad_hex_front_normal = normalize( cross( cuboid_a[i] - cuboid_b[i], cuboid_d[i] - cuboid_b[i] ) );
+		quad_hex_front_normal = planetest( cuboid_a[i], quad_hex_front_normal, quad_hex_center) ? quad_hex_front_normal : ( quad_hex_front_normal * -1.0f );
+
+		//BACK - using GHF
+		quad_hex_back_normal = normalize( cross( cuboid_g[i] - cuboid_h[i], cuboid_f[i] - cuboid_h[i] ) );
+		quad_hex_back_normal = planetest( cuboid_g[i], quad_hex_back_normal, quad_hex_center) ? quad_hex_back_normal : ( quad_hex_back_normal * -1.0f );
+
+
+		draw_cuboid[i] =  planetest(cuboid_a[i], quad_hex_top_normal, vPosition.xyz) &&
+			planetest( cuboid_b[i], quad_hex_bottom_normal, vPosition.xyz) &&
+			planetest( cuboid_f[i], quad_hex_left_normal, vPosition.xyz) &&
+			planetest( cuboid_c[i], quad_hex_right_normal, vPosition.xyz) &&
+			planetest( cuboid_a[i], quad_hex_front_normal, vPosition.xyz) &&
+			planetest( cuboid_g[i], quad_hex_back_normal, vPosition.xyz);
+
+
+		if(draw_cuboid[i])
+		{
+			how_many_being_drawn++;
+			sum += cuboid_colors[i];
+		}
+	}
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -233,7 +396,36 @@ void main()
 	//	if the vertex passes both tests (it is between the two planes and within
 	//		the radius of the cylinder) it can be said to be inside the cylinder
 
+	vec3 cylinder_tvec_normal;
+	vec3 cylinder_bvec_normal;
 
+	vec3 cylinder_center;
+
+
+	for(int i = 0; i < NUM_CYLINDERS; i++)
+	{
+		cylinder_center = ( cylinder_bvec[i] + cylinder_tvec[i] ) / 2.0f;
+
+		cylinder_tvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
+		cylinder_tvec_normal = planetest( cylinder_tvec[i], cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * 1.0f);
+
+		cylinder_bvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
+		cylinder_bvec_normal = planetest( cylinder_bvec[i], cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * 1.0f);
+
+
+		if( planetest(cylinder_bvec[i], cylinder_bvec_normal, vPosition.xyz) && planetest(cylinder_tvec[i], cylinder_tvec_normal, vPosition.xyz) )
+		{
+
+			if((length( cross( cylinder_tvec[i] - cylinder_bvec[i], cylinder_bvec[i] - vPosition.xyz ) ) / length( cylinder_tvec[i] - cylinder_bvec[i] )) < cylinder_radii[i])
+			{
+				//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+
+				how_many_being_drawn++;
+				sum += cylinder_colors[i];
+
+			}
+		}
+	}
 
 
 
@@ -245,10 +437,12 @@ void main()
 	{// at least one shape is being drawn
 
 		color = sum / how_many_being_drawn;
-		// color = colors[how_many_being_drawn-1];
 
 	}
-
+	else
+	{
+		color = vec4(0.0f, 0.0f, 0.0f, 0.03f);
+	}
 }
 
 
