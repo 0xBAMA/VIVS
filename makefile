@@ -10,10 +10,13 @@ UNNECCESARY_DEBUG = -Wall -Wextra -pedantic
 
 
 
-all: exe examples
+all: exe
 
 exe: main.cc
 	$(CC) main.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) exe
+
+
+
 
 examples: david ico
 

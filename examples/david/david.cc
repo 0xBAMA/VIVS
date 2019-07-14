@@ -833,7 +833,7 @@ int main( int argc, char **argv )
 
 	cout << "Shader Compilation Starting...";
 
-	Shader theShader( "vertex_david.glsl", "fragment_david.glsl" );
+	Shader theShader( "./vertex_david.glsl", "./fragment_david.glsl" );
 
 	shader_handle = theShader.Program;
 

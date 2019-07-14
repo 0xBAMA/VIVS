@@ -13,15 +13,14 @@ layout(location = 5)  uniform float sphere_radius;
 
 
 
-// #define NUM_TRIANGLES 20
-#define NUM_TRIANGLES 12
+#define NUM_TRIANGLES 1
 
 
 // going to need to read up on uniform blocks
 
-uniform vec3 point1[NUM_TRIANGLES];
-uniform vec3 point2[NUM_TRIANGLES];
-uniform vec3 point3[NUM_TRIANGLES];
+uniform vec3 triangle_point1[NUM_TRIANGLES];
+uniform vec3 triangle_point2[NUM_TRIANGLES];
+uniform vec3 triangle_point3[NUM_TRIANGLES];
 
 uniform vec3 tricol[NUM_TRIANGLES];
 
@@ -96,10 +95,6 @@ void main()
 	vec3 calculated_side_3_1_normal;
 
 	bool draw_triangles[NUM_TRIANGLES];
-	bool cutout_center = false; //are we doing the thing?
-
-	bool center_cutout = false;//is the point in the hole?
-	bool cutout_rim = false;   //or is it on the rim?
 
 	vec4 colors[NUM_TRIANGLES];
 
@@ -118,62 +113,60 @@ void main()
 		// colors[i] = vec4(tricol[i], 1.0f);
 
 		//calculate the center of the triangle
-		calculated_triangle_center = ( point1[i] + point2[i] + point3[i] ) / 3.0f;
-
-
-
-
-
-		if(cutout_center)
-		{
-			if(distance(calculated_triangle_center, vPosition.xyz) < 0.038)
-			{
-				center_cutout = true;
-			}
-			else if(distance(calculated_triangle_center, vPosition.xyz) < 0.045)
-			{
-				cutout_rim = true;
-			}
-		}
-
-
+		calculated_triangle_center = ( triangle_point1[i] + triangle_point2[i] + triangle_point3[i] ) / 3.0f;
 
 
 		//calculate the top normal vector of the triangle
-		calculated_top_normal = normalize( cross( point1[i] - point2[i], point1[i] - point3[i] ) );
-		calculated_top_normal = planetest( point1[i] + thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+
+		//    ^  < - - -normal
+		//		|
+		//		|
+		//	1 .______. 2
+		//		\							taking the cross product of the two sides (1-2 and 1-3)
+		//		 \							will give either the normal or the inverse of the normal
+		//      \								check this against the center point of the triangle to determine
+		//			 * 3							and invert it if neccesary
+
+		calculated_top_normal = normalize( cross( triangle_point1[i] - triangle_point2[i], triangle_point1[i] - triangle_point3[i] ) );
+		calculated_top_normal = planetest( triangle_point1[i] + thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
 
 		//calculate the side normal vectors
 
-		//       *
-		//      / \
-		//     /   \
-		//    /     \
-		//   *-------* <--- the side being considered
+		//			   ^
+		//			   |  < - - top normal
+		//       _________
+		//      |\       /| ^
+		//      | \ top / |	| thickness
+		//			|  \   /  | v
+		//      \   \ /  /
+		//       \   |  /
+		//        \  | /
+		//         \ |/
+		//          \/
 		//
-		//	looking at this edge-on:
+		//	looking at this from one of the edges:
 		//
-		//   *
-		//   | <----------- the triangle's top normal
-		//   *-------* <--- vector representing the side being considered
+		//   ^
+		//   | < - - - - the triangle's top normal
+		//   *-------> < - - - vector representing the side being considered
 		//
 		//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
 
-		calculated_side_1_2_normal = normalize( cross( calculated_top_normal, point2[i] - point1[i] ) );
-		calculated_side_1_2_normal = planetest( point1[i], calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
+		calculated_side_1_2_normal = normalize( cross( calculated_top_normal, triangle_point2[i] - triangle_point1[i] ) );
+		calculated_side_1_2_normal = planetest( triangle_point1[i], calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
 
-		calculated_side_2_3_normal = normalize( cross( calculated_top_normal, point3[i] - point2[i] ) );
-		calculated_side_2_3_normal = planetest( point2[i], calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
+		calculated_side_2_3_normal = normalize( cross( calculated_top_normal, triangle_point3[i] - triangle_point2[i] ) );
+		calculated_side_2_3_normal = planetest( triangle_point2[i], calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
 
-		calculated_side_3_1_normal = normalize( cross( calculated_top_normal, point1[i] - point3[i] ) );
-		calculated_side_3_1_normal = planetest( point3[i], calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
+		calculated_side_3_1_normal = normalize( cross( calculated_top_normal, triangle_point1[i] - triangle_point3[i] ) );
+		calculated_side_3_1_normal = planetest( triangle_point3[i], calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
 
 		// do the tests
-		draw_triangles[i] = planetest( point1[i] + ( thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
-		planetest( point1[i] - ( thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
-		planetest( point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
-		planetest( point2[i], calculated_side_2_3_normal, vPosition.xyz ) &&
-		planetest( point3[i], calculated_side_3_1_normal, vPosition.xyz );
+		draw_triangles[i] = planetest( triangle_point1[i] + ( thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
+		planetest( triangle_point1[i] - ( thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
+		planetest( triangle_point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
+		planetest( triangle_point2[i], calculated_side_2_3_normal, vPosition.xyz ) &&
+		planetest( triangle_point3[i], calculated_side_3_1_normal, vPosition.xyz );
 
 		if(draw_triangles[i])
 		{
@@ -185,29 +178,24 @@ void main()
 
 
 
+//QUADRILATERAL HEXAHEDRON (CUBOID)
+
+// 	point location reference
+//
+// 	   e-------g    +y
+// 	  /|      /|		 |
+// 	 / |     / |     |___+x
+// 	a-------c  |    /
+// 	|  f----|--h   +z
+// 	| /     | /
+//  |/      |/
+// 	b-------d
+
 	if(how_many_being_drawn > 0)
-	{// at least one triangle is being drawn
+	{// at least one shape is being drawn
 
 		color = sum / how_many_being_drawn;
 		// color = colors[how_many_being_drawn-1];
-
-
-
-
-
-
-		if(cutout_center) // note that we have checked that we are inside at least one triangle
-		{
-			if( center_cutout )
-			{
-				color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-			}
-
-			if( cutout_rim )
-			{
-				color = vec4(0.7f, 0.3f, 0.0f, 1.0f);
-			}
-		}
 
 	}
 
