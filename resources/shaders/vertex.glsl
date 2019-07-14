@@ -102,7 +102,7 @@ void main()
 	vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 
-// TRIANGLES
+// TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
 
 	for(int i = 0; i < NUM_TRIANGLES; i++)
 	{
@@ -125,7 +125,8 @@ void main()
 		//		\							taking the cross product of the two sides (1-2 and 1-3)
 		//		 \							will give either the normal or the inverse of the normal
 		//      \								check this against the center point of the triangle to determine
-		//			 * 3							and invert it if neccesary
+		//			 * 3							and invert it if neccesary (depending on the relative positions
+		//													of these three points)
 
 		calculated_top_normal = normalize( cross( triangle_point1[i] - triangle_point2[i], triangle_point1[i] - triangle_point3[i] ) );
 		calculated_top_normal = planetest( triangle_point1[i] + thickness * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
@@ -161,7 +162,12 @@ void main()
 		calculated_side_3_1_normal = normalize( cross( calculated_top_normal, triangle_point1[i] - triangle_point3[i] ) );
 		calculated_side_3_1_normal = planetest( triangle_point3[i], calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
 
-		// do the tests
+
+		// do the tests - for each of the normals, top, bottom, and the three sides,
+		//	use the planetest function to determine whether the current point is
+		//	'below' all 5 planes - if it is, it is inside this triangular prism
+
+
 		draw_triangles[i] = planetest( triangle_point1[i] + ( thickness / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
 		planetest( triangle_point1[i] - ( thickness / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
 		planetest( triangle_point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
@@ -180,16 +186,60 @@ void main()
 
 //QUADRILATERAL HEXAHEDRON (CUBOID)
 
-// 	point location reference
-//
-// 	   e-------g    +y
-// 	  /|      /|		 |
-// 	 / |     / |     |___+x
-// 	a-------c  |    /
-// 	|  f----|--h   +z
-// 	| /     | /
-//  |/      |/
-// 	b-------d
+	// 	point location reference
+	//
+	// 	   e-------g    +y
+	// 	  /|      /|		 |
+	// 	 / |     / |     |___+x
+	// 	a-------c  |    /
+	// 	|  f----|--h   +z
+	// 	| /     | /
+	//  |/      |/
+	// 	b-------d
+
+	//		the four points making up each of the 6 faces must be coplanar - if not,
+	// 			the shape will not come out as intended (there would be two potential
+	//			planes for each face, and only one of them is used to represent that face)
+
+	//		that being said, there is still a degree of freedom allowing a lot of
+	//			potential for non-cube shapes, making use of trapezoidal or
+	//			rhombus-shaped faces which need not be parallel to one another.
+
+
+
+
+
+
+//CYLINDERS
+
+	//	 ,----.
+	//	(   *  )
+	//	|`----'|
+	//	|      |
+	//	|      |
+	//	|      |
+	//	|,----.|
+	//	(   *  )
+	//	 `----'
+
+	//	two points in space are used to represent the centers of the two circular
+	//		faces of the cylinder. A line is established between the two points -
+	//		this line serves two functions -
+
+	//	first, normals for the planes of the circular ends can be computed
+
+	//	second, it's used to check the distance from the current vertex to the line
+
+	//	if the vertex passes both tests (it is between the two planes and within
+	//		the radius of the cylinder) it can be said to be inside the cylinder
+
+
+
+
+
+
+
+
 
 	if(how_many_being_drawn > 0)
 	{// at least one shape is being drawn
