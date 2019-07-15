@@ -275,7 +275,8 @@ void main()
 
 //QUADRILATERAL HEXAHEDRON (CUBOID)
 
-	// 	point location reference
+	// 	point location reference - it can be rotated, but the faces must be
+	//		ACEG, CGDH, EGFH, ABEF, ABCD and BDFH - axes just for reference
 	//
 	// 	   e-------g    +y
 	// 	  /|      /|		 |
@@ -294,11 +295,11 @@ void main()
 	//			potential for non-cube shapes, making use of trapezoidal or
 	//			rhombus-shaped faces which need not be parallel to one another.
 
-	//		the algorithm is very similar to the one used for the triangle - it can
-	//			be generalized to any convex polyhedron - concave shapes do not work
-	//			as there are areas that should be within the shape that will not pass
-	//			all the requisite plane tests, which will exclude some of the area that
-	//			should lie within the shape
+	//		the algorithm is very similar to the one used for the triangle - I have
+	//			seen it said that it can be generalized to any convex polyhedron -
+	//			concave shapes do not work as there are areas that should be within the
+	//			shape that will not pass all the requisite plane tests, which will
+	//			exclude some of the area that should lie within the shape
 
 	vec3 quad_hex_center;
 
@@ -316,27 +317,27 @@ void main()
 	{
 		quad_hex_center = (cuboid_a[i] + cuboid_b[i] + cuboid_c[i] + cuboid_d[i] + cuboid_e[i] + cuboid_f[i] + cuboid_g[i] + cuboid_h[i]) / 8.0f;
 
-		//TOP - using ACE
+		// "TOP" (ACEG) - using ACE
 		quad_hex_top_normal = normalize( cross( cuboid_a[i] - cuboid_c[i], cuboid_e[i] - cuboid_c[i] ) );
 		quad_hex_top_normal = planetest( cuboid_a[i], quad_hex_top_normal, quad_hex_center) ? quad_hex_top_normal : ( quad_hex_top_normal * -1.0f );
 
-		//BOTTOM - using BFD
+		// "BOTTOM" (BDFH) - using BFD
 		quad_hex_bottom_normal = normalize( cross( cuboid_b[i] - cuboid_f[i], cuboid_d[i] - cuboid_f[i] ) );
 		quad_hex_bottom_normal = planetest( cuboid_b[i], quad_hex_bottom_normal, quad_hex_center) ? quad_hex_bottom_normal : ( quad_hex_bottom_normal * -1.0f );
 
-		//LEFT - using FEA
+		// "LEFT" (ABEF) - using FEA
 		quad_hex_left_normal = normalize( cross( cuboid_f[i] - cuboid_e[i], cuboid_a[i] - cuboid_e[i] ) );
 		quad_hex_left_normal = planetest( cuboid_f[i], quad_hex_left_normal, quad_hex_center) ? quad_hex_left_normal : ( quad_hex_left_normal * -1.0f );
 
-		//RIGHT - using CGH
+		// "RIGHT" (CDGH) - using CGH
 		quad_hex_right_normal = normalize( cross( cuboid_c[i] - cuboid_g[i], cuboid_h[i] - cuboid_g[i] ) );
 		quad_hex_right_normal = planetest( cuboid_c[i], quad_hex_right_normal, quad_hex_center) ? quad_hex_right_normal : ( quad_hex_right_normal * -1.0f );
 
-		//FRONT - using ABD
+		// "FRONT" (ABCD) - using ABD
 		quad_hex_front_normal = normalize( cross( cuboid_a[i] - cuboid_b[i], cuboid_d[i] - cuboid_b[i] ) );
 		quad_hex_front_normal = planetest( cuboid_a[i], quad_hex_front_normal, quad_hex_center) ? quad_hex_front_normal : ( quad_hex_front_normal * -1.0f );
 
-		//BACK - using GHF
+		// "BACK" (EFGH) - using GHF
 		quad_hex_back_normal = normalize( cross( cuboid_g[i] - cuboid_h[i], cuboid_f[i] - cuboid_h[i] ) );
 		quad_hex_back_normal = planetest( cuboid_g[i], quad_hex_back_normal, quad_hex_center) ? quad_hex_back_normal : ( quad_hex_back_normal * -1.0f );
 
@@ -407,10 +408,10 @@ void main()
 		cylinder_center = ( cylinder_bvec[i] + cylinder_tvec[i] ) / 2.0f;
 
 		cylinder_tvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
-		cylinder_tvec_normal = planetest( cylinder_tvec[i], cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * 1.0f);
+		cylinder_tvec_normal = planetest( cylinder_tvec[i], cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
 
 		cylinder_bvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
-		cylinder_bvec_normal = planetest( cylinder_bvec[i], cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * 1.0f);
+		cylinder_bvec_normal = planetest( cylinder_bvec[i], cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
 
 
 		if( planetest(cylinder_bvec[i], cylinder_bvec_normal, vPosition.xyz) && planetest(cylinder_tvec[i], cylinder_tvec_normal, vPosition.xyz) )

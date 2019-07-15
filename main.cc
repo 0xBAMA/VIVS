@@ -511,9 +511,9 @@ void init()
 	cylinder_colors_location = glGetUniformLocation( shader_handle, "cylinder_colors");
 
 
-	cylinder_tvec_values[0] = glm::vec3(-1.0f, -1.0f, -1.0f);
-	cylinder_bvec_values[0] = glm::vec3(1.0f, 1.0f, 1.0f);
-	cylinder_radii_values[0] = 0.3f;
+	cylinder_tvec_values[0] = glm::vec3(-0.3f, -0.3f, -0.3f);
+	cylinder_bvec_values[0] = glm::vec3(0.3f, 0.3f, 0.3f);
+	cylinder_radii_values[0] = 0.07f;
 	cylinder_color_values[0] = vec(0.0f, 0.0f, 1.0f, 1.0f);
 
 
