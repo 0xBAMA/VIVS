@@ -90,7 +90,7 @@ GLuint rotation_location = 3;
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 1
 #define NUM_QUAD_HEXS 1
-#define NUM_CYLINDERS 1
+#define NUM_CYLINDERS 2
 
 
 //SPHERE
@@ -174,6 +174,11 @@ float cylinder_radii_values[NUM_CYLINDERS];
 
 GLuint cylinder_colors_location;
 vec cylinder_color_values[NUM_CYLINDERS];
+
+
+//for animating the progress bar thing
+glm::vec3 base_point = glm::vec3(0.0f, 0.0f, -0.295f);
+glm::vec3 full_bar = glm::vec3(0.0f, 0.0f, 0.295f * 2.0f);
 
 
 
@@ -465,17 +470,19 @@ void init()
 	cuboid_colors_location = glGetUniformLocation( shader_handle, "cuboid_colors");
 
 
-	float p =  0.2f;
-	float n = -0.2f;
+	float p =  0.05f;
+	float n = -0.05f;
 
-	cuboid_a_values[0] = glm::vec3( n, p, p);
-	cuboid_b_values[0] = glm::vec3( n, n, p);
-	cuboid_c_values[0] = glm::vec3( p, p, p);
-	cuboid_d_values[0] = glm::vec3( p, n, p);
-	cuboid_e_values[0] = glm::vec3( n, p, n);
-	cuboid_f_values[0] = glm::vec3( n, n, n);
-	cuboid_g_values[0] = glm::vec3( p, p, n);
-	cuboid_h_values[0] = glm::vec3( p, n, n);
+	glm::vec3 cuboid_offset = glm::vec3(0.2, 0.2, 0.2);
+
+	cuboid_a_values[0] = glm::vec3( n, p, p) + cuboid_offset;
+	cuboid_b_values[0] = glm::vec3( n, n, p) + cuboid_offset;
+	cuboid_c_values[0] = glm::vec3( p, p, p) + cuboid_offset;
+	cuboid_d_values[0] = glm::vec3( p, n, p) + cuboid_offset;
+	cuboid_e_values[0] = glm::vec3( n, p, n) + cuboid_offset;
+	cuboid_f_values[0] = glm::vec3( n, n, n) + cuboid_offset;
+	cuboid_g_values[0] = glm::vec3( p, p, n) + cuboid_offset;
+	cuboid_h_values[0] = glm::vec3( p, n, n) + cuboid_offset;
 
 	cuboid_color_values[0] = vec(0.0f, 0.0f, 0.0f, 1.0f);
 
@@ -511,10 +518,18 @@ void init()
 	cylinder_colors_location = glGetUniformLocation( shader_handle, "cylinder_colors");
 
 
-	cylinder_tvec_values[0] = glm::vec3(-0.3f, -0.3f, -0.3f);
-	cylinder_bvec_values[0] = glm::vec3(0.3f, 0.3f, 0.3f);
+
+
+	cylinder_tvec_values[0] = glm::vec3( 0.0f, 0.0f, -0.3f);
+	cylinder_bvec_values[0] = glm::vec3( 0.0f, 0.0f,  0.3f);
 	cylinder_radii_values[0] = 0.07f;
-	cylinder_color_values[0] = vec(0.0f, 0.0f, 1.0f, 1.0f);
+	cylinder_color_values[0] = vec(0.0f, 0.0f, 0.4f, 0.1f);
+
+	cylinder_tvec_values[1] = glm::vec3( 0.0f, 0.0f, -0.295f);
+	cylinder_bvec_values[1] = glm::vec3( 0.0f, 0.0f,  0.295f);
+	cylinder_radii_values[1] = 0.06f;
+	cylinder_color_values[1] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+
 
 
 	glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
@@ -554,100 +569,114 @@ void display( void )
 void timer(int)
 {
 
-	//rotate the points making up the triangle - this requires the use of a 4 unit vector, to use the 4x4 rotation matrix
-	// (still simpler than writing out the whole rotation matrix)
+	// //rotate the points making up the triangle - this requires the use of a 4 unit vector, to use the 4x4 rotation matrix
+	// // (still simpler than writing out the whole rotation matrix)
+	//
+	// // need to use vec4s to multiply by a 4x4 rotation matrix
+	// vec triangle_point1_temp;
+	// vec triangle_point2_temp;
+	// vec triangle_point3_temp;
+	//
+	// // variable axis of rotation
+	// glm::vec3 axis;
+	//
+	// if(rotate_triangle)
+	// {
+	// 	for(int i = 0; i < NUM_TRIANGLES; i++)
+	// 	{
+	//
+	// 		switch(i % 3)
+	// 		{
+	// 			case 0:
+	// 				axis = glm::vec3(1.0f, 0.0f, 0.0f);
+	// 				break;
+	// 			case 1:
+	// 				axis = glm::vec3(0.0f, 1.0f, 0.0f);
+	// 				break;
+	// 			case 2:
+	// 				axis = glm::vec3(0.0f, 0.0f, 1.0f);
+	// 				break;
+	// 		}
+	//
+	// 		// axis = glm::vec3(0.0f, 0.0f, 1.0f);
+	//
+	// 		triangle_point1_temp = glm::rotate(0.01f, axis) * vec(triangle_point1_values[i], 1.0f);
+	// 		triangle_point2_temp = glm::rotate(0.01f, axis) * vec(triangle_point2_values[i], 1.0f);
+	// 		triangle_point3_temp = glm::rotate(0.01f, axis) * vec(triangle_point3_values[i], 1.0f);
+	//
+	// 		triangle_point1_values[i] = triangle_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
+	// 		triangle_point2_values[i] = triangle_point2_temp;
+	// 		triangle_point3_values[i] = triangle_point3_temp;
+	//
+	// 	 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
+	// 		glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
+	// 		glUniform3fv( triangle_point3_location, NUM_TRIANGLES, glm::value_ptr( triangle_point3_values[0] ) );
+	//
+	// 	}
+	// }
+	//
+	// vec cuboid_a_temp;
+	// vec cuboid_b_temp;
+	// vec cuboid_c_temp;
+	// vec cuboid_d_temp;
+	// vec cuboid_e_temp;
+	// vec cuboid_f_temp;
+	// vec cuboid_g_temp;
+	// vec cuboid_h_temp;
+	//
+	//
+	// if(rotate_hexahedrons)
+	// {
+	// 	for(int i = 0; i < NUM_QUAD_HEXS; i++)
+	// 	{
+	//
+	// 		axis = glm::vec3(1.0f, 0.0f, 0.0f);
+	//
+	// 		cuboid_a_temp = glm::rotate(0.01f, axis) * vec(cuboid_a_values[i], 1.0f);
+	// 		cuboid_b_temp = glm::rotate(0.01f, axis) * vec(cuboid_b_values[i], 1.0f);
+	// 		cuboid_c_temp = glm::rotate(0.01f, axis) * vec(cuboid_c_values[i], 1.0f);
+	// 		cuboid_d_temp = glm::rotate(0.01f, axis) * vec(cuboid_d_values[i], 1.0f);
+	// 		cuboid_e_temp = glm::rotate(0.01f, axis) * vec(cuboid_e_values[i], 1.0f);
+	// 		cuboid_f_temp = glm::rotate(0.01f, axis) * vec(cuboid_f_values[i], 1.0f);
+	// 		cuboid_g_temp = glm::rotate(0.01f, axis) * vec(cuboid_g_values[i], 1.0f);
+	// 		cuboid_h_temp = glm::rotate(0.01f, axis) * vec(cuboid_h_values[i], 1.0f);
+	//
+	//
+	// 		cuboid_a_values[i] = cuboid_a_temp;
+	// 		cuboid_b_values[i] = cuboid_b_temp;
+	// 		cuboid_c_values[i] = cuboid_c_temp;
+	// 		cuboid_d_values[i] = cuboid_d_temp;
+	// 		cuboid_e_values[i] = cuboid_e_temp;
+	// 		cuboid_f_values[i] = cuboid_f_temp;
+	// 		cuboid_g_values[i] = cuboid_g_temp;
+	// 		cuboid_h_values[i] = cuboid_h_temp;
+	//
+	// 	}
+	//
+	// 	glUniform3fv( cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
+	// 	glUniform3fv( cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
+	// 	glUniform3fv( cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
+	// 	glUniform3fv( cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
+	// 	glUniform3fv( cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
+	// 	glUniform3fv( cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
+	// 	glUniform3fv( cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
+	// 	glUniform3fv( cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
+	//
+	// }
 
-	// need to use vec4s to multiply by a 4x4 rotation matrix
-	vec triangle_point1_temp;
-	vec triangle_point2_temp;
-	vec triangle_point3_temp;
+	float amount = (0.5f * std::sin(0.02f * numFrames) + 0.5f);
 
-	// variable axis of rotation
-	glm::vec3 axis;
+	// ranging from 0.0 to 1.0
 
-	if(rotate_triangle)
-	{
-		for(int i = 0; i < NUM_TRIANGLES; i++)
-		{
-
-			switch(i % 3)
-			{
-				case 0:
-					axis = glm::vec3(1.0f, 0.0f, 0.0f);
-					break;
-				case 1:
-					axis = glm::vec3(0.0f, 1.0f, 0.0f);
-					break;
-				case 2:
-					axis = glm::vec3(0.0f, 0.0f, 1.0f);
-					break;
-			}
-
-			// axis = glm::vec3(0.0f, 0.0f, 1.0f);
-
-			triangle_point1_temp = glm::rotate(0.01f, axis) * vec(triangle_point1_values[i], 1.0f);
-			triangle_point2_temp = glm::rotate(0.01f, axis) * vec(triangle_point2_values[i], 1.0f);
-			triangle_point3_temp = glm::rotate(0.01f, axis) * vec(triangle_point3_values[i], 1.0f);
-
-			triangle_point1_values[i] = triangle_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
-			triangle_point2_values[i] = triangle_point2_temp;
-			triangle_point3_values[i] = triangle_point3_temp;
-
-		 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
-			glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
-			glUniform3fv( triangle_point3_location, NUM_TRIANGLES, glm::value_ptr( triangle_point3_values[0] ) );
-
-		}
-	}
-
-	vec cuboid_a_temp;
-	vec cuboid_b_temp;
-	vec cuboid_c_temp;
-	vec cuboid_d_temp;
-	vec cuboid_e_temp;
-	vec cuboid_f_temp;
-	vec cuboid_g_temp;
-	vec cuboid_h_temp;
+	cylinder_bvec_values[1] = base_point + amount * full_bar;
+	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
 
 
-	if(rotate_hexahedrons)
-	{
-		for(int i = 0; i < NUM_QUAD_HEXS; i++)
-		{
-
-			axis = glm::vec3(0.0f, 1.0f, 1.0f);
-
-			cuboid_a_temp = glm::rotate(0.01f, axis) * vec(cuboid_a_values[i], 1.0f);
-			cuboid_b_temp = glm::rotate(0.01f, axis) * vec(cuboid_b_values[i], 1.0f);
-			cuboid_c_temp = glm::rotate(0.01f, axis) * vec(cuboid_c_values[i], 1.0f);
-			cuboid_d_temp = glm::rotate(0.01f, axis) * vec(cuboid_d_values[i], 1.0f);
-			cuboid_e_temp = glm::rotate(0.01f, axis) * vec(cuboid_e_values[i], 1.0f);
-			cuboid_f_temp = glm::rotate(0.01f, axis) * vec(cuboid_f_values[i], 1.0f);
-			cuboid_g_temp = glm::rotate(0.01f, axis) * vec(cuboid_g_values[i], 1.0f);
-			cuboid_h_temp = glm::rotate(0.01f, axis) * vec(cuboid_h_values[i], 1.0f);
+	cylinder_color_values[1] = vec(amount, 1.0f - amount , 0.0f, 1.0f);
+	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 
-			cuboid_a_values[i] = cuboid_a_temp;
-			cuboid_b_values[i] = cuboid_b_temp;
-			cuboid_c_values[i] = cuboid_c_temp;
-			cuboid_d_values[i] = cuboid_d_temp;
-			cuboid_e_values[i] = cuboid_e_temp;
-			cuboid_f_values[i] = cuboid_f_temp;
-			cuboid_g_values[i] = cuboid_g_temp;
-			cuboid_h_values[i] = cuboid_h_temp;
 
-		}
-
-		glUniform3fv( cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
-		glUniform3fv( cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
-		glUniform3fv( cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
-		glUniform3fv( cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
-		glUniform3fv( cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
-		glUniform3fv( cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
-		glUniform3fv( cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
-		glUniform3fv( cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
-
-	}
 
 	glutPostRedisplay();
 
