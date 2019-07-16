@@ -15,7 +15,7 @@ out vec4 color;
 
 #define RENDER_HEIGHTMAP	false		//renders a heightmap held in a texture
 
-#define RENDER_SPHERES 		false		//renders a list of spheres
+#define RENDER_SPHERES 		true		//renders a list of spheres
 #define RENDER_TRIANGLES 	false		//renders a list of triangles
 #define RENDER_QUAD_HEX 	false		//renders a list of cuboids
 #define RENDER_CYLINDERS 	true		//renders a list of cylinders
@@ -25,12 +25,14 @@ out vec4 color;
 //eventually I want to do this as a set of compute shaders, one for each of these primitives
 
 //	the manual config on the numbers is a bit of a pain right now, but for-loops
-//	of a variable size are illegal in GLSL code.
+//	of a variable size are illegal in GLSL code. Also have to keep a separate
+//	bool (above) telling whether or not to render because it does not allow for
+//	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
 #define NUM_TRIANGLES 1						//how long is the list of triangles?
 #define NUM_QUAD_HEXS 1						//how long is the list of cuboids?
-#define NUM_CYLINDERS 10					//how long is the list of cylinders?
+#define NUM_CYLINDERS 9						//how long is the list of cylinders?
 
 
 
@@ -41,6 +43,8 @@ uniform vec3 sphere_center[NUM_SPHERES];
 uniform float sphere_radius[NUM_SPHERES];
 
 uniform vec4 sphere_colors[NUM_SPHERES];
+
+uniform vec3 sphere_offsets[NUM_SPHERES];
 
 
 
@@ -53,6 +57,8 @@ uniform vec3 triangle_point3[NUM_TRIANGLES];
 uniform float triangle_thickness[NUM_TRIANGLES];
 
 uniform vec4 triangle_colors[NUM_TRIANGLES];
+
+uniform vec3 triangle_offsets[NUM_TRIANGLES];
 
 
 
@@ -71,6 +77,8 @@ uniform vec3 cuboid_h[NUM_QUAD_HEXS];
 
 uniform vec4 cuboid_colors[NUM_QUAD_HEXS];
 
+uniform vec3 cuboid_offsets[NUM_QUAD_HEXS];
+
 
 
 
@@ -83,6 +91,8 @@ uniform vec3 cylinder_bvec[NUM_CYLINDERS];
 uniform float cylinder_radii[NUM_CYLINDERS];
 
 uniform vec4 cylinder_colors[NUM_CYLINDERS];
+
+uniform vec3 cylinder_offsets[NUM_CYLINDERS];
 
 
 
@@ -197,20 +207,22 @@ void main()
 	// three sides of the triangle - if it is 'below' all 5 planes, the point can be said to
 	// be 'inside' the triangle.
 
-	vec3 calculated_triangle_center;
-	vec3 calculated_top_normal;
-	vec3 calculated_side_1_2_normal;
-	vec3 calculated_side_2_3_normal;
-	vec3 calculated_side_3_1_normal;
-
-	bool draw_triangles[NUM_TRIANGLES];
-
-
-
-// TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
+	// TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
 
 	if(RENDER_TRIANGLES)
 	{
+		vec3 calculated_triangle_center;
+		vec3 calculated_top_normal;
+		vec3 calculated_side_1_2_normal;
+		vec3 calculated_side_2_3_normal;
+		vec3 calculated_side_3_1_normal;
+
+		bool draw_triangles[NUM_TRIANGLES];
+
+
+
+
+
 		for(int i = 0; i < NUM_TRIANGLES; i++)
 		{
 
@@ -326,19 +338,22 @@ void main()
 	//			shape that will not pass all the requisite plane tests, which will
 	//			exclude some of the area that should lie within the shape
 
-	vec3 quad_hex_center;
-
-	vec3 quad_hex_top_normal;
-	vec3 quad_hex_bottom_normal;
-	vec3 quad_hex_left_normal;
-	vec3 quad_hex_right_normal;
-	vec3 quad_hex_front_normal;
-	vec3 quad_hex_back_normal;
-
-	bool draw_cuboid[NUM_QUAD_HEXS];
 
 	if(RENDER_QUAD_HEX)
 	{
+
+		vec3 quad_hex_center;
+
+		vec3 quad_hex_top_normal;
+		vec3 quad_hex_bottom_normal;
+		vec3 quad_hex_left_normal;
+		vec3 quad_hex_right_normal;
+		vec3 quad_hex_front_normal;
+		vec3 quad_hex_back_normal;
+
+		bool draw_cuboid[NUM_QUAD_HEXS];
+
+
 		for(int i = 0; i < NUM_QUAD_HEXS; i++)
 		{
 			quad_hex_center = (cuboid_a[i] + cuboid_b[i] + cuboid_c[i] + cuboid_d[i] + cuboid_e[i] + cuboid_f[i] + cuboid_g[i] + cuboid_h[i]) / 8.0f;
@@ -424,28 +439,37 @@ void main()
 	//	if the vertex passes both tests (it is between the two planes and within
 	//		the radius of the cylinder) it can be said to be inside the cylinder
 
-	vec3 cylinder_tvec_normal;
-	vec3 cylinder_bvec_normal;
-
-	vec3 cylinder_center;
 
 	if(RENDER_CYLINDERS)
 	{
+
+		vec3 cylinder_tvec_normal;
+		vec3 cylinder_bvec_normal;
+
+		vec3 cylinder_center;
+
+		vec3 bvec_local, tvec_local;
+
+
 		for(int i = 0; i < NUM_CYLINDERS; i++)
 		{
-			cylinder_center = ( cylinder_bvec[i] + cylinder_tvec[i] ) / 2.0f;
-
-			cylinder_tvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
-			cylinder_tvec_normal = planetest( cylinder_tvec[i], cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
-
-			cylinder_bvec_normal = cylinder_bvec[i] - cylinder_tvec[i];
-			cylinder_bvec_normal = planetest( cylinder_bvec[i], cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
+			bvec_local = cylinder_bvec[i] + cylinder_offsets[i];
+			tvec_local = cylinder_tvec[i] + cylinder_offsets[i];
 
 
-			if( planetest(cylinder_bvec[i], cylinder_bvec_normal, vPosition.xyz) && planetest(cylinder_tvec[i], cylinder_tvec_normal, vPosition.xyz) )
+			cylinder_center = ( bvec_local + tvec_local ) / 2.0f;
+
+			cylinder_tvec_normal = bvec_local - tvec_local;
+			cylinder_tvec_normal = planetest( tvec_local, cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
+
+			cylinder_bvec_normal = bvec_local - tvec_local;
+			cylinder_bvec_normal = planetest( bvec_local, cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
+
+
+			if( planetest(bvec_local, cylinder_bvec_normal, vPosition.xyz) && planetest(tvec_local, cylinder_tvec_normal, vPosition.xyz) )
 			{
 
-				if((length( cross( cylinder_tvec[i] - cylinder_bvec[i], cylinder_bvec[i] - vPosition.xyz ) ) / length( cylinder_tvec[i] - cylinder_bvec[i] )) < cylinder_radii[i])
+				if((length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local )) < cylinder_radii[i])
 				{
 					//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 

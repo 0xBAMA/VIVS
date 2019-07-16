@@ -88,9 +88,9 @@ GLuint rotation_location = 3;
 
 
 #define NUM_SPHERES   1
-#define NUM_TRIANGLES 1
+#define NUM_TRIANGLES 0
 #define NUM_QUAD_HEXS 1
-#define NUM_CYLINDERS 10
+#define NUM_CYLINDERS 9
 
 
 //SPHERE
@@ -102,6 +102,9 @@ float sphere_radius_value[NUM_SPHERES];
 
 GLuint sphere_colors_location;
 vec sphere_colors_values[NUM_SPHERES];
+
+GLuint sphere_offsets_location;
+glm::vec3 sphere_offsets[NUM_SPHERES];
 
 
 
@@ -122,6 +125,9 @@ vec triangle_color_values[NUM_TRIANGLES];
 
 GLuint triangle_thickness_location;
 float thickness[NUM_TRIANGLES];
+
+GLuint triangle_offsets_location;
+glm::vec3 triangle_offsets[NUM_TRIANGLES];
 
 
 
@@ -156,6 +162,9 @@ glm::vec3 cuboid_h_values[NUM_QUAD_HEXS];
 GLuint cuboid_colors_location;
 vec cuboid_color_values[NUM_QUAD_HEXS];
 
+GLuint cuboid_offsets_location;
+glm::vec3 cuboid_offsets[NUM_QUAD_HEXS];
+
 
 
 
@@ -175,6 +184,8 @@ float cylinder_radii_values[NUM_CYLINDERS];
 GLuint cylinder_colors_location;
 vec cylinder_color_values[NUM_CYLINDERS];
 
+GLuint cylinder_offsets_location;
+glm::vec3 cylinder_offsets[NUM_CYLINDERS];
 
 
 
@@ -193,7 +204,7 @@ glm::mat4 rotation = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rot
 
 
 
-float base_scale = 0.85;
+float base_scale = 0.95;
 
 GLfloat left = -1.366f  * base_scale;
 GLfloat right = 1.366f  * base_scale;
@@ -214,6 +225,9 @@ bool rotate_hexahedrons = true;
 
 
 
+
+// SHADER STUFF
+
 GLuint shader_handle;
 
 GLuint texture; //handle for the texture
@@ -225,9 +239,9 @@ void update_rotation();
 
 void generate_points()
 {
-	// float total_edge_length = 1.0f;
+	float total_edge_length = 1.0f;
 
-	float total_edge_length = 0.8f;
+	// float total_edge_length = 0.8f;
 	float start_dimension = -1 * (total_edge_length / 2);
 
 	float increment = total_edge_length / points_per_side;
@@ -378,23 +392,32 @@ void init()
 
 
 //SPHERES
-
+	if(NUM_SPHERES)
+	{
 	// SPHERE VALUES
 
 		sphere_center_location = glGetUniformLocation( shader_handle, "sphere_center" );
 		sphere_radius_location = glGetUniformLocation( shader_handle, "sphere_radius" );
 		sphere_colors_location = glGetUniformLocation( shader_handle, "sphere_colors" );
 
-	// INITIAL SPHERE DATA
+		sphere_offsets_location = glGetUniformLocation( shader_handle, "sphere_offsets");
+
+
+	// PUT INITIAL GEOMETRY HERE
+
 
 		sphere_center_value[0] = glm::vec3( 0.0f, 0.0f, 0.0f );
-		sphere_radius_value[0] = 0.22f;
-		sphere_colors_values[0] = vec(0.5f, 0.0f, 0.1f, 0.2f);
+		sphere_radius_value[0] = 1.0f;
+		sphere_colors_values[0] = vec(0.0f, 0.0f, 0.0f, 0.02f);
+		sphere_offsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
 
 		glUniform3fv(sphere_center_location, NUM_SPHERES, glm::value_ptr( sphere_center_value[0] ) );
 		glUniform1fv(sphere_radius_location, NUM_SPHERES, &sphere_radius_value[0] );
 		glUniform4fv(sphere_colors_location, NUM_SPHERES, glm::value_ptr( sphere_colors_values[0] ) );
 
+		glUniform3fv(sphere_offsets_location, NUM_SPHERES, glm::value_ptr( sphere_offsets[0] ) );
+
+	}
 
 
 
@@ -407,7 +430,8 @@ void init()
 
 
 //TRIANGLES
-
+	if(NUM_TRIANGLES)
+	{
 	// TRIANGLE VALUES
 
 		triangle_point1_location = glGetUniformLocation( shader_handle, "triangle_point1" );
@@ -418,19 +442,35 @@ void init()
 
 		triangle_thickness_location = glGetUniformLocation( shader_handle, "triangle_thickness" );
 
+		triangle_offsets_location = glGetUniformLocation( shader_handle, "triangle_offsets");
+
 
 	// INITIAL TRIANGLE DATA
 
 
 	//this is just to maintain a placeholder
 
-		triangle_point1_values[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
-		triangle_point2_values[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
-		triangle_point3_values[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
+		// triangle_point1_values[0] = glm::vec3(  0.0f, -0.2f, -0.2f );
+		// triangle_point2_values[0] = glm::vec3( -0.2f,  0.0f, -0.2f );
+		// triangle_point3_values[0] = glm::vec3( -0.2f, -0.2f,  0.0f );
+		//
+		// triangle_color_values[0] = glm::vec4( 0.99f, 0.25f, 0.29f, 1.0f );
+		//
+		// thickness[0] = 0.04f;
+		// triangle_offsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
 
-		triangle_color_values[0] = glm::vec4( 0.99f, 0.25f, 0.29f, 1.0f );
 
-		thickness[0] = 0.04f;
+
+
+
+
+		// PUT INITIAL GEOMETRY HERE
+
+
+
+
+
+
 
 	 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
 		glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
@@ -441,6 +481,9 @@ void init()
 
 		glUniform1fv( triangle_thickness_location, NUM_TRIANGLES, &thickness[0]);
 
+		glUniform3fv( triangle_offsets_location, NUM_TRIANGLES, glm::value_ptr( triangle_offsets[0] ) );
+
+	}
 
 
 
@@ -455,47 +498,82 @@ void init()
 
 
 //QUADRILATERAL HEXAHEDRON (CUBOID)
+	if(NUM_QUAD_HEXS)
+	{
+		cuboid_a_location = glGetUniformLocation( shader_handle, "cuboid_a");
+		cuboid_b_location = glGetUniformLocation( shader_handle, "cuboid_b");
+		cuboid_c_location = glGetUniformLocation( shader_handle, "cuboid_c");
+		cuboid_d_location = glGetUniformLocation( shader_handle, "cuboid_d");
+		cuboid_e_location = glGetUniformLocation( shader_handle, "cuboid_e");
+		cuboid_f_location = glGetUniformLocation( shader_handle, "cuboid_f");
+		cuboid_g_location = glGetUniformLocation( shader_handle, "cuboid_g");
+		cuboid_h_location = glGetUniformLocation( shader_handle, "cuboid_h");
 
-	cuboid_a_location = glGetUniformLocation( shader_handle, "cuboid_a");
-	cuboid_b_location = glGetUniformLocation( shader_handle, "cuboid_b");
-	cuboid_c_location = glGetUniformLocation( shader_handle, "cuboid_c");
-	cuboid_d_location = glGetUniformLocation( shader_handle, "cuboid_d");
-	cuboid_e_location = glGetUniformLocation( shader_handle, "cuboid_e");
-	cuboid_f_location = glGetUniformLocation( shader_handle, "cuboid_f");
-	cuboid_g_location = glGetUniformLocation( shader_handle, "cuboid_g");
-	cuboid_h_location = glGetUniformLocation( shader_handle, "cuboid_h");
+		cuboid_colors_location = glGetUniformLocation( shader_handle, "cuboid_colors");
 
-	cuboid_colors_location = glGetUniformLocation( shader_handle, "cuboid_colors");
-
-
-	float p =  0.05f;
-	float n = -0.05f;
-
-	glm::vec3 cuboid_offset = glm::vec3(0.2, 0.2, 0.2);
-
-	cuboid_a_values[0] = glm::vec3( n, p, p) + cuboid_offset;
-	cuboid_b_values[0] = glm::vec3( n, n, p) + cuboid_offset;
-	cuboid_c_values[0] = glm::vec3( p, p, p) + cuboid_offset;
-	cuboid_d_values[0] = glm::vec3( p, n, p) + cuboid_offset;
-	cuboid_e_values[0] = glm::vec3( n, p, n) + cuboid_offset;
-	cuboid_f_values[0] = glm::vec3( n, n, n) + cuboid_offset;
-	cuboid_g_values[0] = glm::vec3( p, p, n) + cuboid_offset;
-	cuboid_h_values[0] = glm::vec3( p, n, n) + cuboid_offset;
-
-	cuboid_color_values[0] = vec(0.0f, 0.0f, 0.0f, 1.0f);
+		cuboid_offsets_location = glGetUniformLocation( shader_handle, "cuboid_offsets");
 
 
-	glUniform3fv(cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
-	glUniform3fv(cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
-	glUniform3fv(cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
-	glUniform3fv(cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
-	glUniform3fv(cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
-	glUniform3fv(cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
-	glUniform3fv(cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
-	glUniform3fv(cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
+		////// float p =  0.05f;
+		////// float n = -0.05f;
+		//////
+		////// glm::vec3 cuboid_offset = glm::vec3(0.2, 0.2, 0.2);
+		//////
+		////// cuboid_a_values[0] = glm::vec3( n, p, p) + cuboid_offset;
+		////// cuboid_b_values[0] = glm::vec3( n, n, p) + cuboid_offset;
+		////// cuboid_c_values[0] = glm::vec3( p, p, p) + cuboid_offset;
+		////// cuboid_d_values[0] = glm::vec3( p, n, p) + cuboid_offset;
+		////// cuboid_e_values[0] = glm::vec3( n, p, n) + cuboid_offset;
+		////// cuboid_f_values[0] = glm::vec3( n, n, n) + cuboid_offset;
+		////// cuboid_g_values[0] = glm::vec3( p, p, n) + cuboid_offset;
+		////// cuboid_h_values[0] = glm::vec3( p, n, n) + cuboid_offset;
+		//////
+		////// cuboid_color_values[0] = vec(0.0f, 0.0f, 0.0f, 1.0f);
+		//////
+		////// cuboid_offsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
 
-	glUniform4fv(cuboid_colors_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_color_values[0] ) );
 
+		// PUT INITIAL GEOMETRY HERE
+
+
+		//WHITEBOARD TIME
+		glm::vec3 a = glm::vec3(-,+,+);
+		glm::vec3 b = glm::vec3(-,-,+);
+		glm::vec3 c = glm::vec3(+,+,+);
+		glm::vec3 d = glm::vec3(+,-,+);
+		glm::vec3 e = glm::vec3(-,+,-);
+		glm::vec3 f = glm::vec3(-,-,-);
+		glm::vec3 g = glm::vec3(+,+,-);
+		glm::vec3 h = glm::vec3(+,-,-);
+
+
+		cuboid_a_values[0] = ;
+		cuboid_b_values[0] = ;
+		cuboid_c_values[0] = ;
+		cuboid_d_values[0] = ;
+		cuboid_e_values[0] = ;
+		cuboid_f_values[0] = ;
+		cuboid_g_values[0] = ;
+		cuboid_h_values[0] = ;
+
+
+
+
+
+		glUniform3fv(cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
+		glUniform3fv(cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
+		glUniform3fv(cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
+		glUniform3fv(cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
+		glUniform3fv(cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
+		glUniform3fv(cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
+		glUniform3fv(cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
+		glUniform3fv(cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
+
+		glUniform4fv(cuboid_colors_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_color_values[0] ) );
+
+		glUniform3fv(cuboid_offsets_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_offsets[0] ) );
+
+	}
 
 
 
@@ -509,78 +587,139 @@ void init()
 
 
 //CYLINDERS
+	if(NUM_CYLINDERS)
+	{
+		cylinder_tvec_location = glGetUniformLocation( shader_handle, "cylinder_tvec");
+		cylinder_bvec_location = glGetUniformLocation( shader_handle, "cylinder_bvec");
+		cylinder_radii_location = glGetUniformLocation( shader_handle, "cylinder_radii");
+		cylinder_colors_location = glGetUniformLocation( shader_handle, "cylinder_colors");
 
-	cylinder_tvec_location = glGetUniformLocation( shader_handle, "cylinder_tvec");
-	cylinder_bvec_location = glGetUniformLocation( shader_handle, "cylinder_bvec");
-	cylinder_radii_location = glGetUniformLocation( shader_handle, "cylinder_radii");
-	cylinder_colors_location = glGetUniformLocation( shader_handle, "cylinder_colors");
-
-
-
-//BAR 1
-	cylinder_tvec_values[0] = glm::vec3( 0.3f, 0.0f, -0.3f);
-	cylinder_bvec_values[0] = glm::vec3( 0.3f, 0.0f,  0.3f);
-	cylinder_radii_values[0] = 0.07f;
-	cylinder_color_values[0] = vec(0.0f, 0.0f, 0.4f, 0.1f);
-
-	cylinder_tvec_values[1] = glm::vec3( 0.3f, 0.0f, -0.295f);
-	cylinder_bvec_values[1] = glm::vec3( 0.3f, 0.0f,  0.295f);
-	cylinder_radii_values[1] = 0.06f;
-	cylinder_color_values[1] = vec(0.75f, 0.0f, 0.3f, 1.0f);
-
-//BAR 2
-	cylinder_tvec_values[2] = glm::vec3( 0.15f, 0.0f, -0.3f);
-	cylinder_bvec_values[2] = glm::vec3( 0.15f, 0.0f,  0.3f);
-	cylinder_radii_values[2] = 0.07f;
-	cylinder_color_values[2] = vec(0.0f, 0.0f, 0.4f, 0.1f);
-
-	cylinder_tvec_values[3] = glm::vec3( 0.15f, 0.0f, -0.295f);
-	cylinder_bvec_values[3] = glm::vec3( 0.15f, 0.0f,  0.295f);
-	cylinder_radii_values[3] = 0.06f;
-	cylinder_color_values[3] = vec(0.75f, 0.0f, 0.3f, 1.0f);
-
-//BAR 3
-	cylinder_tvec_values[4] = glm::vec3( 0.0f, 0.0f, -0.3f);
-	cylinder_bvec_values[4] = glm::vec3( 0.0f, 0.0f,  0.3f);
-	cylinder_radii_values[4] = 0.07f;
-	cylinder_color_values[4] = vec(0.0f, 0.0f, 0.4f, 0.1f);
-
-	cylinder_tvec_values[5] = glm::vec3( 0.0f, 0.0f, -0.295f);
-	cylinder_bvec_values[5] = glm::vec3( 0.0f, 0.0f,  0.295f);
-	cylinder_radii_values[5] = 0.06f;
-	cylinder_color_values[5] = vec(0.75f, 0.0f, 0.3f, 1.0f);
-
-//BAR 4
-	cylinder_tvec_values[6] = glm::vec3( -0.15f, 0.0f, -0.3f);
-	cylinder_bvec_values[6] = glm::vec3( -0.15f, 0.0f,  0.3f);
-	cylinder_radii_values[6] = 0.07f;
-	cylinder_color_values[6] = vec(0.0f, 0.0f, 0.4f, 0.1f);
-
-	cylinder_tvec_values[7] = glm::vec3( -0.15f, 0.0f, -0.295f);
-	cylinder_bvec_values[7] = glm::vec3( -0.15f, 0.0f,  0.295f);
-	cylinder_radii_values[7] = 0.06f;
-	cylinder_color_values[7] = vec(0.75f, 0.0f, 0.3f, 1.0f);
-
-//BAR 5
-	cylinder_tvec_values[8] = glm::vec3( -0.3f, 0.0f, -0.3f);
-	cylinder_bvec_values[8] = glm::vec3( -0.3f, 0.0f,  0.3f);
-	cylinder_radii_values[8] = 0.07f;
-	cylinder_color_values[8] = vec(0.0f, 0.0f, 0.4f, 0.1f);
-
-	cylinder_tvec_values[9] = glm::vec3( -0.3f, 0.0f, -0.295f);
-	cylinder_bvec_values[9] = glm::vec3( -0.3f, 0.0f,  0.295f);
-	cylinder_radii_values[9] = 0.06f;
-	cylinder_color_values[9] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+		cylinder_offsets_location = glGetUniformLocation( shader_handle, "cylinder_offsets");
 
 
 
-	glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
-	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
-	glUniform1fv(cylinder_radii_location, NUM_CYLINDERS, &cylinder_radii_values[0] );
-	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
+		// PUT INITIAL GEOMETRY HERE
+
+
+//MAIN JOURNALS
+		cylinder_tvec_values[0] = glm::vec3(0.0f, 0.0f, -0.45f);
+		cylinder_bvec_values[0] = glm::vec3(0.0f, 0.0f, -0.35f);
+
+		cylinder_radii_values[0] = 0.03f;
+
+		cylinder_color_values[0] = vec(0.25f, 0.25f, 0.25f, 1.0f);
+
+		cylinder_offsets[0] = glm::vec3(-0.2f, 0.0f, 0.0f);
 
 
 
+
+		cylinder_tvec_values[1] = glm::vec3(0.0f, 0.0f, -0.25f);
+		cylinder_bvec_values[1] = glm::vec3(0.0f, 0.0f, -0.15f);
+
+		cylinder_radii_values[1] = 0.03f;
+
+		cylinder_color_values[1] = vec(0.25f, 0.25f, 0.25f, 1.0f);
+
+		cylinder_offsets[1] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+
+
+		cylinder_tvec_values[2] = glm::vec3(0.0f, 0.0f, -0.05f);
+		cylinder_bvec_values[2] = glm::vec3(0.0f, 0.0f, 0.05f);
+
+		cylinder_radii_values[2] = 0.03f;
+
+		cylinder_color_values[2] = vec(0.25f, 0.25f, 0.25f, 1.0f);
+
+		cylinder_offsets[2] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+
+
+
+		cylinder_tvec_values[3] = glm::vec3(0.0f, 0.0f, 0.15f);
+		cylinder_bvec_values[3] = glm::vec3(0.0f, 0.0f, 0.25f);
+
+		cylinder_radii_values[3] = 0.03f;
+
+		cylinder_color_values[3] = vec(0.25f, 0.25f, 0.25f, 1.0f);
+
+		cylinder_offsets[3] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+
+
+		cylinder_tvec_values[4] = glm::vec3(0.0f, 0.0f, 0.35f);
+		cylinder_bvec_values[4] = glm::vec3(0.0f, 0.0f, 0.45f);
+
+		cylinder_radii_values[4] = 0.03f;
+
+		cylinder_color_values[4] = vec(0.25f, 0.25f, 0.25f, 1.0f);
+
+		cylinder_offsets[4] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+//ROD JOURNALS
+
+// https://i.kinja-img.com/gawker-media/image/upload/s--TjZVv1cf--/c_scale,f_auto,fl_progressive,q_80,w_800/lijsom4kg4vspuddmp4g.jpg
+
+
+
+	//1,5 UP
+		cylinder_tvec_values[5] = glm::vec3(0.1f, 0.0f, -0.35f);
+		cylinder_bvec_values[5] = glm::vec3(0.1f, 0.0f, -0.25f);
+
+		cylinder_radii_values[5] = 0.03f;
+
+		cylinder_color_values[5] = vec(0.7f, 0.7f, 0.7f, 1.0f);
+
+		cylinder_offsets[5] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+	//2,6 RIGHT
+		cylinder_tvec_values[6] = glm::vec3(0.0f, 0.1f, -0.15f);
+		cylinder_bvec_values[6] = glm::vec3(0.0f, 0.1f, -0.05f);
+
+		cylinder_radii_values[6] = 0.03f;
+
+		cylinder_color_values[6] = vec(0.7f, 0.7f, 0.7f, 1.0f);
+
+		cylinder_offsets[6] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+	//3,7 LEFT
+		cylinder_tvec_values[7] = glm::vec3(0.0f, -0.1f, 0.05f);
+		cylinder_bvec_values[7] = glm::vec3(0.0f, -0.1f, 0.15f);
+
+		cylinder_radii_values[7] = 0.03f;
+
+		cylinder_color_values[7] = vec(0.7f, 0.7f, 0.7f, 1.0f);
+
+		cylinder_offsets[7] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+	//4,8 DOWN
+		cylinder_tvec_values[8] = glm::vec3(-0.1f, 0.0f, 0.25f);
+		cylinder_bvec_values[8] = glm::vec3(-0.1f, 0.0f, 0.35f);
+
+		cylinder_radii_values[8] = 0.03f;
+
+		cylinder_color_values[8] = vec(0.7f, 0.7f, 0.7f, 1.0f);
+
+		cylinder_offsets[8] = glm::vec3(-0.2f, 0.0f, 0.0f);
+
+
+
+
+
+		glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
+		glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
+		glUniform1fv(cylinder_radii_location, NUM_CYLINDERS, &cylinder_radii_values[0] );
+		glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
+
+		glUniform3fv(cylinder_offsets_location, NUM_CYLINDERS, glm::value_ptr( cylinder_offsets[0] ) );
+
+	}
 
 }
 
@@ -611,135 +750,6 @@ void display( void )
 void timer(int)
 {
 
-	// //rotate the points making up the triangle - this requires the use of a 4 unit vector, to use the 4x4 rotation matrix
-	// // (still simpler than writing out the whole rotation matrix)
-	//
-	// // need to use vec4s to multiply by a 4x4 rotation matrix
-	// vec triangle_point1_temp;
-	// vec triangle_point2_temp;
-	// vec triangle_point3_temp;
-	//
-	// // variable axis of rotation
-	// glm::vec3 axis;
-	//
-	// if(rotate_triangle)
-	// {
-	// 	for(int i = 0; i < NUM_TRIANGLES; i++)
-	// 	{
-	//
-	// 		switch(i % 3)
-	// 		{
-	// 			case 0:
-	// 				axis = glm::vec3(1.0f, 0.0f, 0.0f);
-	// 				break;
-	// 			case 1:
-	// 				axis = glm::vec3(0.0f, 1.0f, 0.0f);
-	// 				break;
-	// 			case 2:
-	// 				axis = glm::vec3(0.0f, 0.0f, 1.0f);
-	// 				break;
-	// 		}
-	//
-	// 		// axis = glm::vec3(0.0f, 0.0f, 1.0f);
-	//
-	// 		triangle_point1_temp = glm::rotate(0.01f, axis) * vec(triangle_point1_values[i], 1.0f);
-	// 		triangle_point2_temp = glm::rotate(0.01f, axis) * vec(triangle_point2_values[i], 1.0f);
-	// 		triangle_point3_temp = glm::rotate(0.01f, axis) * vec(triangle_point3_values[i], 1.0f);
-	//
-	// 		triangle_point1_values[i] = triangle_point1_temp; // they don't do the .xyz swizzle thing in the glm library, but this works to get the first three elements
-	// 		triangle_point2_values[i] = triangle_point2_temp;
-	// 		triangle_point3_values[i] = triangle_point3_temp;
-	//
-	// 	 	glUniform3fv( triangle_point1_location, NUM_TRIANGLES, glm::value_ptr( triangle_point1_values[0] ) );
-	// 		glUniform3fv( triangle_point2_location, NUM_TRIANGLES, glm::value_ptr( triangle_point2_values[0] ) );
-	// 		glUniform3fv( triangle_point3_location, NUM_TRIANGLES, glm::value_ptr( triangle_point3_values[0] ) );
-	//
-	// 	}
-	// }
-	//
-	// vec cuboid_a_temp;
-	// vec cuboid_b_temp;
-	// vec cuboid_c_temp;
-	// vec cuboid_d_temp;
-	// vec cuboid_e_temp;
-	// vec cuboid_f_temp;
-	// vec cuboid_g_temp;
-	// vec cuboid_h_temp;
-	//
-	//
-	// if(rotate_hexahedrons)
-	// {
-	// 	for(int i = 0; i < NUM_QUAD_HEXS; i++)
-	// 	{
-	//
-	// 		axis = glm::vec3(1.0f, 0.0f, 0.0f);
-	//
-	// 		cuboid_a_temp = glm::rotate(0.01f, axis) * vec(cuboid_a_values[i], 1.0f);
-	// 		cuboid_b_temp = glm::rotate(0.01f, axis) * vec(cuboid_b_values[i], 1.0f);
-	// 		cuboid_c_temp = glm::rotate(0.01f, axis) * vec(cuboid_c_values[i], 1.0f);
-	// 		cuboid_d_temp = glm::rotate(0.01f, axis) * vec(cuboid_d_values[i], 1.0f);
-	// 		cuboid_e_temp = glm::rotate(0.01f, axis) * vec(cuboid_e_values[i], 1.0f);
-	// 		cuboid_f_temp = glm::rotate(0.01f, axis) * vec(cuboid_f_values[i], 1.0f);
-	// 		cuboid_g_temp = glm::rotate(0.01f, axis) * vec(cuboid_g_values[i], 1.0f);
-	// 		cuboid_h_temp = glm::rotate(0.01f, axis) * vec(cuboid_h_values[i], 1.0f);
-	//
-	//
-	// 		cuboid_a_values[i] = cuboid_a_temp;
-	// 		cuboid_b_values[i] = cuboid_b_temp;
-	// 		cuboid_c_values[i] = cuboid_c_temp;
-	// 		cuboid_d_values[i] = cuboid_d_temp;
-	// 		cuboid_e_values[i] = cuboid_e_temp;
-	// 		cuboid_f_values[i] = cuboid_f_temp;
-	// 		cuboid_g_values[i] = cuboid_g_temp;
-	// 		cuboid_h_values[i] = cuboid_h_temp;
-	//
-	// 	}
-	//
-	// 	glUniform3fv( cuboid_a_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_a_values[0] ) );
-	// 	glUniform3fv( cuboid_b_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_b_values[0] ) );
-	// 	glUniform3fv( cuboid_c_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_c_values[0] ) );
-	// 	glUniform3fv( cuboid_d_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_d_values[0] ) );
-	// 	glUniform3fv( cuboid_e_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_e_values[0] ) );
-	// 	glUniform3fv( cuboid_f_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_f_values[0] ) );
-	// 	glUniform3fv( cuboid_g_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_g_values[0] ) );
-	// 	glUniform3fv( cuboid_h_location, NUM_QUAD_HEXS, glm::value_ptr( cuboid_h_values[0] ) );
-	//
-	// }
-
-	//for animating the progress bar thing
-	glm::vec3 base_point1 = glm::vec3(0.3f, 0.0f, -0.295f);
-	glm::vec3 base_point2 = glm::vec3(0.15f, 0.0f, -0.295f);
-	glm::vec3 base_point3 = glm::vec3(0.0f, 0.0f, -0.295f);
-	glm::vec3 base_point4 = glm::vec3(-0.15f, 0.0f, -0.295f);
-	glm::vec3 base_point5 = glm::vec3(-0.3f, 0.0f, -0.295f);
-
-	glm::vec3 full_bar = glm::vec3(0.0f, 0.0f, 0.295f * 2.0f);
-
-	float amount1 = (0.5f * std::sin(0.02f * (numFrames + 00)) + 0.5f);
-	float amount2 = (0.5f * std::sin(0.02f * (numFrames + 10)) + 0.5f);
-	float amount3 = (0.5f * std::sin(0.02f * (numFrames + 20)) + 0.5f);
-	float amount4 = (0.5f * std::sin(0.02f * (numFrames + 30)) + 0.5f);
-	float amount5 = (0.5f * std::sin(0.02f * (numFrames + 40)) + 0.5f);
-
-
-	// ranging from 0.0 to 1.0
-
-	cylinder_bvec_values[1] = base_point1 + amount1 * full_bar;
-	cylinder_bvec_values[3] = base_point2 + amount2 * full_bar;
-	cylinder_bvec_values[5] = base_point3 + amount3 * full_bar;
-	cylinder_bvec_values[7] = base_point4 + amount4 * full_bar;
-	cylinder_bvec_values[9] = base_point5 + amount5 * full_bar;
-
-	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
-
-
-	cylinder_color_values[1] = vec(amount1, 1.0f - amount1, 0.0f, 1.0f);
-	cylinder_color_values[3] = vec(amount2, 1.0f - amount2, 0.0f, 1.0f);
-	cylinder_color_values[5] = vec(amount3, 1.0f - amount3, 0.0f, 1.0f);
-	cylinder_color_values[7] = vec(amount4, 1.0f - amount4, 0.0f, 1.0f);
-	cylinder_color_values[9] = vec(amount5, 1.0f - amount5, 0.0f, 1.0f);
-
-	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 
 
