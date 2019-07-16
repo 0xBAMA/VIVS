@@ -18,10 +18,13 @@ exe: main.cc
 
 
 
-examples: david ico
+examples: david ico bars
 
 david: examples/david/david.cc
 	$(CC) examples/david/david.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/david/david
 
 ico: examples/ico/ico.cc
 	$(CC) examples/ico/ico.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/ico/ico
+
+bars: examples/bars/bars.cc
+	$(CC) examples/bars/bars.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/bars/bars
