@@ -26,7 +26,7 @@ exe: main.cc
 #									<example_name> <optional argument: num_points_per_side>
 
 
-examples: david ico bars
+examples: david ico bars crankshaft
 
 
 
@@ -48,3 +48,10 @@ ico: examples/ico/ico.cc
 
 bars: examples/bars/bars.cc
 	$(CC) examples/bars/bars.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/bars/bars
+
+
+
+# a rotating v8 crankshaft
+
+crankshaft: examples/crankshaft/crankshaft.cc
+	$(CC) examples/crankshaft/crankshaft.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/crankshaft/crankshaft

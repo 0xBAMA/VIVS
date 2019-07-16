@@ -12,7 +12,7 @@ using std::string;
 
 
 // Good, simple png library
-#include "resources/lodepng.h"
+#include "../../resources/lodepng.h"
 
 
 // GLEW
@@ -26,14 +26,14 @@ using std::string;
 
 
 // Shader Compilation
-#include "resources/shaders/Shader.h"
+#include "../../resources/shaders/Shader.h"
 
 
 // glsl-style Vector and Matrix Library - separate includes for different functionality
-#include "resources/glm/glm.hpp" 									// general types
-#include "resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
-#include "resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
-#include "resources/glm/gtx/transform.hpp"				// rotate()
+#include "../../resources/glm/glm.hpp" 									// general types
+#include "../../resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
+#include "../../resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
+#include "../../resources/glm/gtx/transform.hpp"				// rotate()
 
 typedef glm::vec4 vec;
 
@@ -310,7 +310,7 @@ void init()
 	unsigned width, height;
 	std::vector<unsigned char> image_data;
 
-	unsigned error = lodepng::decode( image_data, width, height, "AustraliaHeightmap.png", LCT_GREY, 8 );
+	unsigned error = lodepng::decode( image_data, width, height, "../../AustraliaHeightmap.png", LCT_GREY, 8 );
 
 	if( error == 0 )
 	{
@@ -1423,7 +1423,7 @@ int main( int argc, char **argv )
 
 	cout << "Shader Compilation Starting...";
 
-	Shader theShader( "resources/shaders/vertex.glsl", "resources/shaders/fragment.glsl" );
+	Shader theShader( "vertex_crankshaft.glsl", "fragment_crankshaft.glsl" );
 
 	shader_handle = theShader.Program;
 
