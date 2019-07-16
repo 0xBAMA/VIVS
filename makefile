@@ -16,6 +16,10 @@ exe: main.cc
 	$(CC) main.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) exe
 
 
+# example executables are kept in the associated folder, along with their shaders
+
+# the shader files are referenced in such a way that you'll have to be in the
+# folder for that example in order for it to know where to find them 
 
 
 examples: david ico bars
