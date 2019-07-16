@@ -90,7 +90,7 @@ GLuint rotation_location = 3;
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 1
 #define NUM_QUAD_HEXS 1
-#define NUM_CYLINDERS 2
+#define NUM_CYLINDERS 10
 
 
 //SPHERE
@@ -176,9 +176,7 @@ GLuint cylinder_colors_location;
 vec cylinder_color_values[NUM_CYLINDERS];
 
 
-//for animating the progress bar thing
-glm::vec3 base_point = glm::vec3(0.0f, 0.0f, -0.295f);
-glm::vec3 full_bar = glm::vec3(0.0f, 0.0f, 0.295f * 2.0f);
+
 
 
 
@@ -519,16 +517,60 @@ void init()
 
 
 
-
-	cylinder_tvec_values[0] = glm::vec3( 0.0f, 0.0f, -0.3f);
-	cylinder_bvec_values[0] = glm::vec3( 0.0f, 0.0f,  0.3f);
+//BAR 1
+	cylinder_tvec_values[0] = glm::vec3( 0.3f, 0.0f, -0.3f);
+	cylinder_bvec_values[0] = glm::vec3( 0.3f, 0.0f,  0.3f);
 	cylinder_radii_values[0] = 0.07f;
 	cylinder_color_values[0] = vec(0.0f, 0.0f, 0.4f, 0.1f);
 
-	cylinder_tvec_values[1] = glm::vec3( 0.0f, 0.0f, -0.295f);
-	cylinder_bvec_values[1] = glm::vec3( 0.0f, 0.0f,  0.295f);
+	cylinder_tvec_values[1] = glm::vec3( 0.3f, 0.0f, -0.295f);
+	cylinder_bvec_values[1] = glm::vec3( 0.3f, 0.0f,  0.295f);
 	cylinder_radii_values[1] = 0.06f;
 	cylinder_color_values[1] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+
+//BAR 2
+	cylinder_tvec_values[2] = glm::vec3( 0.15f, 0.0f, -0.3f);
+	cylinder_bvec_values[2] = glm::vec3( 0.15f, 0.0f,  0.3f);
+	cylinder_radii_values[2] = 0.07f;
+	cylinder_color_values[2] = vec(0.0f, 0.0f, 0.4f, 0.1f);
+
+	cylinder_tvec_values[3] = glm::vec3( 0.15f, 0.0f, -0.295f);
+	cylinder_bvec_values[3] = glm::vec3( 0.15f, 0.0f,  0.295f);
+	cylinder_radii_values[3] = 0.06f;
+	cylinder_color_values[3] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+
+//BAR 3
+	cylinder_tvec_values[4] = glm::vec3( 0.0f, 0.0f, -0.3f);
+	cylinder_bvec_values[4] = glm::vec3( 0.0f, 0.0f,  0.3f);
+	cylinder_radii_values[4] = 0.07f;
+	cylinder_color_values[4] = vec(0.0f, 0.0f, 0.4f, 0.1f);
+
+	cylinder_tvec_values[5] = glm::vec3( 0.0f, 0.0f, -0.295f);
+	cylinder_bvec_values[5] = glm::vec3( 0.0f, 0.0f,  0.295f);
+	cylinder_radii_values[5] = 0.06f;
+	cylinder_color_values[5] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+
+//BAR 4
+	cylinder_tvec_values[6] = glm::vec3( -0.15f, 0.0f, -0.3f);
+	cylinder_bvec_values[6] = glm::vec3( -0.15f, 0.0f,  0.3f);
+	cylinder_radii_values[6] = 0.07f;
+	cylinder_color_values[6] = vec(0.0f, 0.0f, 0.4f, 0.1f);
+
+	cylinder_tvec_values[7] = glm::vec3( -0.15f, 0.0f, -0.295f);
+	cylinder_bvec_values[7] = glm::vec3( -0.15f, 0.0f,  0.295f);
+	cylinder_radii_values[7] = 0.06f;
+	cylinder_color_values[7] = vec(0.75f, 0.0f, 0.3f, 1.0f);
+
+//BAR 5
+	cylinder_tvec_values[8] = glm::vec3( -0.3f, 0.0f, -0.3f);
+	cylinder_bvec_values[8] = glm::vec3( -0.3f, 0.0f,  0.3f);
+	cylinder_radii_values[8] = 0.07f;
+	cylinder_color_values[8] = vec(0.0f, 0.0f, 0.4f, 0.1f);
+
+	cylinder_tvec_values[9] = glm::vec3( -0.3f, 0.0f, -0.295f);
+	cylinder_bvec_values[9] = glm::vec3( -0.3f, 0.0f,  0.295f);
+	cylinder_radii_values[9] = 0.06f;
+	cylinder_color_values[9] = vec(0.75f, 0.0f, 0.3f, 1.0f);
 
 
 
@@ -664,15 +706,39 @@ void timer(int)
 	//
 	// }
 
-	float amount = (0.5f * std::sin(0.02f * numFrames) + 0.5f);
+	//for animating the progress bar thing
+	glm::vec3 base_point1 = glm::vec3(0.3f, 0.0f, -0.295f);
+	glm::vec3 base_point2 = glm::vec3(0.15f, 0.0f, -0.295f);
+	glm::vec3 base_point3 = glm::vec3(0.0f, 0.0f, -0.295f);
+	glm::vec3 base_point4 = glm::vec3(-0.15f, 0.0f, -0.295f);
+	glm::vec3 base_point5 = glm::vec3(-0.3f, 0.0f, -0.295f);
+
+	glm::vec3 full_bar = glm::vec3(0.0f, 0.0f, 0.295f * 2.0f);
+
+	float amount1 = (0.5f * std::sin(0.02f * (numFrames + 00)) + 0.5f);
+	float amount2 = (0.5f * std::sin(0.02f * (numFrames + 10)) + 0.5f);
+	float amount3 = (0.5f * std::sin(0.02f * (numFrames + 20)) + 0.5f);
+	float amount4 = (0.5f * std::sin(0.02f * (numFrames + 30)) + 0.5f);
+	float amount5 = (0.5f * std::sin(0.02f * (numFrames + 40)) + 0.5f);
+
 
 	// ranging from 0.0 to 1.0
 
-	cylinder_bvec_values[1] = base_point + amount * full_bar;
+	cylinder_bvec_values[1] = base_point1 + amount1 * full_bar;
+	cylinder_bvec_values[3] = base_point2 + amount2 * full_bar;
+	cylinder_bvec_values[5] = base_point3 + amount3 * full_bar;
+	cylinder_bvec_values[7] = base_point4 + amount4 * full_bar;
+	cylinder_bvec_values[9] = base_point5 + amount5 * full_bar;
+
 	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
 
 
-	cylinder_color_values[1] = vec(amount, 1.0f - amount , 0.0f, 1.0f);
+	cylinder_color_values[1] = vec(amount1, 1.0f - amount1, 0.0f, 1.0f);
+	cylinder_color_values[3] = vec(amount2, 1.0f - amount2, 0.0f, 1.0f);
+	cylinder_color_values[5] = vec(amount3, 1.0f - amount3, 0.0f, 1.0f);
+	cylinder_color_values[7] = vec(amount4, 1.0f - amount4, 0.0f, 1.0f);
+	cylinder_color_values[9] = vec(amount5, 1.0f - amount5, 0.0f, 1.0f);
+
 	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 
