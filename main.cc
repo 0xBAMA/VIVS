@@ -89,7 +89,7 @@ GLuint rotation_location = 3;
 
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 0
-#define NUM_QUAD_HEXS 1
+#define NUM_QUAD_HEXS 8
 #define NUM_CYLINDERS 9
 
 
@@ -533,18 +533,56 @@ void init()
 		////// cuboid_offsets[0] = glm::vec3(0.0f, 0.0f, 0.0f);
 
 
+
+
+
+
+
+
+		// glm::vec3 a = glm::vec3(-,+,+);
+		// glm::vec3 b = glm::vec3(-,-,+);
+		// glm::vec3 c = glm::vec3(+,+,+);
+		// glm::vec3 d = glm::vec3(+,-,+);
+		// glm::vec3 e = glm::vec3(-,+,-);
+		// glm::vec3 f = glm::vec3(-,-,-);
+		// glm::vec3 g = glm::vec3(+,+,-);
+		// glm::vec3 h = glm::vec3(+,-,-);
+
+		// 	   e-------g    +y
+		// 	  /|      /|		 |
+		// 	 / |     / |     |___+x
+		// 	a-------c  |    /
+		// 	|  f----|--h   +z
+		// 	| /     | /
+		//  |/      |/
+		// 	b-------d
+
+		
+
+
+
 		// PUT INITIAL GEOMETRY HERE
 
 
 		//WHITEBOARD TIME
-		glm::vec3 a = glm::vec3(-,+,+);
-		glm::vec3 b = glm::vec3(-,-,+);
-		glm::vec3 c = glm::vec3(+,+,+);
-		glm::vec3 d = glm::vec3(+,-,+);
-		glm::vec3 e = glm::vec3(-,+,-);
-		glm::vec3 f = glm::vec3(-,-,-);
-		glm::vec3 g = glm::vec3(+,+,-);
-		glm::vec3 h = glm::vec3(+,-,-);
+		glm::vec3 a1 = glm::vec3(-,+,+);
+		glm::vec3 b1 = glm::vec3(-,-,+);
+		glm::vec3 c1 = glm::vec3(+,+,+);
+		glm::vec3 d1 = glm::vec3(+,-,+);
+		glm::vec3 e1 = glm::vec3(-,+,-);
+		glm::vec3 f1 = glm::vec3(-,-,-);
+		glm::vec3 g1 = glm::vec3(+,+,-);
+		glm::vec3 h1 = glm::vec3(+,-,-);
+
+		glm::vec3 a2 = glm::vec3(-,+,+);
+		glm::vec3 b2 = glm::vec3(-,-,+);
+		glm::vec3 c2 = glm::vec3(+,+,+);
+		glm::vec3 d2 = glm::vec3(+,-,+);
+		glm::vec3 e2 = glm::vec3(-,+,-);
+		glm::vec3 f2 = glm::vec3(-,-,-);
+		glm::vec3 g2 = glm::vec3(+,+,-);
+		glm::vec3 h2 = glm::vec3(+,-,-);
+
 
 
 		cuboid_a_values[0] = ;
@@ -555,6 +593,69 @@ void init()
 		cuboid_f_values[0] = ;
 		cuboid_g_values[0] = ;
 		cuboid_h_values[0] = ;
+
+		cuboid_a_values[1] = ;
+		cuboid_b_values[1] = ;
+		cuboid_c_values[1] = ;
+		cuboid_d_values[1] = ;
+		cuboid_e_values[1] = ;
+		cuboid_f_values[1] = ;
+		cuboid_g_values[1] = ;
+		cuboid_h_values[1] = ;
+
+		cuboid_a_values[2] = ;
+		cuboid_b_values[2] = ;
+		cuboid_c_values[2] = ;
+		cuboid_d_values[2] = ;
+		cuboid_e_values[2] = ;
+		cuboid_f_values[2] = ;
+		cuboid_g_values[2] = ;
+		cuboid_h_values[2] = ;
+
+		cuboid_a_values[3] = ;
+		cuboid_b_values[3] = ;
+		cuboid_c_values[3] = ;
+		cuboid_d_values[3] = ;
+		cuboid_e_values[3] = ;
+		cuboid_f_values[3] = ;
+		cuboid_g_values[3] = ;
+		cuboid_h_values[3] = ;
+
+		cuboid_a_values[4] = ;
+		cuboid_b_values[4] = ;
+		cuboid_c_values[4] = ;
+		cuboid_d_values[4] = ;
+		cuboid_e_values[4] = ;
+		cuboid_f_values[4] = ;
+		cuboid_g_values[4] = ;
+		cuboid_h_values[4] = ;
+
+		cuboid_a_values[5] = ;
+		cuboid_b_values[5] = ;
+		cuboid_c_values[5] = ;
+		cuboid_d_values[5] = ;
+		cuboid_e_values[5] = ;
+		cuboid_f_values[5] = ;
+		cuboid_g_values[5] = ;
+		cuboid_h_values[5] = ;
+
+		cuboid_a_values[6] = ;
+		cuboid_b_values[6] = ;
+		cuboid_c_values[6] = ;
+		cuboid_d_values[6] = ;
+		cuboid_e_values[6] = ;
+		cuboid_f_values[6] = ;
+		cuboid_g_values[6] = ;
+		cuboid_h_values[6] = ;
+
+		cuboid_a_values[7] = ;
+		cuboid_b_values[7] = ;
+		cuboid_c_values[7] = ;
+		cuboid_d_values[7] = ;
+		cuboid_e_values[7] = ;
+		cuboid_f_values[7] = ;
+		cuboid_g_values[7] = ;
+		cuboid_h_values[7] = ;
 
 
 
