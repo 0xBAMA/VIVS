@@ -90,7 +90,7 @@ GLuint rotation_location = 3;
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 0
 #define NUM_QUAD_HEXS 8
-#define NUM_CYLINDERS 18
+#define NUM_CYLINDERS 26
 
 
 //SPHERE
@@ -1005,8 +1005,104 @@ void init()
 		cylinder_offsets[17] = glm::vec3(-0.3f, 0.0f, 0.0f);
 
 
-	//ENDCAPS
+//CONNECTING ROD CONNECTIONS - there are 8 connecting rods
+// reference: https://image.slidesharecdn.com/pistonmanufacturing-150201085312-conversion-gate01/95/piston-manufacturing-process-5-638.jpg?cb=1422802465
 
+
+		//CYLINDER 1 - PINK
+
+		cylinder_tvec_values[18] = glm::vec3(0.1f, 0.0f, -0.33f);
+		cylinder_bvec_values[18] = glm::vec3(0.1f, 0.0f, -0.305f);
+
+		cylinder_radii_values[18] = 0.035f;
+
+		cylinder_color_values[18] = vec(1.0f, 0.0f, 0.6f, 1.0f);
+
+		cylinder_offsets[18] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 2 - RED
+
+		cylinder_tvec_values[19] = glm::vec3(0.0f, 0.1f, -0.13f);
+		cylinder_bvec_values[19] = glm::vec3(0.0f, 0.1f, -0.105f);
+
+		cylinder_radii_values[19] = 0.035f;
+
+		cylinder_color_values[19] = vec(1.0f, 0.0f, 0.0f, 1.0f);
+
+		cylinder_offsets[19] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 3 - ORANGE
+
+		cylinder_tvec_values[20] = glm::vec3(0.0f, -0.1f, 0.07f);
+		cylinder_bvec_values[20] = glm::vec3(0.0f, -0.1f, 0.095f);
+
+		cylinder_radii_values[20] = 0.035f;
+
+		cylinder_color_values[20] = vec(1.0f, 0.5f, 0.0f, 1.0f);
+
+		cylinder_offsets[20] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 4 - YELLOW
+
+		cylinder_tvec_values[21] = glm::vec3(-0.1f, 0.0f, 0.27f);
+		cylinder_bvec_values[21] = glm::vec3(-0.1f, 0.0f, 0.295f);
+
+		cylinder_radii_values[21] = 0.035f;
+
+		cylinder_color_values[21] = vec(1.0f, 1.0f, 0.0f, 1.0f);
+
+		cylinder_offsets[21] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 5 - GREEN
+
+		cylinder_tvec_values[22] = glm::vec3(0.1f, 0.0f, -0.29f);
+		cylinder_bvec_values[22] = glm::vec3(0.1f, 0.0f, -0.265f);
+
+		cylinder_radii_values[22] = 0.035f;
+
+		cylinder_color_values[22] = vec(0.0f, 1.0f, 0.0f, 1.0f);
+
+		cylinder_offsets[22] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 6 - BLUE
+
+		cylinder_tvec_values[23] = glm::vec3(0.0f, 0.1f, -0.095f);
+		cylinder_bvec_values[23] = glm::vec3(0.0f, 0.1f, -0.07f);
+
+		cylinder_radii_values[23] = 0.035f;
+
+		cylinder_color_values[23] = vec(0.0f, 0.0f, 1.0f, 1.0f);
+
+		cylinder_offsets[23] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 7 - INDIGO
+
+		cylinder_tvec_values[24] = glm::vec3(0.0f, -0.1f, 0.105f);
+		cylinder_bvec_values[24] = glm::vec3(0.0f, -0.1f, 0.13f);
+
+		cylinder_radii_values[24] = 0.035f;
+
+		cylinder_color_values[24] = vec(0.3f, 0.0f, 0.5f, 1.0f);
+
+		cylinder_offsets[24] = glm::vec3(-0.3f, 0.0f, 0.0f);
+
+
+		//CYLINDER 8 - VIOLET
+
+		cylinder_tvec_values[25] = glm::vec3(-0.1f, 0.0f, 0.305f);
+		cylinder_bvec_values[25] = glm::vec3(-0.1f, 0.0f, 0.33f);
+
+		cylinder_radii_values[25] = 0.035f;
+
+		cylinder_color_values[25] = vec(0.5f, 0.0f, 1.0f, 1.0f);
+
+		cylinder_offsets[25] = glm::vec3(-0.3f, 0.0f, 0.0f);
 
 
 
@@ -1072,6 +1168,32 @@ void timer(int)
 
 	cylinder_tvec_values[17] = rot * vec(cylinder_tvec_values[17], 1.0f);
 	cylinder_bvec_values[17] = rot * vec(cylinder_bvec_values[17], 1.0f);
+
+	//ROTATE CONNECTING ROD CONNECTIONS (CYLINDERS index 18 to 25)
+
+	cylinder_tvec_values[18] = rot * vec(cylinder_tvec_values[18], 1.0f);
+	cylinder_bvec_values[18] = rot * vec(cylinder_bvec_values[18], 1.0f);
+
+	cylinder_tvec_values[19] = rot * vec(cylinder_tvec_values[19], 1.0f);
+	cylinder_bvec_values[19] = rot * vec(cylinder_bvec_values[19], 1.0f);
+
+	cylinder_tvec_values[20] = rot * vec(cylinder_tvec_values[20], 1.0f);
+	cylinder_bvec_values[20] = rot * vec(cylinder_bvec_values[20], 1.0f);
+
+	cylinder_tvec_values[21] = rot * vec(cylinder_tvec_values[21], 1.0f);
+	cylinder_bvec_values[21] = rot * vec(cylinder_bvec_values[21], 1.0f);
+
+	cylinder_tvec_values[22] = rot * vec(cylinder_tvec_values[22], 1.0f);
+	cylinder_bvec_values[22] = rot * vec(cylinder_bvec_values[22], 1.0f);
+
+	cylinder_tvec_values[23] = rot * vec(cylinder_tvec_values[23], 1.0f);
+	cylinder_bvec_values[23] = rot * vec(cylinder_bvec_values[23], 1.0f);
+
+	cylinder_tvec_values[24] = rot * vec(cylinder_tvec_values[24], 1.0f);
+	cylinder_bvec_values[24] = rot * vec(cylinder_bvec_values[24], 1.0f);
+
+	cylinder_tvec_values[25] = rot * vec(cylinder_tvec_values[25], 1.0f);
+	cylinder_bvec_values[25] = rot * vec(cylinder_bvec_values[25], 1.0f);
 
 
 	//UPDATE THE GPU-SIDE VALUES OF ALL CYLINDERS
