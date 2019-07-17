@@ -16,9 +16,9 @@ out vec4 color;
 #define RENDER_HEIGHTMAP	false		//renders a heightmap held in a texture
 
 #define RENDER_SPHERES 		true		//renders a list of spheres
+#define RENDER_CYLINDERS 	true		//renders a list of cylinders
 #define RENDER_TRIANGLES 	false		//renders a list of triangles
 #define RENDER_QUAD_HEX 	true		//renders a list of cuboids
-#define RENDER_CYLINDERS 	true		//renders a list of cylinders
 
 
 
@@ -30,9 +30,9 @@ out vec4 color;
 //	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
+#define NUM_CYLINDERS 42					//how long is the list of cylinders?
 #define NUM_TRIANGLES 1						//how long is the list of triangles?
 #define NUM_QUAD_HEXS 8						//how long is the list of cuboids?
-#define NUM_CYLINDERS 26					//how long is the list of cylinders?
 
 
 
@@ -45,6 +45,19 @@ uniform float sphere_radius[NUM_SPHERES];
 uniform vec4 sphere_colors[NUM_SPHERES];
 
 uniform vec3 sphere_offsets[NUM_SPHERES];
+
+
+
+
+//CYLINDER VALUES
+uniform vec3 cylinder_tvec[NUM_CYLINDERS];
+uniform vec3 cylinder_bvec[NUM_CYLINDERS];
+
+uniform float cylinder_radii[NUM_CYLINDERS];
+
+uniform vec4 cylinder_colors[NUM_CYLINDERS];
+
+uniform vec3 cylinder_offsets[NUM_CYLINDERS];
 
 
 
@@ -84,15 +97,6 @@ uniform vec3 cuboid_offsets[NUM_QUAD_HEXS];
 
 
 
-//CYLINDER VALUES
-uniform vec3 cylinder_tvec[NUM_CYLINDERS];
-uniform vec3 cylinder_bvec[NUM_CYLINDERS];
-
-uniform float cylinder_radii[NUM_CYLINDERS];
-
-uniform vec4 cylinder_colors[NUM_CYLINDERS];
-
-uniform vec3 cylinder_offsets[NUM_CYLINDERS];
 
 
 
@@ -101,8 +105,9 @@ uniform vec3 cylinder_offsets[NUM_CYLINDERS];
 
 
 
-int how_many_being_drawn = 0;
-vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
+
+// int how_many_being_drawn = 0;
+// vec4 sum = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 
@@ -151,8 +156,11 @@ void main()
 		{
 			if( distance( vPosition.xyz, sphere_center[i]) < sphere_radius[i] )
 			{
-				how_many_being_drawn++;
-				sum += sphere_colors[i];
+				// how_many_being_drawn++;
+				// sum += sphere_colors[i];
+
+				color = sphere_colors[i];
+
 			}
 		}
 	}
@@ -178,8 +186,8 @@ void main()
 			{
 				// color = vec4( height, 0.2f, 0.1f, 0.7f);
 
-				how_many_being_drawn++;
-				sum += vec4( height, 0.2f, 0.1f, 0.7f);
+				// how_many_being_drawn++;
+				// sum += vec4( height, 0.2f, 0.1f, 0.7f);
 
 			}
 		}
@@ -188,6 +196,79 @@ void main()
 
 
 
+
+
+
+
+
+
+
+	//CYLINDERS
+
+		//	 ,----.
+		//	(   *  )
+		//	|`----'|
+		//	|      |
+		//	|      |
+		//	|      |
+		//	|,----.|
+		//	(   *  )
+		//	 `----'
+
+		//	two points in space are used to represent the centers of the two circular
+		//		faces of the cylinder. A line is established between the two points -
+		//		this line serves two functions -
+
+		//	first, normals for the planes of the circular ends can be computed
+
+		//	second, it's used to check the distance from the current vertex to the line
+
+		//	if the vertex passes both tests (it is between the two planes and within
+		//		the radius of the cylinder) it can be said to be inside the cylinder
+
+
+		if(RENDER_CYLINDERS)
+		{
+
+			vec3 cylinder_tvec_normal;
+			vec3 cylinder_bvec_normal;
+
+			vec3 cylinder_center;
+
+			vec3 bvec_local, tvec_local;
+
+
+			for(int i = 0; i < NUM_CYLINDERS; i++)
+			{
+				bvec_local = cylinder_bvec[i] + cylinder_offsets[i];
+				tvec_local = cylinder_tvec[i] + cylinder_offsets[i];
+
+
+				cylinder_center = ( bvec_local + tvec_local ) / 2.0f;
+
+				cylinder_tvec_normal = bvec_local - tvec_local;
+				cylinder_tvec_normal = planetest( tvec_local, cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
+
+				cylinder_bvec_normal = bvec_local - tvec_local;
+				cylinder_bvec_normal = planetest( bvec_local, cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
+
+
+				if( planetest(bvec_local, cylinder_bvec_normal, vPosition.xyz) && planetest(tvec_local, cylinder_tvec_normal, vPosition.xyz) )
+				{
+
+					if((length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local )) < cylinder_radii[i])
+					{
+						//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+
+						// how_many_being_drawn++;
+						// sum += cylinder_colors[i];
+
+						color = cylinder_colors[i];
+
+					}
+				}
+			}
+		}
 
 
 
@@ -290,8 +371,10 @@ void main()
 
 			if(draw_triangles[i])
 			{
-				how_many_being_drawn++;
-				sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
+				// how_many_being_drawn++;
+				// sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
+
+				color = triangle_colors[i];
 			}
 		}
 	}
@@ -407,8 +490,10 @@ void main()
 
 			if(draw_cuboid[i])
 			{
-				how_many_being_drawn++;
-				sum += cuboid_colors[i];
+				// how_many_being_drawn++;
+				// sum += cuboid_colors[i];
+
+				color = cuboid_colors[i];
 			}
 		}
 	}
@@ -430,86 +515,21 @@ void main()
 
 
 
-//CYLINDERS
-
-	//	 ,----.
-	//	(   *  )
-	//	|`----'|
-	//	|      |
-	//	|      |
-	//	|      |
-	//	|,----.|
-	//	(   *  )
-	//	 `----'
-
-	//	two points in space are used to represent the centers of the two circular
-	//		faces of the cylinder. A line is established between the two points -
-	//		this line serves two functions -
-
-	//	first, normals for the planes of the circular ends can be computed
-
-	//	second, it's used to check the distance from the current vertex to the line
-
-	//	if the vertex passes both tests (it is between the two planes and within
-	//		the radius of the cylinder) it can be said to be inside the cylinder
-
-
-	if(RENDER_CYLINDERS)
-	{
-
-		vec3 cylinder_tvec_normal;
-		vec3 cylinder_bvec_normal;
-
-		vec3 cylinder_center;
-
-		vec3 bvec_local, tvec_local;
-
-
-		for(int i = 0; i < NUM_CYLINDERS; i++)
-		{
-			bvec_local = cylinder_bvec[i] + cylinder_offsets[i];
-			tvec_local = cylinder_tvec[i] + cylinder_offsets[i];
-
-
-			cylinder_center = ( bvec_local + tvec_local ) / 2.0f;
-
-			cylinder_tvec_normal = bvec_local - tvec_local;
-			cylinder_tvec_normal = planetest( tvec_local, cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
-
-			cylinder_bvec_normal = bvec_local - tvec_local;
-			cylinder_bvec_normal = planetest( bvec_local, cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
-
-
-			if( planetest(bvec_local, cylinder_bvec_normal, vPosition.xyz) && planetest(tvec_local, cylinder_tvec_normal, vPosition.xyz) )
-			{
-
-				if((length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local )) < cylinder_radii[i])
-				{
-					//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-
-					how_many_being_drawn++;
-					sum += cylinder_colors[i];
-
-				}
-			}
-		}
-	}
 
 
 
 
 
-
-	if(how_many_being_drawn > 0)
-	{// at least one shape is being drawn
-
-		color = sum / how_many_being_drawn;
-
-	}
-	else
-	{
-		color = vec4(0.0f, 0.0f, 0.0f, 0.003f);
-	}
+	// if(how_many_being_drawn > 0)
+	// {// at least one shape is being drawn
+	//
+	// 	// color = sum / how_many_being_drawn;
+	//
+	// }
+	// else
+	// {
+	// 	color = vec4(0.0f, 0.0f, 0.0f, 0.003f);
+	// }
 }
 
 
