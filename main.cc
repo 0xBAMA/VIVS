@@ -89,7 +89,7 @@ GLuint rotation_location = 3;
 
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 0
-#define NUM_QUAD_HEXS 8
+#define NUM_QUAD_HEXS 16
 #define NUM_CYLINDERS 50
 
 
@@ -260,7 +260,7 @@ glm::vec3 bank2_piston_offset = -0.1f * ((bank2_start_vector + bank2_end_vector)
 
 
 //colors
-vec ambient_color = vec(0.2f, 0.0f, 0.1f, 0.008f);
+vec ambient_color = vec(0.2f, 0.0f, 0.1f, 0.006f);
 vec crank_color = vec(0.3f, 0.3f, 0.3f, 0.55f);
 vec liner_color = vec(0.2f, 0.2f, 0.2f, 0.3f);
 vec rod_journal_color = vec(0.7f, 0.7f, 0.7f, 0.5f);
@@ -1150,6 +1150,7 @@ void init()
 
 
 
+
 		//CYLINDER 2
 
 		float cylinder_2_start = -0.13f;
@@ -1548,6 +1549,28 @@ void init()
 
 
 
+
+		timer(0); //update colors, etc, before rendering anything, after this call the piston locations are known
+
+		//NOW DRAWING PISTONS - since the timer function has established all the piston locations
+
+		//PISTON RING 1
+
+		//PISTON RING 2
+
+		//PISTON RING 3
+
+		//PISTON
+
+		//SCALLOPED EDGE
+
+
+
+
+
+
+
+		//THEN SEND EVERYTHING TO THE GPU
 		glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
 		glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
 		glUniform1fv(cylinder_radii_location, NUM_CYLINDERS, &cylinder_radii_values[0] );
@@ -1555,9 +1578,8 @@ void init()
 
 		glUniform3fv(cylinder_offsets_location, NUM_CYLINDERS, glm::value_ptr( cylinder_offsets[0] ) );
 
-		timer(0); //update colors, etc, before rendering anything
-
 	}
+
 
 }
 
@@ -1704,16 +1726,9 @@ void timer(int)
 	cylinder_bvec_values[49] = cylinder_8_piston_location;
 
 
-	// cylinder_color_values[42] = vec((0.5f * disp1) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[43] = vec((0.5f * disp2) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[44] = vec((0.5f * disp3) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[45] = vec((0.5f * disp4) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[46] = vec((0.5f * disp5) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[47] = vec((0.5f * disp6) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[48] = vec((0.5f * disp7) + 0.5f, 0.0f, 0.0f, 0.3f);
-	// cylinder_color_values[49] = vec((0.5f * disp8) + 0.5f, 0.0f, 0.0f, 0.3f);
+	//UPDATE THE COLORS - THIS WILL REQUIRE MORE SINUSOIDAL TYPE STUFF
 
-	//THEN PISTONS
+	//UPDATE LOCATIONS OF ALL PISTON COMPONENTS
 
 
 
@@ -1799,6 +1814,21 @@ void timer(int)
 	cuboid_f_values[7] = rot * vec(cuboid_f_values[7], 1.0f);
 	cuboid_g_values[7] = rot * vec(cuboid_g_values[7], 1.0f);
 	cuboid_h_values[7] = rot * vec(cuboid_h_values[7], 1.0f);
+
+
+
+	//THEN THE CON RODS - THIS RELIES ON THE VALUES COMPUTED EARLIER IN THE TIMER FUNCTION (WHICH MATTERS MOST DURING INITIALIZATION)
+
+	//COMPUTE THE VECTOR ALONG THE CON ROD - THIS IS BETWEEN THE PISTON_LOCATION AND THE ASSOCIATED ROD LOCATION
+
+	//TAKE THE CROSS PRODUCT OF THE VECTOR ALONG THE CON ROD WITH VEC3(0.0F, 0.0F, 1.0F) - THIS IS PERPENDICULAR TO ALL CON RODS,
+	// WHICH ARE ALL IN THE XY PLANE - THIS GIVES A THIRD VECTOR WHICH WILL BE USED TO LOCATE THE OFFSETS OF THE 8 VERTICIES OF THE CON ROD
+
+
+
+
+
+
 
 	//UPDATE THE GPU-SIDE VALUES OF ALL CUBOIDS
 
