@@ -266,6 +266,11 @@ vec liner_color = vec(0.2f, 0.2f, 0.2f, 0.3f);
 vec rod_journal_color = vec(0.7f, 0.7f, 0.7f, 0.5f);
 vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 0.65f);
 
+//yet to be established
+vec piston_color;
+vec piston_ring_color;
+vec con_rod_color;
+
 
 
 
@@ -1570,7 +1575,7 @@ void init()
 
 
 
-		//THEN SEND EVERYTHING TO THE GPU
+		//THEN SEND ALL THE CYLINDER VALUES TO THE GPU
 		glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
 		glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
 		glUniform1fv(cylinder_radii_location, NUM_CYLINDERS, &cylinder_radii_values[0] );
