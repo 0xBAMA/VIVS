@@ -30,7 +30,7 @@ out vec4 color;
 //	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
-#define NUM_CYLINDERS 42					//how long is the list of cylinders?
+#define NUM_CYLINDERS 50					//how long is the list of cylinders?
 #define NUM_TRIANGLES 1						//how long is the list of triangles?
 #define NUM_QUAD_HEXS 8						//how long is the list of cuboids?
 

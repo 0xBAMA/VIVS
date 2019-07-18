@@ -1260,9 +1260,13 @@ void keyboard( unsigned char key, int x, int y )
 
 		case 'f': //reset the block's rotation
 
-			x_rot = 0.0f;
-			y_rot = 45.0f;
-			z_rot = 90.0f;
+			// x_rot = 0.0f;
+			// y_rot = 45.0f;
+			// z_rot = 90.0f;
+
+			x_rot = 0.34f;
+			y_rot = 0.99f;
+			z_rot = 2.0f;
 
 			update_rotation();
 
