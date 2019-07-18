@@ -240,19 +240,23 @@ glm::vec3 cylinder_8_piston_location;
 
 
 
-//where the bottom of the piston is
+// where the bottom of the piston is
 glm::vec3 bank1_start_vector = crank_to_bottom_of_cylinder * glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 glm::vec3 bank2_start_vector = crank_to_bottom_of_cylinder * glm::normalize(glm::vec3(1.0f,  1.0f, 0.0f));
 
-//where the top of the cylinder is
+// where the top of the cylinder is
 glm::vec3 bank1_end_vector = bank1_start_vector + bottom_of_cylinder_to_top * glm::normalize(glm::vec3(1.0f, -1.0f, 0.0f));
 glm::vec3 bank2_end_vector = bank2_start_vector + bottom_of_cylinder_to_top * glm::normalize(glm::vec3(1.0f,  1.0f, 0.0f));
 
-//distance to move down the cylinder to locate the bottom of the piston
+glm::vec3 bank1_middle_vector = ( bank1_start_vector + bank1_end_vector ) / 2.0f;
+glm::vec3 bank2_middle_vector = ( bank2_start_vector + bank2_end_vector ) / 2.0f;
+
+// distance to move down the cylinder to locate the bottom of the piston
 glm::vec3 bank1_piston_offset = -0.1f * ((bank1_start_vector + bank1_end_vector) / 2.0f);
 glm::vec3 bank2_piston_offset = -0.1f * ((bank2_start_vector + bank2_end_vector) / 2.0f);
 
-//use the piston_location to locate the top, then piston_location + piston_offset for the appropriate bank to locate the bottom
+// use the cylinder_n_piston_location to locate the top of piston n, then use
+// cylinder_n_piston_location + bankn_piston_offset for the appropriate bank to locate the bottom
 
 
 
@@ -310,6 +314,7 @@ GLuint texture; //handle for the texture
 
 
 void update_rotation();
+void timer(int); //need to forward declare this for the initialization
 
 
 void generate_points()
@@ -1131,8 +1136,8 @@ void init()
 
 		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[42] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-		cylinder_bvec_values[42] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+		cylinder_tvec_values[42] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+		cylinder_bvec_values[42] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
 
 		cylinder_radii_values[42] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1186,10 +1191,10 @@ void init()
 
 		cylinder_offsets[35] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[43] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-		cylinder_bvec_values[43] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+		cylinder_tvec_values[43] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+		cylinder_bvec_values[43] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
 
 		cylinder_radii_values[43] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1242,10 +1247,10 @@ void init()
 
 		cylinder_offsets[36] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[44] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-		cylinder_bvec_values[44] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+		cylinder_tvec_values[44] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+		cylinder_bvec_values[44] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
 
 		cylinder_radii_values[44] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1299,10 +1304,10 @@ void init()
 
 		cylinder_offsets[37] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[45] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-		cylinder_bvec_values[45] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+		cylinder_tvec_values[45] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+		cylinder_bvec_values[45] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
 
 		cylinder_radii_values[45] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1358,10 +1363,10 @@ void init()
 
 		cylinder_offsets[38] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[46] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-		cylinder_bvec_values[46] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+		cylinder_tvec_values[46] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+		cylinder_bvec_values[46] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
 
 		cylinder_radii_values[46] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1416,10 +1421,10 @@ void init()
 
 		cylinder_offsets[39] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[47] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-		cylinder_bvec_values[47] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+		cylinder_tvec_values[47] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+		cylinder_bvec_values[47] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
 
 		cylinder_radii_values[47] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1471,10 +1476,10 @@ void init()
 
 		cylinder_offsets[40] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[48] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-		cylinder_bvec_values[48] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+		cylinder_tvec_values[48] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+		cylinder_bvec_values[48] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
 
 		cylinder_radii_values[48] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1528,10 +1533,10 @@ void init()
 
 		cylinder_offsets[41] = standard_offset;
 
-		//cylinder pressure
+		//cylinder pressure chamber (variable size)
 
-		cylinder_tvec_values[49] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
-		cylinder_bvec_values[49] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_tvec_values[49] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_bvec_values[49] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
 
 		cylinder_radii_values[49] = engine_cylinder_radius * pressure_chamber_scale;
 
@@ -1549,6 +1554,8 @@ void init()
 		glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 		glUniform3fv(cylinder_offsets_location, NUM_CYLINDERS, glm::value_ptr( cylinder_offsets[0] ) );
+
+		timer(0); //update colors, etc, before rendering anything
 
 	}
 
@@ -1591,17 +1598,18 @@ void timer(int)
 
 
 	//ranges from 0.0f to 1.0f - representing the rotation of the crankshaft
-	float position_in_rotation_single = ( numFrames % frames_per_rotation ) / frames_per_rotation;
+	float position_in_rotation_single = (float) ( numFrames % frames_per_rotation ) / (float) frames_per_rotation;
 
 	//ranges from 0.0f to 1.0f = representing the combustion cycle
-	float position_in_rotation_double = ( numFrames % ( 2 * frames_per_rotation ) ) / ( 2 * frames_per_rotation );
+	float position_in_rotation_double = (float) ( numFrames % ( 2 * frames_per_rotation ) ) / (float) ( 2 * frames_per_rotation );
 
 
+	glm::mat4 rot(1.0f);
 
-
-
-	glm::mat4 rot = glm::rotate( frame_rotation_increment, glm::vec3( 0.0f, 0.0f, 1.0f ) );
-
+	if(numFrames)
+	{ //don't need to do this rotation initially
+		rot = glm::rotate( frame_rotation_increment, glm::vec3( 0.0f, 0.0f, 1.0f ) );
+	}
 
 	//ROTATE CRANKSHAFT JOURNALS (CYLINDERS index 14 to 17)
 	cylinder_tvec_values[14] = rot * vec(cylinder_tvec_values[14], 1.0f);
@@ -1659,10 +1667,62 @@ void timer(int)
 	cylinder_8_rod_connection = (cylinder_tvec_values[25] + cylinder_bvec_values[25]) / 2.0f;
 
 
+
+	//UPDATE PRESSURE CHAMBER STUFF (CYLINDERS index 42 to 49)
+	// 42, 43, 44, 45 are in bank 1, 46, 47, 48, 49 are in bank 2
+
+	//tvecs stay the same, bvecs will be moving up and down the cylinder
+
+	float disp1 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 3.14159265359f / 8.0f);
+	float disp2 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 5.0f * 3.14159265359f / 8.0f);
+	float disp3 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 13.0f * 3.14159265359f / 8.0f);
+	float disp4 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 9.0f * 3.14159265359f / 8.0f);
+	float disp5 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single - 3.14159265359f / 8.0f);
+	float disp6 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 3.0f * 3.14159265359f / 8.0f);
+	float disp7 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single + 11.0f * 3.14159265359f / 8.0f);
+	float disp8 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single - 9.0f * 3.14159265359f / 8.0f);
+
+
+
+
+	cylinder_1_piston_location = (0.9f * disp1 * (bank1_middle_vector - bank1_start_vector)) + bank1_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_1_z_offset);
+	cylinder_2_piston_location = (0.9f * disp2 * (bank1_middle_vector - bank1_start_vector)) + bank1_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_2_z_offset);
+	cylinder_3_piston_location = (0.9f * disp3 * (bank1_middle_vector - bank1_start_vector)) + bank1_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_3_z_offset);
+	cylinder_4_piston_location = (0.9f * disp4 * (bank1_middle_vector - bank1_start_vector)) + bank1_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_4_z_offset);
+	cylinder_5_piston_location = (0.9f * disp5 * (bank2_middle_vector - bank2_start_vector)) + bank2_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_5_z_offset);
+	cylinder_6_piston_location = (0.9f * disp6 * (bank2_middle_vector - bank2_start_vector)) + bank2_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_6_z_offset);
+	cylinder_7_piston_location = (0.9f * disp7 * (bank2_middle_vector - bank2_start_vector)) + bank2_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_7_z_offset);
+	cylinder_8_piston_location = (0.9f * disp8 * (bank2_middle_vector - bank2_start_vector)) + bank2_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_8_z_offset);
+
+
+	cylinder_bvec_values[42] = cylinder_1_piston_location;
+	cylinder_bvec_values[43] = cylinder_2_piston_location;
+	cylinder_bvec_values[44] = cylinder_3_piston_location;
+	cylinder_bvec_values[45] = cylinder_4_piston_location;
+	cylinder_bvec_values[46] = cylinder_5_piston_location;
+	cylinder_bvec_values[47] = cylinder_6_piston_location;
+	cylinder_bvec_values[48] = cylinder_7_piston_location;
+	cylinder_bvec_values[49] = cylinder_8_piston_location;
+
+	cylinder_color_values[42] = vec((0.5f * disp1) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[43] = vec((0.5f * disp2) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[44] = vec((0.5f * disp3) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[45] = vec((0.5f * disp4) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[46] = vec((0.5f * disp5) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[47] = vec((0.5f * disp6) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[48] = vec((0.5f * disp7) + 0.5f, 0.0f, 0.0f, 0.3f);
+	cylinder_color_values[49] = vec((0.5f * disp8) + 0.5f, 0.0f, 0.0f, 0.3f);
+
+	//THEN PISTONS
+
+
+
+
 	//UPDATE THE GPU-SIDE VALUES OF ALL CYLINDERS
 
 	glUniform3fv(cylinder_tvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_tvec_values[0] ) );
 	glUniform3fv(cylinder_bvec_location, NUM_CYLINDERS, glm::value_ptr( cylinder_bvec_values[0] ) );
+	glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 
 
