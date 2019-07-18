@@ -203,75 +203,6 @@ void main()
 
 
 
-	//CYLINDERS
-
-		//	 ,----.
-		//	(   *  )
-		//	|`----'|
-		//	|      |
-		//	|      |
-		//	|      |
-		//	|,----.|
-		//	(   *  )
-		//	 `----'
-
-		//	two points in space are used to represent the centers of the two circular
-		//		faces of the cylinder. A line is established between the two points -
-		//		this line serves two functions -
-
-		//	first, normals for the planes of the circular ends can be computed
-
-		//	second, it's used to check the distance from the current vertex to the line
-
-		//	if the vertex passes both tests (it is between the two planes and within
-		//		the radius of the cylinder) it can be said to be inside the cylinder
-
-
-		if(RENDER_CYLINDERS)
-		{
-
-			vec3 cylinder_tvec_normal;
-			vec3 cylinder_bvec_normal;
-
-			vec3 cylinder_center;
-
-			vec3 bvec_local, tvec_local;
-
-
-			for(int i = 0; i < NUM_CYLINDERS; i++)
-			{
-				bvec_local = cylinder_bvec[i] + cylinder_offsets[i];
-				tvec_local = cylinder_tvec[i] + cylinder_offsets[i];
-
-
-				cylinder_center = ( bvec_local + tvec_local ) / 2.0f;
-
-				cylinder_tvec_normal = bvec_local - tvec_local;
-				cylinder_tvec_normal = planetest( tvec_local, cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
-
-				cylinder_bvec_normal = bvec_local - tvec_local;
-				cylinder_bvec_normal = planetest( bvec_local, cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
-
-
-				if( planetest(bvec_local, cylinder_bvec_normal, vPosition.xyz) && planetest(tvec_local, cylinder_tvec_normal, vPosition.xyz) )
-				{
-
-					if((length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local )) < cylinder_radii[i])
-					{
-						//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
-
-						// how_many_being_drawn++;
-						// sum += cylinder_colors[i];
-
-						color = cylinder_colors[i];
-
-					}
-				}
-			}
-		}
-
-
-
 
 
 
@@ -506,6 +437,75 @@ void main()
 
 
 
+
+
+
+	//CYLINDERS
+
+		//	 ,----.
+		//	(   *  )
+		//	|`----'|
+		//	|      |
+		//	|      |
+		//	|      |
+		//	|,----.|
+		//	(   *  )
+		//	 `----'
+
+		//	two points in space are used to represent the centers of the two circular
+		//		faces of the cylinder. A line is established between the two points -
+		//		this line serves two functions -
+
+		//	first, normals for the planes of the circular ends can be computed
+
+		//	second, it's used to check the distance from the current vertex to the line
+
+		//	if the vertex passes both tests (it is between the two planes and within
+		//		the radius of the cylinder) it can be said to be inside the cylinder
+
+
+		if(RENDER_CYLINDERS)
+		{
+
+			vec3 cylinder_tvec_normal;
+			vec3 cylinder_bvec_normal;
+
+			vec3 cylinder_center;
+
+			vec3 bvec_local, tvec_local;
+
+
+			for(int i = 0; i < NUM_CYLINDERS; i++)
+			{
+				bvec_local = cylinder_bvec[i] + cylinder_offsets[i];
+				tvec_local = cylinder_tvec[i] + cylinder_offsets[i];
+
+
+				cylinder_center = ( bvec_local + tvec_local ) / 2.0f;
+
+				cylinder_tvec_normal = bvec_local - tvec_local;
+				cylinder_tvec_normal = planetest( tvec_local, cylinder_tvec_normal, cylinder_center) ? cylinder_tvec_normal : (cylinder_tvec_normal * -1.0f);
+
+				cylinder_bvec_normal = bvec_local - tvec_local;
+				cylinder_bvec_normal = planetest( bvec_local, cylinder_bvec_normal, cylinder_center) ? cylinder_bvec_normal : (cylinder_bvec_normal * -1.0f);
+
+
+				if( planetest(bvec_local, cylinder_bvec_normal, vPosition.xyz) && planetest(tvec_local, cylinder_tvec_normal, vPosition.xyz) )
+				{
+
+					if((length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local )) < cylinder_radii[i])
+					{
+						//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+
+						// how_many_being_drawn++;
+						// sum += cylinder_colors[i];
+
+						color = cylinder_colors[i];
+
+					}
+				}
+			}
+		}
 
 
 

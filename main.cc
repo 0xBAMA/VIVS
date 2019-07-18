@@ -261,11 +261,11 @@ glm::vec3 bank2_piston_offset = -0.1f * ((bank2_start_vector + bank2_end_vector)
 
 
 //colors
-vec ambient_color = vec(0.2f, 0.0f, 0.1f, 0.005f);
-vec crank_color = vec(0.25f, 0.25f, 0.25f, 0.6f);
+vec ambient_color = vec(0.2f, 0.0f, 0.1f, 0.008f);
+vec crank_color = vec(0.3f, 0.3f, 0.3f, 0.55f);
 vec liner_color = vec(0.2f, 0.2f, 0.2f, cylinder_liner_alpha);
-vec rod_journal_color = vec(0.7f, 0.7f, 0.7f, 0.7f);
-vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 0.8f);
+vec rod_journal_color = vec(0.7f, 0.7f, 0.7f, 0.5f);
+vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 0.65f);
 
 
 
@@ -1906,7 +1906,7 @@ void keyboard( unsigned char key, int x, int y )
 
 		case 'f': //reset the block's rotation
 
-			//original values
+			// original values
 			// x_rot = 0.0f;
 			// y_rot = 45.0f;
 			// z_rot = 90.0f;
