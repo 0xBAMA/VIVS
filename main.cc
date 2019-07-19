@@ -90,7 +90,7 @@ GLuint rotation_location = 3;
 #define NUM_SPHERES   1
 #define NUM_TRIANGLES 0
 #define NUM_QUAD_HEXS 16
-#define NUM_CYLINDERS 50
+#define NUM_CYLINDERS 66
 
 
 //SPHERE
@@ -269,7 +269,7 @@ vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 0.65f);
 //yet to be established
 vec piston_color;
 vec piston_ring_color;
-vec con_rod_color;
+vec con_rod_color = vec(0.0f, 0.0f, 1.0f, 1.0f);
 
 
 
@@ -866,7 +866,40 @@ void init()
 
 
 
-		// PUT INITIAL GEOMETRY HERE
+
+		tube_tvec_location = glGetUniformLocation( shader_handle, "tube_tvec");
+		tube_bvec_location = glGetUniformLocation( shader_handle, "tube_bvec");
+		tube_inner_radii_location = glGetUniformLocation( shader_handle, "tube_inner_radii");
+		tube_outer_radii_location = glGetUniformLocation( shader_handle, "tube_outer_radii");
+		tube_colors_location = glGetUniformLocation( shader_handle, "tube_colors");
+
+		tube_offsets_location = glGetUniformLocation( shader_handle, "tube_offsets");
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//cylinder values
+
+
+
 
 
 //MAIN JOURNALS (aligned with the centerline of the crankshaft)
@@ -1041,53 +1074,6 @@ void init()
 
 
 
-//ROD JOURNALS
-
-// https://i.kinja-img.com/gawker-media/image/upload/s--TjZVv1cf--/c_scale,f_auto,fl_progressive,q_80,w_800/lijsom4kg4vspuddmp4g.jpg
-
-
-
-	//1,5 UP  (+x)
-		cylinder_tvec_values[14] = glm::vec3(0.1f, 0.0f, -0.34f);
-		cylinder_bvec_values[14] = glm::vec3(0.1f, 0.0f, -0.26f);
-
-		cylinder_radii_values[14] = 0.025f;
-
-		cylinder_color_values[14] = rod_journal_color;
-
-		cylinder_offsets[14] = standard_offset;
-
-
-	//2,6 RIGHT  (+y)
-		cylinder_tvec_values[15] = glm::vec3(0.0f, 0.1f, -0.14f);
-		cylinder_bvec_values[15] = glm::vec3(0.0f, 0.1f, -0.06f);
-
-		cylinder_radii_values[15] = 0.025f;
-
-		cylinder_color_values[15] = rod_journal_color;
-
-		cylinder_offsets[15] = standard_offset;
-
-
-	//3,7 LEFT   (-y)
-		cylinder_tvec_values[16] = glm::vec3(0.0f, -0.1f, 0.06f);
-		cylinder_bvec_values[16] = glm::vec3(0.0f, -0.1f, 0.14f);
-
-		cylinder_radii_values[16] = 0.025f;
-
-		cylinder_color_values[16] = rod_journal_color;
-
-		cylinder_offsets[16] = standard_offset;
-
-	//4,8 DOWN  (-x)
-		cylinder_tvec_values[17] = glm::vec3(-0.1f, 0.0f, 0.26f);
-		cylinder_bvec_values[17] = glm::vec3(-0.1f, 0.0f, 0.34f);
-
-		cylinder_radii_values[17] = 0.025f;
-
-		cylinder_color_values[17] = rod_journal_color;
-
-		cylinder_offsets[17] = standard_offset;
 
 
 //CONNECTING ROD CONNECTIONS - there are 8 connecting rods
@@ -1095,7 +1081,9 @@ void init()
 
 
 
-
+		float con_rod_crank_connection_radius = 0.0f;
+		float bearing_cutout_diameter = 0.035;
+		float bearing_diameter = 0.03;
 
 
 
@@ -1106,53 +1094,16 @@ void init()
 
 		cylinder_1_z_offset = (cylinder_1_start + cylinder_1_end) / 2.0f;
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[18] = glm::vec3(0.1f, 0.0f, cylinder_1_start);
-		cylinder_bvec_values[18] = glm::vec3(0.1f, 0.0f, cylinder_1_end);
+		cylinder_tvec_values[14] = glm::vec3(0.1f, 0.0f, cylinder_1_start);
+		cylinder_bvec_values[14] = glm::vec3(0.1f, 0.0f, cylinder_1_end);
 
-		cylinder_radii_values[18] = 0.035f;
+		cylinder_radii_values[14] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[18] = rod_bearing_color;
+		cylinder_color_values[14] = con_rod_color;
 
-		cylinder_offsets[18] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[26] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-		cylinder_bvec_values[26] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-
-		cylinder_radii_values[26] = engine_cylinder_radius;
-
-		cylinder_color_values[26] = liner_color;
-
-		cylinder_offsets[26] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[34] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-		cylinder_bvec_values[34] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-
-		cylinder_radii_values[34] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[34] = ambient_color;
-
-		cylinder_offsets[34] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[42] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-		cylinder_bvec_values[42] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
-
-		cylinder_radii_values[42] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[42] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[42] = standard_offset;
-
-
-
-
+		cylinder_offsets[14] = standard_offset;
 
 
 
@@ -1164,51 +1115,16 @@ void init()
 		cylinder_2_z_offset = (cylinder_2_start + cylinder_2_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[19] = glm::vec3(0.0f, 0.1f, cylinder_2_start);
-		cylinder_bvec_values[19] = glm::vec3(0.0f, 0.1f, cylinder_2_end);
+		cylinder_tvec_values[15] = glm::vec3(0.0f, 0.1f, cylinder_2_start);
+		cylinder_bvec_values[15] = glm::vec3(0.0f, 0.1f, cylinder_2_end);
 
-		cylinder_radii_values[19] = 0.035f;
+		cylinder_radii_values[15] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[19] = rod_bearing_color;
+		cylinder_color_values[15] = con_rod_color;
 
-		cylinder_offsets[19] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[27] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-		cylinder_bvec_values[27] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-
-		cylinder_radii_values[27] = engine_cylinder_radius;
-
-		cylinder_color_values[27] = liner_color;
-
-		cylinder_offsets[27] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[35] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-		cylinder_bvec_values[35] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-
-		cylinder_radii_values[35] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[35] = ambient_color;
-
-		cylinder_offsets[35] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[43] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-		cylinder_bvec_values[43] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
-
-		cylinder_radii_values[43] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[43] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[43] = standard_offset;
-
-
+		cylinder_offsets[15] = standard_offset;
 
 
 
@@ -1220,54 +1136,16 @@ void init()
 		cylinder_3_z_offset = (cylinder_3_start + cylinder_3_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[20] = glm::vec3(0.0f, -0.1f, cylinder_3_start);
-		cylinder_bvec_values[20] = glm::vec3(0.0f, -0.1f, cylinder_3_end);
+		cylinder_tvec_values[16] = glm::vec3(0.0f, -0.1f, cylinder_3_start);
+		cylinder_bvec_values[16] = glm::vec3(0.0f, -0.1f, cylinder_3_end);
 
-		cylinder_radii_values[20] = 0.035f;
+		cylinder_radii_values[16] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[20] = rod_bearing_color;
+		cylinder_color_values[16] = con_rod_color;
 
-		cylinder_offsets[20] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[28] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-		cylinder_bvec_values[28] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-
-		cylinder_radii_values[28] = engine_cylinder_radius;
-
-		cylinder_color_values[28] = liner_color;
-
-		cylinder_offsets[28] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[36] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-		cylinder_bvec_values[36] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-
-		cylinder_radii_values[36] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[36] = ambient_color;
-
-		cylinder_offsets[36] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[44] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-		cylinder_bvec_values[44] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
-
-		cylinder_radii_values[44] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[44] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[44] = standard_offset;
-
-
-
-
-
+		cylinder_offsets[16] = standard_offset;
 
 		//CYLINDER 4
 
@@ -1277,55 +1155,16 @@ void init()
 		cylinder_4_z_offset = (cylinder_4_start + cylinder_4_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[21] = glm::vec3(-0.1f, 0.0f, cylinder_4_start);
-		cylinder_bvec_values[21] = glm::vec3(-0.1f, 0.0f, cylinder_4_end);
+		cylinder_tvec_values[17] = glm::vec3(-0.1f, 0.0f, cylinder_4_start);
+		cylinder_bvec_values[17] = glm::vec3(-0.1f, 0.0f, cylinder_4_end);
 
-		cylinder_radii_values[21] = 0.035f;
+		cylinder_radii_values[17] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[21] = rod_bearing_color;
+		cylinder_color_values[17] = con_rod_color;
 
-		cylinder_offsets[21] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[29] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-		cylinder_bvec_values[29] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-
-		cylinder_radii_values[29] = engine_cylinder_radius;
-
-		cylinder_color_values[29] = liner_color;
-
-		cylinder_offsets[29] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[37] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-		cylinder_bvec_values[37] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-
-		cylinder_radii_values[37] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[37] = ambient_color;
-
-		cylinder_offsets[37] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[45] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-		cylinder_bvec_values[45] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
-
-		cylinder_radii_values[45] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[45] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[45] = standard_offset;
-
-
-
-
-
-
+		cylinder_offsets[17] = standard_offset;
 
 		//CYLINDER 5
 
@@ -1336,55 +1175,16 @@ void init()
 		cylinder_5_z_offset = (cylinder_5_start + cylinder_5_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[22] = glm::vec3(0.1f, 0.0f, cylinder_5_start);
-		cylinder_bvec_values[22] = glm::vec3(0.1f, 0.0f, cylinder_5_end);
+		cylinder_tvec_values[18] = glm::vec3(0.1f, 0.0f, cylinder_5_start);
+		cylinder_bvec_values[18] = glm::vec3(0.1f, 0.0f, cylinder_5_end);
 
-		cylinder_radii_values[22] = 0.035f;
+		cylinder_radii_values[18] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[22] = rod_bearing_color;
+		cylinder_color_values[18] = con_rod_color;
 
-		cylinder_offsets[22] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[30] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-		cylinder_bvec_values[30] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-
-		cylinder_radii_values[30] = engine_cylinder_radius;
-
-		cylinder_color_values[30] = liner_color;
-
-		cylinder_offsets[30] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[38] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-		cylinder_bvec_values[38] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-
-		cylinder_radii_values[38] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[38] = ambient_color;
-
-		cylinder_offsets[38] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[46] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-		cylinder_bvec_values[46] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
-
-		cylinder_radii_values[46] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[46] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[46] = standard_offset;
-
-
-
-
-
-
+		cylinder_offsets[18] = standard_offset;
 
 		//CYLINDER 6
 
@@ -1394,52 +1194,16 @@ void init()
 		cylinder_6_z_offset = (cylinder_6_start + cylinder_6_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[23] = glm::vec3(0.0f, 0.1f, cylinder_6_start);
-		cylinder_bvec_values[23] = glm::vec3(0.0f, 0.1f, cylinder_6_end);
+		cylinder_tvec_values[19] = glm::vec3(0.0f, 0.1f, cylinder_6_start);
+		cylinder_bvec_values[19] = glm::vec3(0.0f, 0.1f, cylinder_6_end);
 
-		cylinder_radii_values[23] = 0.035f;
+		cylinder_radii_values[19] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[23] = rod_bearing_color;
+		cylinder_color_values[19] = con_rod_color;
 
-		cylinder_offsets[23] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[31] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-		cylinder_bvec_values[31] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-
-		cylinder_radii_values[31] = engine_cylinder_radius;
-
-		cylinder_color_values[31] = liner_color;
-
-		cylinder_offsets[31] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[39] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-		cylinder_bvec_values[39] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-
-		cylinder_radii_values[39] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[39] = ambient_color;
-
-		cylinder_offsets[39] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[47] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-		cylinder_bvec_values[47] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
-
-		cylinder_radii_values[47] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[47] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[47] = standard_offset;
-
-
-
+		cylinder_offsets[19] = standard_offset;
 
 		//CYLINDER 7
 
@@ -1449,54 +1213,16 @@ void init()
 		cylinder_7_z_offset = (cylinder_7_start + cylinder_7_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[24] = glm::vec3(0.0f, -0.1f, cylinder_7_start);
-		cylinder_bvec_values[24] = glm::vec3(0.0f, -0.1f, cylinder_7_end);
+		cylinder_tvec_values[20] = glm::vec3(0.0f, -0.1f, cylinder_7_start);
+		cylinder_bvec_values[20] = glm::vec3(0.0f, -0.1f, cylinder_7_end);
 
-		cylinder_radii_values[24] = 0.035f;
+		cylinder_radii_values[20] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[24] = rod_bearing_color;
+		cylinder_color_values[20] = con_rod_color;
 
-		cylinder_offsets[24] = standard_offset;
-
-		//cylinder
-
-		cylinder_tvec_values[32] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-		cylinder_bvec_values[32] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-
-		cylinder_radii_values[32] = engine_cylinder_radius;
-
-		cylinder_color_values[32] = liner_color;
-
-		cylinder_offsets[32] = standard_offset;
-
-		//cylinder pressure chamber cutout
-
-		cylinder_tvec_values[40] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-		cylinder_bvec_values[40] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-
-		cylinder_radii_values[40] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[40] = ambient_color;
-
-		cylinder_offsets[40] = standard_offset;
-
-		//cylinder pressure chamber (variable size)
-
-		cylinder_tvec_values[48] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-		cylinder_bvec_values[48] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
-
-		cylinder_radii_values[48] = engine_cylinder_radius * pressure_chamber_scale;
-
-		cylinder_color_values[48] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
-
-		cylinder_offsets[48] = standard_offset;
-
-
-
-
-
+		cylinder_offsets[20] = standard_offset;
 
 		//CYLINDER 8
 
@@ -1506,52 +1232,674 @@ void init()
 		cylinder_8_z_offset = (cylinder_8_start + cylinder_8_end) / 2.0f;
 
 
-		//bearing
+		//bottom of con rod
 
-		cylinder_tvec_values[25] = glm::vec3(-0.1f, 0.0f, cylinder_8_start);
-		cylinder_bvec_values[25] = glm::vec3(-0.1f, 0.0f, cylinder_8_end);
+		cylinder_tvec_values[21] = glm::vec3(-0.1f, 0.0f, cylinder_8_start);
+		cylinder_bvec_values[21] = glm::vec3(-0.1f, 0.0f, cylinder_8_end);
 
-		cylinder_radii_values[25] = 0.035f;
+		cylinder_radii_values[21] = con_rod_crank_connection_radius;
 
-		cylinder_color_values[25] = rod_bearing_color;
+		cinder_color_values[21] = con_rod_color;
+
+		cylinder_offsets[21] = standard_offset;
+
+		//cutout for bearing - 22
+
+		cylinder_tvec_values[22] = glm::vec3(0.1f, 0.0f, cylinder_1_start);
+		cylinder_bvec_values[22] = glm::vec3(0.1f, 0.0f, cylinder_1_end);
+
+		cylinder_radii_values[22] = bearing_cutout_diameter;
+
+		cylinder_color_values[22] = ambient_color;
+
+		cylinder_offsets[22] = standard_offset;
+
+		//cutout for bearings - 23
+
+		cylinder_tvec_values[23] = glm::vec3(0.0f, 0.1f, cylinder_2_start);
+		cylinder_bvec_values[23] = glm::vec3(0.0f, 0.1f, cylinder_2_end);
+
+		cylinder_radii_values[23] = bearing_cutout_diameter;
+
+		cylinder_color_values[23] = ambient_color;
+
+		cylinder_offsets[23] = standard_offset;
+
+		//cutout for bearing - 24
+
+		cylinder_tvec_values[24] = glm::vec3(0.0f, -0.1f, cylinder_3_start);
+		cylinder_bvec_values[24] = glm::vec3(0.0f, -0.1f, cylinder_3_end);
+
+		cylinder_radii_values[24] = bearing_cutout_diameter;
+
+		cylinder_color_values[24] = ambient_color;
+
+		cylinder_offsets[24] = standard_offset;
+
+		//cuout for bearing
+
+		cylinder_tvec_values[25] = glm::vec3(-0.1f, 0.0f, cylinder_4_start);
+		cylinder_bvec_values[25] = glm::vec3(-0.1f, 0.0f, cylinder_4_end);
+
+		cylinder_radii_values[25] = bearing_cutout_diameter;
+
+		cylinder_color_values[25] = ambient_color;
 
 		cylinder_offsets[25] = standard_offset;
 
-		//cylinder
+		//cutout for bearing
 
-		cylinder_tvec_values[33] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
-		cylinder_bvec_values[33] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_tvec_values[26] = glm::vec3(0.1f, 0.0f, cylinder_5_start);
+		cylinder_bvec_values[26] = glm::vec3(0.1f, 0.0f, cylinder_5_end);
 
-		cylinder_radii_values[33] = engine_cylinder_radius;
+		cylinder_radii_values[26] = bearing_cutout_diameter;
 
-		cylinder_color_values[33] = liner_color;
+		cylinder_color_values[26] = ambient_color;
+
+		cylinder_offsets[26] = standard_offset;
+
+		//cutout for bearing
+
+		cylinder_tvec_values[27] = glm::vec3(0.0f, 0.1f, cylinder_6_start);
+		cylinder_bvec_values[27] = glm::vec3(0.0f, 0.1f, cylinder_6_end);
+
+		cylinder_radii_values[27] = bearing_cutout_diameter;
+
+		cylinder_color_values[27] = ambient_color;
+
+		cylinder_offsets[27] = standard_offset;
+
+		//cutout for bearing
+
+		cylinder_tvec_values[28] = glm::vec3(0.0f, -0.1f, cylinder_7_start);
+		cylinder_bvec_values[28] = glm::vec3(0.0f, -0.1f, cylinder_7_end);
+
+		cylinder_radii_values[28] = bearing_cutout_diameter;
+
+		cylinder_color_values[28] = ambient_color;
+
+		cylinder_offsets[28] = standard_offset;
+
+		//cutout for bearing
+
+		cylinder_tvec_values[29] = glm::vec3(-0.1f, 0.0f, cylinder_8_start);
+		cylinder_bvec_values[29] = glm::vec3(-0.1f, 0.0f, cylinder_8_end);
+
+		cylinder_radii_values[29] = bearing_cutout_diameter;
+
+		cylinder_color_values[29] = ambient_color;
+
+		cylinder_offsets[29] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[30] = glm::vec3(0.1f, 0.0f, cylinder_1_start);
+		cylinder_bvec_values[30] = glm::vec3(0.1f, 0.0f, cylinder_1_end);
+
+		cylinder_radii_values[30] = bearing_diameter;
+
+		cylinder_color_values[30] = rod_bearing_color;
+
+		cylinder_offsets[30] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[31] = glm::vec3(0.0f, 0.1f, cylinder_2_start);
+		cylinder_bvec_values[31] = glm::vec3(0.0f, 0.1f, cylinder_2_end);
+
+		cylinder_radii_values[31] = bearing_diameter;
+
+		cylinder_color_values[31] = rod_bearing_color;
+
+		cylinder_offsets[31] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[32] = glm::vec3(0.0f, -0.1f, cylinder_3_start);
+		cylinder_bvec_values[32] = glm::vec3(0.0f, -0.1f, cylinder_3_end);
+
+		cylinder_radii_values[32] = bearing_diameter;
+
+		cylinder_color_values[32] = rod_bearing_color;
+
+		cylinder_offsets[32] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[33] = glm::vec3(-0.1f, 0.0f, cylinder_4_start);
+		cylinder_bvec_values[33] = glm::vec3(-0.1f, 0.0f, cylinder_4_end);
+
+		cylinder_radii_values[33] = bearing_diameter;
+
+		cylinder_color_values[33] = rod_bearing_color;
 
 		cylinder_offsets[33] = standard_offset;
 
-		//cylinder pressure chamber cutout
 
-		cylinder_tvec_values[41] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
-		cylinder_bvec_values[41] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		//bearing
 
-		cylinder_radii_values[41] = engine_cylinder_radius * pressure_chamber_scale;
+		cylinder_tvec_values[34] = glm::vec3(0.1f, 0.0f, cylinder_5_start);
+		cylinder_bvec_values[34] = glm::vec3(0.1f, 0.0f, cylinder_5_end);
 
-		cylinder_color_values[41] = ambient_color;
+		cylinder_radii_values[34] = bearing_diameter;
+
+		cylinder_color_values[34] = rod_bearing_color;
+
+		cylinder_offsets[34] = standard_offset;
+
+
+		//bearing
+
+		cylinder_tvec_values[35] = glm::vec3(0.0f, 0.1f, cylinder_6_start);
+		cylinder_bvec_values[35] = glm::vec3(0.0f, 0.1f, cylinder_6_end);
+
+		cylinder_radii_values[35] = bearing_diameter;
+
+		cylinder_color_values[35] = rod_bearing_color;
+
+		cylinder_offsets[35] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[36] = glm::vec3(0.0f, -0.1f, cylinder_7_start);
+		cylinder_bvec_values[36] = glm::vec3(0.0f, -0.1f, cylinder_7_end);
+
+		cylinder_radii_values[36] = bearing_diameter;
+
+		cylinder_color_values[36] = rod_bearing_color;
+
+		cylinder_offsets[36] = standard_offset;
+
+		//bearing
+
+		cylinder_tvec_values[37] = glm::vec3(-0.1f, 0.0f, cylinder_8_start);
+		cylinder_bvec_values[37] = glm::vec3(-0.1f, 0.0f, cylinder_8_end);
+
+		cylinder_radii_values[37] = bearing_diameter;
+
+		cylinder_color_values[37] = rod_bearing_color;
+
+		cylinder_offsets[37] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[38] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+		cylinder_bvec_values[38] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+
+		cylinder_radii_values[38] = engine_cylinder_radius;
+
+		cylinder_color_values[38] = liner_color;
+
+		cylinder_offsets[38] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[39] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+		cylinder_bvec_values[39] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+
+		cylinder_radii_values[39] = engine_cylinder_radius;
+
+		cylinder_color_values[39] = liner_color;
+
+		cylinder_offsets[39] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[40] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+		cylinder_bvec_values[40] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+
+		cylinder_radii_values[40] = engine_cylinder_radius;
+
+		cylinder_color_values[40] = liner_color;
+
+		cylinder_offsets[40] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[41] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+		cylinder_bvec_values[41] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+
+		cylinder_radii_values[41] = engine_cylinder_radius;
+
+		cylinder_color_values[41] = liner_color;
 
 		cylinder_offsets[41] = standard_offset;
 
-		//cylinder pressure chamber (variable size)
+		//cylinder
 
-		cylinder_tvec_values[49] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
-		cylinder_bvec_values[49] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_tvec_values[42] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+		cylinder_bvec_values[42] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+
+		cylinder_radii_values[42] = engine_cylinder_radius;
+
+		cylinder_color_values[42] = liner_color;
+
+		cylinder_offsets[42] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[43] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+		cylinder_bvec_values[43] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+
+		cylinder_radii_values[43] = engine_cylinder_radius;
+
+		cylinder_color_values[43] = liner_color;
+
+		cylinder_offsets[43] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[44] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+		cylinder_bvec_values[44] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+
+		cylinder_radii_values[44] = engine_cylinder_radius;
+
+		cylinder_color_values[44] = liner_color;
+
+		cylinder_offsets[44] = standard_offset;
+
+		//cylinder
+
+		cylinder_tvec_values[45] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_bvec_values[45] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+
+		cylinder_radii_values[45] = engine_cylinder_radius;
+
+		cylinder_color_values[45] = liner_color;
+
+		cylinder_offsets[45] = standard_offset;
+
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[46] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+		cylinder_bvec_values[46] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+
+		cylinder_radii_values[46] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[46] = ambient_color;
+
+		cylinder_offsets[46] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[47] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+		cylinder_bvec_values[47] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+
+		cylinder_radii_values[47] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[47] = ambient_color;
+
+		cylinder_offsets[47] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[48] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+		cylinder_bvec_values[48] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+
+		cylinder_radii_values[48] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[48] = ambient_color;
+
+		cylinder_offsets[48] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[49] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+		cylinder_bvec_values[49] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
 
 		cylinder_radii_values[49] = engine_cylinder_radius * pressure_chamber_scale;
 
-		cylinder_color_values[49] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+		cylinder_color_values[49] = ambient_color;
 
 		cylinder_offsets[49] = standard_offset;
 
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[50] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+		cylinder_bvec_values[50] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+
+		cylinder_radii_values[50] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[50] = ambient_color;
+
+		cylinder_offsets[50] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[51] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+		cylinder_bvec_values[51] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+
+		cylinder_radii_values[51] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[51] = ambient_color;
+
+		cylinder_offsets[51] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[52] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+		cylinder_bvec_values[52] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+
+		cylinder_radii_values[52] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[52] = ambient_color;
+
+		cylinder_offsets[52] = standard_offset;
+
+		//cylinder pressure chamber cutout
+
+		cylinder_tvec_values[53] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_bvec_values[53] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+
+		cylinder_radii_values[53] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[53] = ambient_color;
+
+		cylinder_offsets[53] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[54] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+		cylinder_bvec_values[54] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_1_start + cylinder_1_end) / 2.0f);
+
+		cylinder_radii_values[54] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[54] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[54] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[55] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+		cylinder_bvec_values[55] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_2_start + cylinder_2_end) / 2.0f);
+
+		cylinder_radii_values[55] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[55] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[55] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[56] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+		cylinder_bvec_values[56] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_3_start + cylinder_3_end) / 2.0f);
+
+		cylinder_radii_values[56] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[56] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[56] = standard_offset;
 
 
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[57] = bank1_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+		cylinder_bvec_values[57] = bank1_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_4_start + cylinder_4_end) / 2.0f);
+
+		cylinder_radii_values[57] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[57] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[57] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[58] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+		cylinder_bvec_values[58] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_5_start + cylinder_5_end) / 2.0f);
+
+		cylinder_radii_values[58] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[58] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[58] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[59] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+		cylinder_bvec_values[59] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_6_start + cylinder_6_end) / 2.0f);
+
+		cylinder_radii_values[59] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[59] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[59] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[60] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+		cylinder_bvec_values[60] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_7_start + cylinder_7_end) / 2.0f);
+
+		cylinder_radii_values[60] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[60] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[60] = standard_offset;
+
+		//cylinder pressure chamber (variable size)
+
+		cylinder_tvec_values[61] = bank2_end_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+		cylinder_bvec_values[61] = bank2_start_vector + glm::vec3(0.0f, 0.0f, (cylinder_8_start + cylinder_8_end) / 2.0f);
+
+		cylinder_radii_values[61] = engine_cylinder_radius * pressure_chamber_scale;
+
+		cylinder_color_values[61] = vec(1.0f, 0.05f, 0.0f, pressure_chamber_alpha);
+
+		cylinder_offsets[61] = standard_offset;
+
+
+
+	//ROD JOURNALS - must be added after the bearings, cutouts, and bottoms of con rods
+
+	// https://i.kinja-img.com/gawker-media/image/upload/s--TjZVv1cf--/c_scale,f_auto,fl_progressive,q_80,w_800/lijsom4kg4vspuddmp4g.jpg
+
+
+
+		//1,5 UP  (+x)
+			cylinder_tvec_values[62] = glm::vec3(0.1f, 0.0f, -0.34f);
+			cylinder_bvec_values[62] = glm::vec3(0.1f, 0.0f, -0.26f);
+
+			cylinder_radii_values[62] = 0.025f;
+
+			cylinder_color_values[62] = rod_journal_color;
+
+			cylinder_offsets[62] = standard_offset;
+
+
+		//2,6 RIGHT  (+y)
+			cylinder_tvec_values[63] = glm::vec3(0.0f, 0.1f, -0.14f);
+			cylinder_bvec_values[63] = glm::vec3(0.0f, 0.1f, -0.06f);
+
+			cylinder_radii_values[63] = 0.025f;
+
+			cylinder_color_values[63] = rod_journal_color;
+
+			cylinder_offsets[63] = standard_offset;
+
+
+		//3,7 LEFT   (-y)
+			cylinder_tvec_values[64] = glm::vec3(0.0f, -0.1f, 0.06f);
+			cylinder_bvec_values[64] = glm::vec3(0.0f, -0.1f, 0.14f);
+
+			cylinder_radii_values[64] = 0.025f;
+
+			cylinder_color_values[64] = rod_journal_color;
+
+			cylinder_offsets[64] = standard_offset;
+
+		//4,8 DOWN  (-x)
+			cylinder_tvec_values[65] = glm::vec3(-0.1f, 0.0f, 0.26f);
+			cylinder_bvec_values[65] = glm::vec3(-0.1f, 0.0f, 0.34f);
+
+			cylinder_radii_values[65] = 0.025f;
+
+			cylinder_color_values[65] = rod_journal_color;
+
+			cylinder_offsets[65] = standard_offset;
+
+
+
+		// cylinder_tvec_values[66] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[66] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[66] = 0.0f;
+		// cylinder_color_values[66] = ambient_color;
+		// cylinder_offsets[66] = standard_offset;
+		//
+		// cylinder_tvec_values[67] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[67] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[67] = 0.0f;
+		// cylinder_color_values[67] = ambient_color;
+		// cylinder_offsets[67] = standard_offset;
+		//
+		// cylinder_tvec_values[68] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[68] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[68] = 0.0f;
+		// cylinder_color_values[68] = ambient_color;
+		// cylinder_offsets[68] = standard_offset;
+		//
+		// cylinder_tvec_values[69] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[69] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[69] = 0.0f;
+		// cylinder_color_values[69] = ambient_color;
+		// cylinder_offsets[69] = standard_offset;
+		//
+		//
+		// cylinder_tvec_values[70] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[70] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[70] = 0.0f;
+		// cylinder_color_values[70] = ambient_color;
+		// cylinder_offsets[70] = standard_offset;
+		//
+		// cylinder_tvec_values[71] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[71] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[71] = 0.0f;
+		// cylinder_color_values[71] = ambient_color;
+		// cylinder_offsets[71] = standard_offset;
+		//
+		// cylinder_tvec_values[72] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[72] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[72] = 0.0f;
+		// cylinder_color_values[72] = ambient_color;
+		// cylinder_offsets[72] = standard_offset;
+		//
+		// cylinder_tvec_values[73] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[73] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[73] = 0.0f;
+		// cylinder_color_values[73] = ambient_color;
+		// cylinder_offsets[73] = standard_offset;
+		//
+		// cylinder_tvec_values[74] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[74] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[74] = 0.0f;
+		// cylinder_color_values[74] = ambient_color;
+		// cylinder_offsets[74] = standard_offset;
+		//
+		// cylinder_tvec_values[75] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[75] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[75] = 0.0f;
+		// cylinder_color_values[75] = ambient_color;
+		// cylinder_offsets[75] = standard_offset;
+		//
+		// cylinder_tvec_values[76] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_bvec_values[76] = glm::vec3(0.0f, 0.0f, 0.0f);
+		// cylinder_radii_values[76] = 0.0f;
+		// cylinder_color_values[76] = ambient_color;
+		// cylinder_offsets[76] = standard_offset;
+
+
+
+
+
+
+// TUBES
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		// PUT INITIAL GEOMETRY HERE
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+		//pistons, piston rings, and con rods are added to the list when
 
 
 
@@ -1559,15 +1907,32 @@ void init()
 
 		//NOW DRAWING PISTONS - since the timer function has established all the piston locations
 
+
+
+
+
+		//PISTON - a tube for the body of it , then the
+
+
+
+
+//TUBES
+
 		//PISTON RING 1
 
 		//PISTON RING 2
 
 		//PISTON RING 3
 
-		//PISTON
 
-		//SCALLOPED EDGE
+
+
+
+
+
+		//SCALLOPED EDGE - I forgot this is going to have to take place before the cylinder liner or else that's going to be an issue I think
+
+
 
 
 
@@ -1582,6 +1947,18 @@ void init()
 		glUniform4fv(cylinder_colors_location, NUM_CYLINDERS, glm::value_ptr( cylinder_color_values[0] ) );
 
 		glUniform3fv(cylinder_offsets_location, NUM_CYLINDERS, glm::value_ptr( cylinder_offsets[0] ) );
+
+
+
+		//THEN SEND ALL THE TUBE VALUES TO THE GPU
+		glUniform3fv(tube_tvec_location, NUM_TUBES, glm::value_ptr( tube_tvec_values[0] ) );
+		glUniform3fv(tube_bvec_location, NUM_TUBES, glm::value_ptr( tube_bvec_values[0] ) );
+		glUniform1fv(tube_inner_radii_location, NUM_TUBES, &tube_inner_radii_values[0] );
+		glUniform1fv(tube_outer_radii_location, NUM_TUBES, &tube_outer_radii_values[0] );
+		glUniform4fv(tube_colors_location, NUM_TUBES, glm::value_ptr( tube_color_values[0] ) );
+
+		glUniform3fv(tube_offsets_location, NUM_TUBES, glm::value_ptr( tube_offsets[0] ) );
+
 
 	}
 
@@ -1631,72 +2008,130 @@ void timer(int)
 	float position_in_rotation_double = (float) ( numFrames % ( 2 * frames_per_rotation ) ) / (float) ( 2 * frames_per_rotation );
 
 
-	glm::mat4 rot(1.0f);
+	glm::mat4 rot(1.0f); //initialize with identity
+	// because we really don't need to do this rotation initially
 
 	if(numFrames)
-	{ //don't need to do this rotation initially
+	{
 		rot = glm::rotate( frame_rotation_increment, glm::vec3( 0.0f, 0.0f, 1.0f ) );
 	}
 
-	//ROTATE CRANKSHAFT JOURNALS (CYLINDERS index 14 to 17)
+
+
+
+	//ROTATE BOTTOMS OF CONNECTION RODS (CYLINDERS index 14 to 21)
 	cylinder_tvec_values[14] = rot * vec(cylinder_tvec_values[14], 1.0f);
 	cylinder_bvec_values[14] = rot * vec(cylinder_bvec_values[14], 1.0f);
+
 
 	cylinder_tvec_values[15] = rot * vec(cylinder_tvec_values[15], 1.0f);
 	cylinder_bvec_values[15] = rot * vec(cylinder_bvec_values[15], 1.0f);
 
+
 	cylinder_tvec_values[16] = rot * vec(cylinder_tvec_values[16], 1.0f);
 	cylinder_bvec_values[16] = rot * vec(cylinder_bvec_values[16], 1.0f);
+
 
 	cylinder_tvec_values[17] = rot * vec(cylinder_tvec_values[17], 1.0f);
 	cylinder_bvec_values[17] = rot * vec(cylinder_bvec_values[17], 1.0f);
 
 
-	//ROTATE CONNECTING ROD BEARINGS (CYLINDERS index 18 to 25)
 	cylinder_tvec_values[18] = rot * vec(cylinder_tvec_values[18], 1.0f);
 	cylinder_bvec_values[18] = rot * vec(cylinder_bvec_values[18], 1.0f);
 
-	cylinder_1_rod_connection = (cylinder_tvec_values[18] + cylinder_bvec_values[18]) / 2.0f;
 
 	cylinder_tvec_values[19] = rot * vec(cylinder_tvec_values[19], 1.0f);
 	cylinder_bvec_values[19] = rot * vec(cylinder_bvec_values[19], 1.0f);
 
-	cylinder_2_rod_connection = (cylinder_tvec_values[19] + cylinder_bvec_values[19]) / 2.0f;
 
 	cylinder_tvec_values[20] = rot * vec(cylinder_tvec_values[20], 1.0f);
 	cylinder_bvec_values[20] = rot * vec(cylinder_bvec_values[20], 1.0f);
 
-	cylinder_3_rod_connection = (cylinder_tvec_values[20] + cylinder_bvec_values[20]) / 2.0f;
 
 	cylinder_tvec_values[21] = rot * vec(cylinder_tvec_values[21], 1.0f);
 	cylinder_bvec_values[21] = rot * vec(cylinder_bvec_values[21], 1.0f);
 
-	cylinder_4_rod_connection = (cylinder_tvec_values[21] + cylinder_bvec_values[21]) / 2.0f;
+	cylinder_1_rod_connection = (cylinder_tvec_values[14] + cylinder_bvec_values[14]) / 2.0f;
+	cylinder_2_rod_connection = (cylinder_tvec_values[15] + cylinder_bvec_values[15]) / 2.0f;
+	cylinder_3_rod_connection = (cylinder_tvec_values[16] + cylinder_bvec_values[16]) / 2.0f;
+	cylinder_4_rod_connection = (cylinder_tvec_values[17] + cylinder_bvec_values[17]) / 2.0f;
+	cylinder_5_rod_connection = (cylinder_tvec_values[18] + cylinder_bvec_values[18]) / 2.0f;
+	cylinder_6_rod_connection = (cylinder_tvec_values[19] + cylinder_bvec_values[19]) / 2.0f;
+	cylinder_7_rod_connection = (cylinder_tvec_values[20] + cylinder_bvec_values[20]) / 2.0f;
+	cylinder_8_rod_connection = (cylinder_tvec_values[21] + cylinder_bvec_values[21]) / 2.0f;
+
+
+	//ROTATE CUTOUTS FOR BEARINGS (22 to 29)
 
 	cylinder_tvec_values[22] = rot * vec(cylinder_tvec_values[22], 1.0f);
 	cylinder_bvec_values[22] = rot * vec(cylinder_bvec_values[22], 1.0f);
 
-	cylinder_5_rod_connection = (cylinder_tvec_values[22] + cylinder_bvec_values[22]) / 2.0f;
 
 	cylinder_tvec_values[23] = rot * vec(cylinder_tvec_values[23], 1.0f);
 	cylinder_bvec_values[23] = rot * vec(cylinder_bvec_values[23], 1.0f);
 
-	cylinder_6_rod_connection = (cylinder_tvec_values[23] + cylinder_bvec_values[23]) / 2.0f;
 
 	cylinder_tvec_values[24] = rot * vec(cylinder_tvec_values[24], 1.0f);
 	cylinder_bvec_values[24] = rot * vec(cylinder_bvec_values[24], 1.0f);
 
-	cylinder_7_rod_connection = (cylinder_tvec_values[24] + cylinder_bvec_values[24]) / 2.0f;
 
 	cylinder_tvec_values[25] = rot * vec(cylinder_tvec_values[25], 1.0f);
 	cylinder_bvec_values[25] = rot * vec(cylinder_bvec_values[25], 1.0f);
 
-	cylinder_8_rod_connection = (cylinder_tvec_values[25] + cylinder_bvec_values[25]) / 2.0f;
+
+	cylinder_tvec_values[26] = rot * vec(cylinder_tvec_values[26], 1.0f);
+	cylinder_bvec_values[26] = rot * vec(cylinder_bvec_values[26], 1.0f);
+
+
+	cylinder_tvec_values[27] = rot * vec(cylinder_tvec_values[27], 1.0f);
+	cylinder_bvec_values[27] = rot * vec(cylinder_bvec_values[27], 1.0f);
+
+
+	cylinder_tvec_values[28] = rot * vec(cylinder_tvec_values[28], 1.0f);
+	cylinder_bvec_values[28] = rot * vec(cylinder_bvec_values[28], 1.0f);
+
+
+	cylinder_tvec_values[29] = rot * vec(cylinder_tvec_values[29], 1.0f);
+	cylinder_bvec_values[29] = rot * vec(cylinder_bvec_values[29], 1.0f);
+
+
+	//ROTATE BEARINGS (30 to 37)
+
+	cylinder_tvec_values[30] = rot * vec(cylinder_tvec_values[30], 1.0f);
+	cylinder_bvec_values[30] = rot * vec(cylinder_bvec_values[30], 1.0f);
+
+
+	cylinder_tvec_values[31] = rot * vec(cylinder_tvec_values[31], 1.0f);
+	cylinder_bvec_values[31] = rot * vec(cylinder_bvec_values[31], 1.0f);
+
+
+	cylinder_tvec_values[32] = rot * vec(cylinder_tvec_values[32], 1.0f);
+	cylinder_bvec_values[32] = rot * vec(cylinder_bvec_values[32], 1.0f);
+
+
+	cylinder_tvec_values[33] = rot * vec(cylinder_tvec_values[33], 1.0f);
+	cylinder_bvec_values[33] = rot * vec(cylinder_bvec_values[33], 1.0f);
+
+
+	cylinder_tvec_values[34] = rot * vec(cylinder_tvec_values[34], 1.0f);
+	cylinder_bvec_values[34] = rot * vec(cylinder_bvec_values[34], 1.0f);
+
+
+	cylinder_tvec_values[35] = rot * vec(cylinder_tvec_values[35], 1.0f);
+	cylinder_bvec_values[35] = rot * vec(cylinder_bvec_values[35], 1.0f);
+
+
+	cylinder_tvec_values[36] = rot * vec(cylinder_tvec_values[36], 1.0f);
+	cylinder_bvec_values[36] = rot * vec(cylinder_bvec_values[36], 1.0f);
+
+
+	cylinder_tvec_values[37] = rot * vec(cylinder_tvec_values[37], 1.0f);
+	cylinder_bvec_values[37] = rot * vec(cylinder_bvec_values[37], 1.0f);
 
 
 
-	//UPDATE PRESSURE CHAMBER STUFF (CYLINDERS index 42 to 49)
-	// 42, 43, 44, 45 are in bank 1, 46, 47, 48, 49 are in bank 2
+	//UPDATE PRESSURE CHAMBER STUFF (CYLINDERS index 54 to 61)
+	// 54, 55, 56, 57 are in bank 1, 58, 59, 60, 61 are in bank 2
 
 	//tvecs stay the same, bvecs will be moving up and down the cylinder
 
@@ -1721,19 +2156,60 @@ void timer(int)
 	cylinder_8_piston_location = (0.9f * disp8 * (bank2_middle_vector - bank2_start_vector)) + bank2_middle_vector + glm::vec3(0.0f, 0.0f, cylinder_8_z_offset);
 
 
-	cylinder_bvec_values[42] = cylinder_1_piston_location;
-	cylinder_bvec_values[43] = cylinder_2_piston_location;
-	cylinder_bvec_values[44] = cylinder_3_piston_location;
-	cylinder_bvec_values[45] = cylinder_4_piston_location;
-	cylinder_bvec_values[46] = cylinder_5_piston_location;
-	cylinder_bvec_values[47] = cylinder_6_piston_location;
-	cylinder_bvec_values[48] = cylinder_7_piston_location;
-	cylinder_bvec_values[49] = cylinder_8_piston_location;
+	cylinder_bvec_values[54] = cylinder_1_piston_location;
+	cylinder_bvec_values[55] = cylinder_2_piston_location;
+	cylinder_bvec_values[56] = cylinder_3_piston_location;
+	cylinder_bvec_values[57] = cylinder_4_piston_location;
+	cylinder_bvec_values[58] = cylinder_5_piston_location;
+	cylinder_bvec_values[59] = cylinder_6_piston_location;
+	cylinder_bvec_values[60] = cylinder_7_piston_location;
+	cylinder_bvec_values[61] = cylinder_8_piston_location;
+
+
+
+	//ROTATE CRANKSHAFT JOURNALS (CYLINDERS index 62 to 65)
+	cylinder_tvec_values[62] = rot * vec(cylinder_tvec_values[62], 1.0f);
+	cylinder_bvec_values[62] = rot * vec(cylinder_bvec_values[62], 1.0f);
+
+	cylinder_tvec_values[63] = rot * vec(cylinder_tvec_values[63], 1.0f);
+	cylinder_bvec_values[63] = rot * vec(cylinder_bvec_values[63], 1.0f);
+
+	cylinder_tvec_values[64] = rot * vec(cylinder_tvec_values[64], 1.0f);
+	cylinder_bvec_values[64] = rot * vec(cylinder_bvec_values[64], 1.0f);
+
+	cylinder_tvec_values[65] = rot * vec(cylinder_tvec_values[65], 1.0f);
+	cylinder_bvec_values[65] = rot * vec(cylinder_bvec_values[65], 1.0f);
 
 
 	//UPDATE THE COLORS - THIS WILL REQUIRE MORE SINUSOIDAL TYPE STUFF
 
+	// firing order is defined as 1-8-7-3-6-5-4-2 (from the nissan VK engine)
+
+	// I:intake
+	// C:compression
+	// F:firing and expansion
+	// E:exhaust
+
+
+	//TIME STEP  : -0- -1- -2- -3- -4- -5- -6- -7-
+
+	//CYLINDER 1 :  F   F   E   E   I   I   C   C
+	//CYLINDER 2 :  F   E   E   I   I   C   C   F
+	//CYLINDER 3 :  I   C   C   F   F   E   E   I
+	//CYLINDER 4 :  E   E   I   I 	C   C   F   F
+
+	//CYLINDER 5 :  E   I   I   C   C   F   F   E
+	//CYLINDER 6 :  I   I   C   C   F   F   E   E
+	//CYLINDER 7 :  C   C   F   F   E   E   I   I
+	//CYLINDER 8 :  C   F   F   E   E   I   I   C
+
+
+
+
+
 	//UPDATE LOCATIONS OF ALL PISTON COMPONENTS
+
+
 
 
 
@@ -2043,8 +2519,13 @@ void mouse( int button, int state, int x, int y )
 			   	//do something for the left mouse button
 				break;
 		  case GLUT_MIDDLE_BUTTON:
-					//do something for the middle mouse button
-				break;
+					//do something for
+
+
+					the middle mouse button
+		 - I forgot this is going to have to take place before the cylinder liner or else that's going to be an issue I think
+
+		  		break;
 		  case GLUT_RIGHT_BUTTON:
 					//do something for the right mouse button
 				break;

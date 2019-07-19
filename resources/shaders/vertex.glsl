@@ -16,6 +16,7 @@ out vec4 color;
 #define RENDER_HEIGHTMAP	false		//renders a heightmap held in a texture
 
 #define RENDER_SPHERES 		true		//renders a list of spheres
+#define RENDER_TUBES			false		//renders a list of tubes - (a cylinder with an inner radius)
 #define RENDER_CYLINDERS 	true		//renders a list of cylinders
 #define RENDER_TRIANGLES 	false		//renders a list of triangles
 #define RENDER_QUAD_HEX 	true		//renders a list of cuboids
@@ -30,8 +31,9 @@ out vec4 color;
 //	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
-#define NUM_CYLINDERS 50					//how long is the list of cylinders?
-#define NUM_TRIANGLES 1						//how long is the list of triangles?
+#define NUM_TUBES			8						//how long is the list of tubes?
+#define NUM_CYLINDERS 66					//how long is the list of cylinders?
+#define NUM_TRIANGLES 8						//how long is the list of triangles?
 #define NUM_QUAD_HEXS 16					//how long is the list of cuboids?
 
 
@@ -58,6 +60,20 @@ uniform float cylinder_radii[NUM_CYLINDERS];
 uniform vec4 cylinder_colors[NUM_CYLINDERS];
 
 uniform vec3 cylinder_offsets[NUM_CYLINDERS];
+
+
+
+
+//TUBE VALUES
+uniform vec3 tube_tvec[NUM_TUBES];
+uniform vec3 tube_bvec[NUM_TUBES];
+
+uniform float tube_inner_radii[NUM_TUBES];
+uniform float tube_outer_radii[NUM_TUBES];
+
+uniform vec4 tube_colors[NUM_TUBES];
+
+uniform vec3 tube_offsets[NUM_TUBES];
 
 
 
@@ -386,6 +402,69 @@ void main()
 						// sum += cylinder_colors[i];
 
 						color = cylinder_colors[i];
+
+					}
+				}
+			}
+		}
+
+
+
+	//TUBES
+
+		//	 ,----.
+		//	(   *  )
+		//	|`----'|
+		//	|      |
+		//	|      |
+		//	|      |
+		//	|,----.|
+		//	(   *  )
+		//	 `----'
+
+		// TUBES ARE JUST CYLINDERS THAT HAVE AN INNER RADIUS
+
+
+
+		if(RENDER_TUBES)
+		{
+
+			vec3 tube_tvec_normal;
+			vec3 tube_bvec_normal;
+
+			vec3 tube_center;
+
+			vec3 bvec_local, tvec_local;
+
+
+			for(int i = 0; i < NUM_CYLINDERS; i++)
+			{
+				bvec_local = tube_bvec[i] + tube_offsets[i];
+				tvec_local = tube_tvec[i] + tube_offsets[i];
+
+
+				tube_center = ( bvec_local + tvec_local ) / 2.0f;
+
+				tube_tvec_normal = bvec_local - tvec_local;
+				tube_tvec_normal = planetest( tvec_local, tube_tvec_normal, tube_center) ? tube_tvec_normal : (tube_tvec_normal * -1.0f);
+
+				tube_bvec_normal = bvec_local - tvec_local;
+				tube_bvec_normal = planetest( bvec_local, tube_bvec_normal, tube_center) ? tube_bvec_normal : (tube_bvec_normal * -1.0f);
+
+
+				if( planetest(bvec_local, tube_bvec_normal, vPosition.xyz) && planetest(tvec_local, tube_tvec_normal, vPosition.xyz) )
+				{
+
+					distance = length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local );
+
+					if(distance < tube_outer_radii[i] && distance > tube_inner_radii[i])
+					{
+						//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
+
+						// how_many_being_drawn++;
+						// sum += cylinder_colors[i];
+
+						color = tube_colors[i];
 
 					}
 				}
