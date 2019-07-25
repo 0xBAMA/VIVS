@@ -16,7 +16,7 @@ out vec4 color;
 #define RENDER_HEIGHTMAP	false		//renders a heightmap held in a texture
 
 #define RENDER_SPHERES 		true		//renders a list of spheres
-#define RENDER_TUBES			false		//renders a list of tubes - (a cylinder with an inner radius)
+#define RENDER_TUBES			true		//renders a list of tubes - (a cylinder with an inner radius)
 #define RENDER_CYLINDERS 	true		//renders a list of cylinders
 #define RENDER_TRIANGLES 	false		//renders a list of triangles
 #define RENDER_QUAD_HEX 	true		//renders a list of cuboids
@@ -31,8 +31,8 @@ out vec4 color;
 //	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
-#define NUM_TUBES			8						//how long is the list of tubes?
-#define NUM_CYLINDERS 66					//how long is the list of cylinders?
+#define NUM_TUBES			48					//how long is the list of tubes?
+#define NUM_CYLINDERS 42					//how long is the list of cylinders?
 #define NUM_TRIANGLES 8						//how long is the list of triangles?
 #define NUM_QUAD_HEXS 16					//how long is the list of cuboids?
 
@@ -403,6 +403,9 @@ void main()
 
 						color = cylinder_colors[i];
 
+						// if(i < 30)
+						// 	color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
+
 					}
 				}
 			}
@@ -437,7 +440,7 @@ void main()
 			vec3 bvec_local, tvec_local;
 
 
-			for(int i = 0; i < NUM_CYLINDERS; i++)
+			for(int i = 0; i < NUM_TUBES; i++)
 			{
 				bvec_local = tube_bvec[i] + tube_offsets[i];
 				tvec_local = tube_tvec[i] + tube_offsets[i];
@@ -455,16 +458,19 @@ void main()
 				if( planetest(bvec_local, tube_bvec_normal, vPosition.xyz) && planetest(tvec_local, tube_tvec_normal, vPosition.xyz) )
 				{
 
-					distance = length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local );
+					float point_distance = length( cross( tvec_local - bvec_local, bvec_local - vPosition.xyz ) ) / length( tvec_local - bvec_local );
 
-					if(distance < tube_outer_radii[i] && distance > tube_inner_radii[i])
+					if(point_distance < tube_outer_radii[i] && point_distance > tube_inner_radii[i])
 					{
 						//distance from point to line from http://mathworld.wolfram.com/Point-LineDistance3-Dimensional.html
 
 						// how_many_being_drawn++;
 						// sum += cylinder_colors[i];
 
+
 						color = tube_colors[i];
+
+
 
 					}
 				}
@@ -579,6 +585,9 @@ void main()
 				// sum += cuboid_colors[i];
 
 				color = cuboid_colors[i];
+
+				// if(i < 14)
+				// 	color = vec4(0.0f, 0.0f, 0.0f, 1.0f);
 			}
 		}
 	}
