@@ -250,7 +250,7 @@ glm::vec3 cylinder_6_rod_connection;
 glm::vec3 cylinder_7_rod_connection;
 glm::vec3 cylinder_8_rod_connection;
 
-//location of the top of the piston
+//location of the top of the piston / close to top of con rod
 glm::vec3 cylinder_1_piston_location;
 glm::vec3 cylinder_2_piston_location;
 glm::vec3 cylinder_3_piston_location;
@@ -283,9 +283,9 @@ glm::vec3 bank2_piston_offset = -0.1f * ((bank2_start_vector + bank2_end_vector)
 
 
 
-float con_rod_crank_connection_radius = 0.05f;
+float con_rod_crank_connection_radius = 0.052f;
 float bearing_cutout_diameter = 0.035;
-float bearing_diameter = 0.03;
+float bearing_diameter = 0.0325;
 
 
 float cylinder_1_start = -0.33f;
@@ -2230,7 +2230,7 @@ void timer(int)
 	glm::mat4 rot(1.0f); //initialize with identity
 	// because we really don't need to do this rotation initially
 
-	if(numFrames)
+	if(numFrames)	//if you're past frame zero, commence rotation
 	{
 		rot = glm::rotate( frame_rotation_increment, glm::vec3( 0.0f, 0.0f, 1.0f ) );
 	}
@@ -2589,36 +2589,36 @@ void timer(int)
 
 //triangular base pieces
 triangle_point1_values[0] = cylinder_1_rod_connection - 0.45f * cylinder_1_con_rod_vector;
-triangle_point2_values[0] = cylinder_1_rod_connection + 0.20f * cylinder_1_perpendicular_vector;
-triangle_point3_values[0] = cylinder_1_rod_connection - 0.20f * cylinder_1_perpendicular_vector;
+triangle_point2_values[0] = cylinder_1_rod_connection + 0.27f * cylinder_1_perpendicular_vector;
+triangle_point3_values[0] = cylinder_1_rod_connection - 0.27f * cylinder_1_perpendicular_vector;
 
 triangle_point1_values[1] = cylinder_2_rod_connection - 0.45f * cylinder_2_con_rod_vector;
-triangle_point2_values[1] = cylinder_2_rod_connection + 0.20f * cylinder_2_perpendicular_vector;
-triangle_point3_values[1] = cylinder_2_rod_connection - 0.20f * cylinder_2_perpendicular_vector;
+triangle_point2_values[1] = cylinder_2_rod_connection + 0.27f * cylinder_2_perpendicular_vector;
+triangle_point3_values[1] = cylinder_2_rod_connection - 0.27f * cylinder_2_perpendicular_vector;
 
 triangle_point1_values[2] = cylinder_3_rod_connection - 0.45f * cylinder_3_con_rod_vector;
-triangle_point2_values[2] = cylinder_3_rod_connection + 0.20f * cylinder_3_perpendicular_vector;
-triangle_point3_values[2] = cylinder_3_rod_connection - 0.20f * cylinder_3_perpendicular_vector;
+triangle_point2_values[2] = cylinder_3_rod_connection + 0.27f * cylinder_3_perpendicular_vector;
+triangle_point3_values[2] = cylinder_3_rod_connection - 0.27f * cylinder_3_perpendicular_vector;
 
 triangle_point1_values[3] = cylinder_4_rod_connection - 0.45f * cylinder_4_con_rod_vector;
-triangle_point2_values[3] = cylinder_4_rod_connection + 0.20f * cylinder_4_perpendicular_vector;
-triangle_point3_values[3] = cylinder_4_rod_connection - 0.20f * cylinder_4_perpendicular_vector;
+triangle_point2_values[3] = cylinder_4_rod_connection + 0.27f * cylinder_4_perpendicular_vector;
+triangle_point3_values[3] = cylinder_4_rod_connection - 0.27f * cylinder_4_perpendicular_vector;
 
 triangle_point1_values[4] = cylinder_5_rod_connection - 0.45f * cylinder_5_con_rod_vector;
-triangle_point2_values[4] = cylinder_5_rod_connection + 0.20f * cylinder_5_perpendicular_vector;
-triangle_point3_values[4] = cylinder_5_rod_connection - 0.20f * cylinder_5_perpendicular_vector;
+triangle_point2_values[4] = cylinder_5_rod_connection + 0.27f * cylinder_5_perpendicular_vector;
+triangle_point3_values[4] = cylinder_5_rod_connection - 0.27f * cylinder_5_perpendicular_vector;
 
 triangle_point1_values[5] = cylinder_6_rod_connection - 0.45f * cylinder_6_con_rod_vector;
-triangle_point2_values[5] = cylinder_6_rod_connection + 0.20f * cylinder_6_perpendicular_vector;
-triangle_point3_values[5] = cylinder_6_rod_connection - 0.20f * cylinder_6_perpendicular_vector;
+triangle_point2_values[5] = cylinder_6_rod_connection + 0.27f * cylinder_6_perpendicular_vector;
+triangle_point3_values[5] = cylinder_6_rod_connection - 0.27f * cylinder_6_perpendicular_vector;
 
 triangle_point1_values[6] = cylinder_7_rod_connection - 0.45f * cylinder_7_con_rod_vector;
-triangle_point2_values[6] = cylinder_7_rod_connection + 0.20f * cylinder_7_perpendicular_vector;
-triangle_point3_values[6] = cylinder_7_rod_connection - 0.20f * cylinder_7_perpendicular_vector;
+triangle_point2_values[6] = cylinder_7_rod_connection + 0.27f * cylinder_7_perpendicular_vector;
+triangle_point3_values[6] = cylinder_7_rod_connection - 0.27f * cylinder_7_perpendicular_vector;
 
 triangle_point1_values[7] = cylinder_8_rod_connection - 0.45f * cylinder_8_con_rod_vector;
-triangle_point2_values[7] = cylinder_8_rod_connection + 0.20f * cylinder_8_perpendicular_vector;
-triangle_point3_values[7] = cylinder_8_rod_connection - 0.20f * cylinder_8_perpendicular_vector;
+triangle_point2_values[7] = cylinder_8_rod_connection + 0.27f * cylinder_8_perpendicular_vector;
+triangle_point3_values[7] = cylinder_8_rod_connection - 0.27f * cylinder_8_perpendicular_vector;
 
 
 
@@ -2658,7 +2658,6 @@ cuboid_e_values[9] = top_loc + 0.1f * cylinder_2_perpendicular_vector + z_neg;
 cuboid_f_values[9] = bot_loc + 0.1f * cylinder_2_perpendicular_vector + z_neg;
 cuboid_g_values[9] = top_loc - 0.1f * cylinder_2_perpendicular_vector + z_neg;
 cuboid_h_values[9] = bot_loc - 0.1f * cylinder_2_perpendicular_vector + z_neg;
-
 
 
 top_loc = cylinder_3_rod_connection - 0.95f * cylinder_3_con_rod_vector;
@@ -2702,6 +2701,7 @@ cuboid_f_values[12] = bot_loc + 0.1f * cylinder_5_perpendicular_vector + z_neg;
 cuboid_g_values[12] = top_loc - 0.1f * cylinder_5_perpendicular_vector + z_neg;
 cuboid_h_values[12] = bot_loc - 0.1f * cylinder_5_perpendicular_vector + z_neg;
 
+
 top_loc = cylinder_6_rod_connection - 0.95f * cylinder_6_con_rod_vector;
 bot_loc = cylinder_6_rod_connection - 0.10f * cylinder_6_con_rod_vector;
 
@@ -2728,6 +2728,7 @@ cuboid_f_values[14] = bot_loc + 0.1f * cylinder_7_perpendicular_vector + z_neg;
 cuboid_g_values[14] = top_loc - 0.1f * cylinder_7_perpendicular_vector + z_neg;
 cuboid_h_values[14] = bot_loc - 0.1f * cylinder_7_perpendicular_vector + z_neg;
 
+
 top_loc = cylinder_8_rod_connection - 0.95f * cylinder_8_con_rod_vector;
 bot_loc = cylinder_8_rod_connection - 0.10f * cylinder_8_con_rod_vector;
 
@@ -2749,7 +2750,7 @@ cuboid_h_values[15] = bot_loc - 0.1f * cylinder_8_perpendicular_vector + z_neg;
 
 
 
-
+cout << position_in_rotation_double << endl;
 
 
 
@@ -2779,8 +2780,6 @@ cuboid_h_values[15] = bot_loc - 0.1f * cylinder_8_perpendicular_vector + z_neg;
 
 
 
-
-	//UPDATE LOCATIONS OF ALL PISTON COMPONENTS
 
 
 
@@ -3123,12 +3122,12 @@ int main( int argc, char **argv )
 
 	glutInit( &argc, argv );
 	glutInitDisplayMode( GLUT_RGBA | GLUT_DOUBLE | GLUT_DEPTH );
-	glutInitWindowSize( image_width, image_height );
-	// glutInitWindowSize( 500, 500 );
+	glutInitWindowSize( image_width / 2, image_height / 2 );
+
 	glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 	glutCreateWindow( "GLUT Window" );
-	glutFullScreen();
+	// glutFullScreen();
 
 	// glutGameModeString("640x480");
 	//
