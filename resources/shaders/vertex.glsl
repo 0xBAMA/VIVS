@@ -18,12 +18,12 @@ out vec4 color;
 #define RENDER_SPHERES 		true		//renders a list of spheres
 #define RENDER_TUBES			true		//renders a list of tubes - (a cylinder with an inner radius)
 #define RENDER_CYLINDERS 	true		//renders a list of cylinders
-#define RENDER_TRIANGLES 	false		//renders a list of triangles
+#define RENDER_TRIANGLES 	true		//renders a list of triangles
 #define RENDER_QUAD_HEX 	true		//renders a list of cuboids
 
 
 
-//eventually I want to do this as a set of compute shaders, one for each of these primitives
+//eventually I want to do this as a set of compute shaders, one for each of these primitives or maybe batches of these primitives
 
 //	the manual config on the numbers is a bit of a pain right now, but for-loops
 //	of a variable size are illegal in GLSL code. Also have to keep a separate
@@ -254,8 +254,14 @@ void main()
 		for(int i = 0; i < NUM_TRIANGLES; i++)
 		{
 
+			vec3 point1_local = triangle_point1[i] + triangle_offsets[i];
+			vec3 point2_local = triangle_point2[i] + triangle_offsets[i];
+			vec3 point3_local = triangle_point3[i] + triangle_offsets[i];
+
+
+
 			//calculate the center of the triangle
-			calculated_triangle_center = ( triangle_point1[i] + triangle_point2[i] + triangle_point3[i] ) / 3.0f;
+			calculated_triangle_center = ( point1_local + point2_local + point3_local ) / 3.0f;
 
 
 			//calculate the top normal vector of the triangle
@@ -270,8 +276,8 @@ void main()
 			//			 * 3							and invert it if neccesary (depending on the relative positions
 			//													of these three points)
 
-			calculated_top_normal = normalize( cross( triangle_point1[i] - triangle_point2[i], triangle_point1[i] - triangle_point3[i] ) );
-			calculated_top_normal = planetest( triangle_point1[i] + triangle_thickness[i] * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+			calculated_top_normal = normalize( cross( point1_local - point2_local, point1_local - point3_local ) );
+			calculated_top_normal = planetest( point1_local + triangle_thickness[i] * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
 
 			//calculate the side normal vectors
 
@@ -295,14 +301,14 @@ void main()
 			//
 			//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
 
-			calculated_side_1_2_normal = normalize( cross( calculated_top_normal, triangle_point2[i] - triangle_point1[i] ) );
-			calculated_side_1_2_normal = planetest( triangle_point1[i], calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
+			calculated_side_1_2_normal = normalize( cross( calculated_top_normal, point2_local - point1_local ) );
+			calculated_side_1_2_normal = planetest( point1_local, calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
 
-			calculated_side_2_3_normal = normalize( cross( calculated_top_normal, triangle_point3[i] - triangle_point2[i] ) );
-			calculated_side_2_3_normal = planetest( triangle_point2[i], calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
+			calculated_side_2_3_normal = normalize( cross( calculated_top_normal, point3_local - point2_local ) );
+			calculated_side_2_3_normal = planetest( point2_local, calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
 
-			calculated_side_3_1_normal = normalize( cross( calculated_top_normal, triangle_point1[i] - triangle_point3[i] ) );
-			calculated_side_3_1_normal = planetest( triangle_point3[i], calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
+			calculated_side_3_1_normal = normalize( cross( calculated_top_normal, point1_local - point3_local ) );
+			calculated_side_3_1_normal = planetest( point3_local, calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
 
 
 			// do the tests - for each of the normals, top, bottom, and the three sides,
@@ -310,11 +316,11 @@ void main()
 			//	'below' all 5 planes - if it is, it is inside this triangular prism
 
 
-			draw_triangles[i] = planetest( triangle_point1[i] + ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
-			planetest( triangle_point1[i] - ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
-			planetest( triangle_point1[i], calculated_side_1_2_normal, vPosition.xyz ) &&
-			planetest( triangle_point2[i], calculated_side_2_3_normal, vPosition.xyz ) &&
-			planetest( triangle_point3[i], calculated_side_3_1_normal, vPosition.xyz );
+			draw_triangles[i] = planetest( point1_local + ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
+			planetest( point1_local - ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
+			planetest( point1_local, calculated_side_1_2_normal, vPosition.xyz ) &&
+			planetest( point2_local, calculated_side_2_3_normal, vPosition.xyz ) &&
+			planetest( point3_local, calculated_side_3_1_normal, vPosition.xyz );
 
 			if(draw_triangles[i])
 			{
@@ -322,6 +328,7 @@ void main()
 				// sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
 
 				color = triangle_colors[i];
+
 			}
 		}
 	}
