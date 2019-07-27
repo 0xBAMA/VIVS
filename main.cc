@@ -342,11 +342,15 @@ vec rod_journal_color = vec(0.7f, 0.7f, 0.7f, 0.5f);
 // vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 0.65f);
 vec rod_bearing_color = vec(1.0f, 0.5f, 0.0f, 1.0f);
 
-
-//yet to be established
 vec piston_color = vec(0.25f, 0.35f, 0.3f, 1.0f);
 vec piston_ring_color = vec(0.6f, 0.5f, 0.0f, 0.5f);
 vec con_rod_color = vec(0.5f, 0.25f, 0.05f, 1.0f);
+
+//cycle colors
+vec intake_color = vec(0.0f, 0.0f, 1.0f, 0.1f);
+vec compression_color = vec(1.0f, 0.0f, 0.0f, 0.1f);
+vec firing_color = vec(0.5f, 0.25f, 0.05f, 0.1f);
+vec exhaust_color = vec(0.125f, 0.125f, 0.125f, 0.1f);
 
 
 
@@ -2332,7 +2336,7 @@ void timer(int)
 
 	float disp1 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single +  1.0f * 3.14159265359f / 4.0f);
 	float disp2 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single +  3.0f * 3.14159265359f / 4.0f);
-	float disp3 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single +  7.0f * 3.14159265359f / 4.0f);
+	float disp3 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single -  1.0f * 3.14159265359f / 4.0f);
 	float disp4 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single +  5.0f * 3.14159265359f / 4.0f);
 
 	float disp5 = glm::cos(2.0f * 3.14159265359f * position_in_rotation_single -  1.0f * 3.14159265359f / 4.0f);
@@ -2750,7 +2754,7 @@ cuboid_h_values[15] = bot_loc - 0.1f * cylinder_8_perpendicular_vector + z_neg;
 
 
 
-cout << position_in_rotation_double << endl;
+// cout << position_in_rotation_double << endl;
 
 
 
@@ -2765,24 +2769,79 @@ cout << position_in_rotation_double << endl;
 	// E:exhaust
 
 
-	//TIME STEP  : -0- -1- -2- -3- -4- -5- -6- -7-
+	//TIME STEP  : -0- -1-	 -2- -3-	 -4- -5-	 -6- -7-
 
-	//CYLINDER 1 :  F   F   E   E   I   I   C   C
-	//CYLINDER 2 :  F   E   E   I   I   C   C   F
-	//CYLINDER 3 :  I   C   C   F   F   E   E   I
-	//CYLINDER 4 :  E   E   I   I 	C   C   F   F
+	//CYLINDER 1 :  F   F 	  E   E   	I   I   	C   C
+	//CYLINDER 2 :  F   E  		E   I   	I   C   	C   F
+	//CYLINDER 3 :  I   C   	C   F   	F   E   	E   I
+	//CYLINDER 4 :  E   E   	I   I 		C   C   	F   F
 
-	//CYLINDER 5 :  E   I   I   C   C   F   F   E
-	//CYLINDER 6 :  I   I   C   C   F   F   E   E
-	//CYLINDER 7 :  C   C   F   F   E   E   I   I
-	//CYLINDER 8 :  C   F   F   E   E   I   I   C
+	//CYLINDER 5 :  E   I   	I	  C   	C   F   	F   E
+	//CYLINDER 6 :  I   I   	C   C   	F   F   	E   E
+	//CYLINDER 7 :  C   C   	F   F   	E   E   	I   I
+	//CYLINDER 8 :  C   F   	F   E   	E   I   	I   C
+
+	float cylinder_cycle_val[8];
+
+	//cylinder 1 is cylinder 14, cylinder 8 is cylinder 21
+	cylinder_cycle_val[0] = position_in_rotation_double +  1.0f/16.0f;
+	cylinder_cycle_val[1] = position_in_rotation_double +  3.0f/16.0f;
+	cylinder_cycle_val[2] = position_in_rotation_double + 15.0f/16.0f;
+	cylinder_cycle_val[3] = position_in_rotation_double + 13.0f/16.0f;
+	cylinder_cycle_val[4] = position_in_rotation_double +  7.0f/16.0f;
+	cylinder_cycle_val[5] = position_in_rotation_double +  9.0f/16.0f;
+	cylinder_cycle_val[6] = position_in_rotation_double +  5.0f/16.0f;
+	cylinder_cycle_val[7] = position_in_rotation_double + 10.0f/16.0f;
 
 
 
+	// cout << cylinder_cycle_val[0] << position_in_rotation_double << endl;
+
+	vec col;
+
+	for(int i = 0; i < 8; i++)
+	{
+		//keep the number between 0 and 1
+		if(cylinder_cycle_val[i] > 1.0f)
+			cylinder_cycle_val[i]--;
 
 
+		if(cylinder_cycle_val[i] < 0.25f)
+		{// 0.00 starts the firing
+			col = firing_color;
+		}
+		else if(cylinder_cycle_val[i] < 0.5f)
+		{// 0.25 starts the exhaust
+			col = exhaust_color;
+		}
+		else if(cylinder_cycle_val[i] < 0.75f)
+		{// 0.50 starts the intake
+			col = intake_color;
+		}
+		else if(cylinder_cycle_val[i] < 1.0f)
+		{// 0.75 starts the compression
+			col = compression_color;
+		}
 
+		cylinder_color_values[i + 14] = col;
+	}
 
+	// //cylinder 1
+	// cylinder_color_values[14] = vec(cylinder_cycle_val[0], 0.0f, 0.0f, 1.0f);
+	// //cylinder 2
+	// cylinder_color_values[15] = vec(cylinder_cycle_val[1], 0.0f, 0.0f, 1.0f);
+	// //cylinder 3
+	// cylinder_color_values[16] = vec(cylinder_cycle_val[2], 0.0f, 0.0f, 1.0f);
+	// //cylinder 4
+	// cylinder_color_values[17] = vec(cylinder_cycle_val[3], 0.0f, 0.0f, 1.0f);
+	// //cylinder 5
+	// cylinder_color_values[18] = vec(cylinder_cycle_val[4], 0.0f, 0.0f, 1.0f);
+	// //cylinder 6
+	// cylinder_color_values[19] = vec(cylinder_cycle_val[5], 0.0f, 0.0f, 1.0f);
+	// //cylinder 7
+	// cylinder_color_values[20] = vec(cylinder_cycle_val[6], 0.0f, 0.0f, 1.0f);
+	// //cylinder 8
+	// cylinder_color_values[21] = vec(cylinder_cycle_val[7], 0.0f, 0.0f, 1.0f);
 
 
 
@@ -3127,7 +3186,7 @@ int main( int argc, char **argv )
 	glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 	glutCreateWindow( "GLUT Window" );
-	// glutFullScreen();
+	glutFullScreen();
 
 	// glutGameModeString("640x480");
 	//
