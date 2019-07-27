@@ -2798,6 +2798,7 @@ cuboid_h_values[15] = bot_loc - 0.1f * cylinder_8_perpendicular_vector + z_neg;
 	// cout << cylinder_cycle_val[0] << position_in_rotation_double << endl;
 
 	vec col;
+	float n;
 
 	for(int i = 0; i < 8; i++)
 	{
@@ -2808,21 +2809,52 @@ cuboid_h_values[15] = bot_loc - 0.1f * cylinder_8_perpendicular_vector + z_neg;
 
 		if(cylinder_cycle_val[i] < 0.25f)
 		{// 0.00 starts the firing
-			col = firing_color;
+			if(cylinder_cycle_val[i] < 0.05f)
+			{
+				n = cylinder_cycle_val[i];
+				col = (1.0f - ( 20.0f * n)) * compression_color + 20.0f * n * firing_color;
+			}
+			else
+			{
+				col = firing_color;
+			}
 		}
 		else if(cylinder_cycle_val[i] < 0.5f)
 		{// 0.25 starts the exhaust
-			col = exhaust_color;
+			if(cylinder_cycle_val[i] < 0.3f)
+			{
+				n = cylinder_cycle_val[i] - 0.25f;
+				col = (1.0f - ( 20.0f * n)) * firing_color + 20.0f * n * exhaust_color;
+			}
+			else
+			{
+				col = exhaust_color;
+			}
 		}
 		else if(cylinder_cycle_val[i] < 0.75f)
 		{// 0.50 starts the intake
-			col = intake_color;
+			if(cylinder_cycle_val[i] < 0.55f)
+			{
+				n = cylinder_cycle_val[i] - 0.5f;
+				col = (1.0f - ( 20.0f * n)) * exhaust_color + 20.0f * n * intake_color;
+			}
+			else
+			{
+				col = intake_color;
+			}
 		}
 		else if(cylinder_cycle_val[i] < 1.0f)
 		{// 0.75 starts the compression
-			col = compression_color;
+			if(cylinder_cycle_val[i] < 0.8f)
+			{
+				n = cylinder_cycle_val[i] - 0.75f;
+				col = (1.0f - ( 20.0f * n)) * intake_color + 20.0f * n * compression_color;
+			}
+			else
+			{
+				col = compression_color;
+			}
 		}
-
 		cylinder_color_values[i + 14] = col;
 	}
 
