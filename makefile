@@ -26,7 +26,7 @@ exe: main.cc
 #									<example_name> <optional argument: num_points_per_side>
 
 
-examples: david ico bars crankshaft
+examples: david ico bars crankshaft ngine
 
 
 
@@ -55,3 +55,10 @@ bars: examples/bars/bars.cc
 
 crankshaft: examples/crankshaft/crankshaft.cc
 	$(CC) examples/crankshaft/crankshaft.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/crankshaft/crankshaft
+
+
+
+# a rotating v8 engine
+
+ngine: examples/ngine/ngine.cc
+	$(CC) examples/ngine/ngine.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) examples/ngine/ngine
