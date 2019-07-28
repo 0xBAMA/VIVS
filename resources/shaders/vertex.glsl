@@ -31,10 +31,10 @@ out vec4 color;
 //	the use of a zero value for the number of iterations of a for loop
 
 #define NUM_SPHERES   1						//how long is the list of spheres?
-#define NUM_TUBES			48					//how long is the list of tubes?
-#define NUM_CYLINDERS 42					//how long is the list of cylinders?
-#define NUM_TRIANGLES 8						//how long is the list of triangles?
-#define NUM_QUAD_HEXS 16					//how long is the list of cuboids?
+#define NUM_TUBES			1					//how long is the list of tubes?
+#define NUM_CYLINDERS 1					//how long is the list of cylinders?
+#define NUM_TRIANGLES 1						//how long is the list of triangles?
+#define NUM_QUAD_HEXS 2					//how long is the list of cuboids?
 
 
 
@@ -46,7 +46,6 @@ uniform float sphere_radius[NUM_SPHERES];
 
 uniform vec4 sphere_colors[NUM_SPHERES];
 
-uniform vec3 sphere_offsets[NUM_SPHERES];
 
 
 
@@ -142,35 +141,19 @@ void main()
   gl_Position = view * rotation * vPosition;
 	// This is the same, regardless of anything that happens subsequently
 
-	// color = vColor;
+	color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
 
 
 
 
 
 
-
-
-	//SPHERE
-
-	// float the_distance = distance( vPosition, vec4( sphere_center, 1.0f ) );
-	//
-	// if( the_distance < ( 0.75 * sphere_radius ) ) // INNERMOST LAYER
-	// {
-	// 	// color = vec4(1.0f, 0.3f, 0.5f, 1.0f);
-	// 	color = vec4(0.4, 0.5, the_distance, 0.01f);
-	// }
-	// else if( the_distance < sphere_radius) // THE NEXT LAYER
-	// {
-	// 	// color = vec4(0.3, 0.2, pow(the_distance, 3), 0.5f);
-	// 	color = vec4(0.0f, 0.0f, 0.0f, 0.0f);
-	// }
 
 	if(RENDER_SPHERES)
 	{
 		for(int i = 0; i < NUM_SPHERES; i++)
 		{
-			if( distance( vPosition.xyz, sphere_center[i]) < sphere_radius[i] )
+			if( distance( vPosition.xyz, sphere_center[i]) < sphere_radius[i])
 			{
 				// how_many_being_drawn++;
 				// sum += sphere_colors[i];
@@ -200,7 +183,7 @@ void main()
 		{
 			if(vPosition.x + 0.30 < height * 0.05 && vPosition.x > -0.34)
 			{
-				// color = vec4( height, 0.2f, 0.1f, 0.7f);
+				color = vec4( height, 0.2f, 0.1f, 0.7f);
 
 				// how_many_being_drawn++;
 				// sum += vec4( height, 0.2f, 0.1f, 0.7f);
@@ -208,139 +191,6 @@ void main()
 			}
 		}
 	}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-	//TRIANGLE
-
-	// to aleviate the redundancy of computing all the cross products, etc, for every point,
-	// the normals are computed CPU-side and sent in as uniform variables then the value of
-	// vPosition is checked against 5 different planes which represent the top, bottom, and
-	// three sides of the triangle - if it is 'below' all 5 planes, the point can be said to
-	// be 'inside' the triangle.
-
-	// TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
-
-	if(RENDER_TRIANGLES)
-	{
-		vec3 calculated_triangle_center;
-		vec3 calculated_top_normal;
-		vec3 calculated_side_1_2_normal;
-		vec3 calculated_side_2_3_normal;
-		vec3 calculated_side_3_1_normal;
-
-		bool draw_triangles[NUM_TRIANGLES];
-
-
-
-
-
-		for(int i = 0; i < NUM_TRIANGLES; i++)
-		{
-
-			vec3 point1_local = triangle_point1[i] + triangle_offsets[i];
-			vec3 point2_local = triangle_point2[i] + triangle_offsets[i];
-			vec3 point3_local = triangle_point3[i] + triangle_offsets[i];
-
-
-
-			//calculate the center of the triangle
-			calculated_triangle_center = ( point1_local + point2_local + point3_local ) / 3.0f;
-
-
-			//calculate the top normal vector of the triangle
-
-			//    ^  < - - -normal
-			//		|
-			//		|
-			//	1 .______. 2
-			//		\							taking the cross product of the two sides (1-2 and 1-3)
-			//		 \							will give either the normal or the inverse of the normal
-			//      \								check this against the center point of the triangle to determine
-			//			 * 3							and invert it if neccesary (depending on the relative positions
-			//													of these three points)
-
-			calculated_top_normal = normalize( cross( point1_local - point2_local, point1_local - point3_local ) );
-			calculated_top_normal = planetest( point1_local + triangle_thickness[i] * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
-
-			//calculate the side normal vectors
-
-			//			   ^
-			//			   |  < - - top normal
-			//       _________
-			//      |\       /| ^
-			//      | \ top / |	| thickness
-			//			|  \   /  | v
-			//      \   \ /  /
-			//       \   |  /
-			//        \  | /
-			//         \ |/
-			//          \/
-			//
-			//	looking at this from one of the edges:
-			//
-			//   ^
-			//   | < - - - - the triangle's top normal
-			//   *-------> < - - - vector representing the side being considered
-			//
-			//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
-
-			calculated_side_1_2_normal = normalize( cross( calculated_top_normal, point2_local - point1_local ) );
-			calculated_side_1_2_normal = planetest( point1_local, calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
-
-			calculated_side_2_3_normal = normalize( cross( calculated_top_normal, point3_local - point2_local ) );
-			calculated_side_2_3_normal = planetest( point2_local, calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
-
-			calculated_side_3_1_normal = normalize( cross( calculated_top_normal, point1_local - point3_local ) );
-			calculated_side_3_1_normal = planetest( point3_local, calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
-
-
-			// do the tests - for each of the normals, top, bottom, and the three sides,
-			//	use the planetest function to determine whether the current point is
-			//	'below' all 5 planes - if it is, it is inside this triangular prism
-
-
-			draw_triangles[i] = planetest( point1_local + ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
-			planetest( point1_local - ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
-			planetest( point1_local, calculated_side_1_2_normal, vPosition.xyz ) &&
-			planetest( point2_local, calculated_side_2_3_normal, vPosition.xyz ) &&
-			planetest( point3_local, calculated_side_3_1_normal, vPosition.xyz );
-
-			if(draw_triangles[i])
-			{
-				// how_many_being_drawn++;
-				// sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
-
-				color = triangle_colors[i];
-
-			}
-		}
-	}
-
-
-
-
-
-
-
-
-
 
 
 
@@ -486,6 +336,114 @@ void main()
 
 
 
+		//TRIANGLE
+
+		// to aleviate the redundancy of computing all the cross products, etc, for every point,
+		// the normals are computed CPU-side and sent in as uniform variables then the value of
+		// vPosition is checked against 5 different planes which represent the top, bottom, and
+		// three sides of the triangle - if it is 'below' all 5 planes, the point can be said to
+		// be 'inside' the triangle.
+
+		// TRIANGLES (TRIANGULAR PRISM WITH ADJUSTABLE THICKNESS)
+
+
+
+
+		if(RENDER_TRIANGLES)
+		{
+			vec3 calculated_triangle_center;
+			vec3 calculated_top_normal;
+			vec3 calculated_side_1_2_normal;
+			vec3 calculated_side_2_3_normal;
+			vec3 calculated_side_3_1_normal;
+
+			bool draw_triangles[NUM_TRIANGLES];
+
+
+
+
+
+			for(int i = 0; i < NUM_TRIANGLES; i++)
+			{
+
+				vec3 point1_local = triangle_point1[i] + triangle_offsets[i];
+				vec3 point2_local = triangle_point2[i] + triangle_offsets[i];
+				vec3 point3_local = triangle_point3[i] + triangle_offsets[i];
+
+
+
+				//calculate the center of the triangle
+				calculated_triangle_center = ( point1_local + point2_local + point3_local ) / 3.0f;
+
+
+				//calculate the top normal vector of the triangle
+
+				//    ^  < - - -normal
+				//		|
+				//		|
+				//	1 .______. 2
+				//		\							taking the cross product of the two sides (1-2 and 1-3)
+				//		 \							will give either the normal or the inverse of the normal
+				//      \								check this against the center point of the triangle to determine
+				//			 * 3							and invert it if neccesary (depending on the relative positions
+				//													of these three points)
+
+				calculated_top_normal = normalize( cross( point1_local - point2_local, point1_local - point3_local ) );
+				calculated_top_normal = planetest( point1_local + triangle_thickness[i] * calculated_top_normal, calculated_top_normal, calculated_triangle_center ) ? calculated_top_normal : ( calculated_top_normal * -1.0f );
+
+				//calculate the side normal vectors
+
+				//			   ^
+				//			   |  < - - top normal
+				//       _________
+				//      |\       /| ^
+				//      | \ top / |	| thickness
+				//			|  \   /  | v
+				//      \   \ /  /
+				//       \   |  /
+				//        \  | /
+				//         \ |/
+				//          \/
+				//
+				//	looking at this from one of the edges:
+				//
+				//   ^
+				//   | < - - - - the triangle's top normal
+				//   *-------> < - - - vector representing the side being considered
+				//
+				//   take the cross product of these two vectors, then do a similar test involving the center point of the triangle to invert it if neccesary
+
+				calculated_side_1_2_normal = normalize( cross( calculated_top_normal, point2_local - point1_local ) );
+				calculated_side_1_2_normal = planetest( point1_local, calculated_side_1_2_normal, calculated_triangle_center) ? calculated_side_1_2_normal : ( calculated_side_1_2_normal * -1.0f );
+
+				calculated_side_2_3_normal = normalize( cross( calculated_top_normal, point3_local - point2_local ) );
+				calculated_side_2_3_normal = planetest( point2_local, calculated_side_2_3_normal, calculated_triangle_center) ? calculated_side_2_3_normal : ( calculated_side_2_3_normal * -1.0f );
+
+				calculated_side_3_1_normal = normalize( cross( calculated_top_normal, point1_local - point3_local ) );
+				calculated_side_3_1_normal = planetest( point3_local, calculated_side_3_1_normal, calculated_triangle_center) ? calculated_side_3_1_normal : ( calculated_side_3_1_normal * -1.0f );
+
+
+				// do the tests - for each of the normals, top, bottom, and the three sides,
+				//	use the planetest function to determine whether the current point is
+				//	'below' all 5 planes - if it is, it is inside this triangular prism
+
+
+				draw_triangles[i] = planetest( point1_local + ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, calculated_top_normal, vPosition.xyz ) &&
+				planetest( point1_local - ( triangle_thickness[i] / 2.0f ) * calculated_top_normal, -1.0f * calculated_top_normal, vPosition.xyz ) &&
+				planetest( point1_local, calculated_side_1_2_normal, vPosition.xyz ) &&
+				planetest( point2_local, calculated_side_2_3_normal, vPosition.xyz ) &&
+				planetest( point3_local, calculated_side_3_1_normal, vPosition.xyz );
+
+				if(draw_triangles[i])
+				{
+					// how_many_being_drawn++;
+					// sum += vec4(1.0f, 1.0f, 1.0f, 1.0f); //triangle_colors[i];
+
+					color = triangle_colors[i];
+
+				}
+			}
+		}
 
 
 
@@ -518,6 +476,10 @@ void main()
 	//			concave shapes do not work as there are areas that should be within the
 	//			shape that will not pass all the requisite plane tests, which will
 	//			exclude some of the area that should lie within the shape
+
+
+
+
 
 
 	if(RENDER_QUAD_HEX)
