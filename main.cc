@@ -388,6 +388,7 @@ glm::mat4 projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 float point_size = 2.0;
 bool rotate_triangle = true;
 bool rotate_hexahedrons = true;
+int current_buffer_index;	//the currently bound buffer - used to check if you need to bind a new one
 
 
 
@@ -580,18 +581,30 @@ void init()
 	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 
-	// Create and initialize the buffer objects - 48x
 
+
+	// Create and initialize the buffer objects - 48x
 	glGenBuffers( 48, &array_buffers[0] );
 
 
 
 
-	//loop this 0 - 47
+	for(int i = 0; i < 48; i++)
+	{
 
-	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[0] ); 																//this is what sets the active buffer
-	glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(vec), NULL, GL_STATIC_DRAW );	//initialize with NULL
-	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points[0] );			//send the data
+		//loop this 0 - 47 - I need to figure out how the fuck these are ordered
+
+		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[i] ); 																//this is what sets the active buffer
+		glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(vec), NULL, GL_STATIC_DRAW );	//initialize with NULL
+		glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points[i] );			//send the data
+
+	}
+
+
+
+
+	// we're starting with zero bound - this will change upon any rotation
+	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[0] );
 
 
 	// cout << NumVertices * sizeof(vec); //variable size, but defaults put it at 6 000 000 bytes
@@ -929,11 +942,32 @@ void init()
 void display( void )
 {
 
+
+
+	// //get the vector to the camera
+	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+	//
+	// //find the index referenced by this vector
+	// int temp = calcOrder( dir );
+	//
+	// //check against what buffer is currently bound - update if needed
+	// if(temp != current_buffer_index)
+	// {
+	// 	current_buffer_index = temp;
+	// 	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	// }
+
+
+
+
+
+	//clear the screen
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
-	// glDrawArrays( GL_TRIANGLES, 0, NumVertices );
+	//draw geometry into back buffer
 	glDrawArrays( GL_POINTS, 0, NumVertices );
 
+	//swap to display
 	glutSwapBuffers();
 
 }
