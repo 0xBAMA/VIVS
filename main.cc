@@ -30,6 +30,7 @@ using std::string;
 
 
 // glsl-style Vector and Matrix Library - separate includes for different functionality
+#define GLM_FORCE_SWIZZLE			//supposedly ....
 #include "resources/glm/glm.hpp" 									// general types
 #include "resources/glm/gtc/matrix_transform.hpp" // orthographic view matrix (glm::ortho( left, right, bottom, top, zNear, zFar ))
 #include "resources/glm/gtc/type_ptr.hpp" 				// allows the sending of a matrix (for glUniform)
@@ -402,7 +403,12 @@ GLuint texture; //handle for the texture
 
 
 
+
+
+
+//utilities
 void update_rotation();
+int calcOrder( const glm::vec3 & dir ); // thanks Inigo - source: http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
 void timer(int); //need to forward declare this for the initialization
 
 
@@ -437,6 +443,7 @@ void generate_points()
 
 				points[0][index] = vec( x, y, z, 1.0f );
 
+
 				// cout << index << endl;
 
 				index++;
@@ -453,6 +460,15 @@ void generate_points()
 
 void init()
 {
+
+
+	// The rest of the initialization
+	glClearColor( 0.618, 0.618, 0.618, 1.0 );
+	// glClearColor( 1.0, 1.0, 1.0, 1.0 );
+
+
+	glPointSize(point_size);
+
 
 	// enable z buffer for occlusion
 	glEnable( GL_DEPTH_TEST );
@@ -498,6 +514,29 @@ void init()
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+	//this is going to require writing it out
+	glm::vec3 directions[48];
+
+
+
+
+
+
+
+
+
+
  	//allocation of the arrays
 
 	for(int i = 0; i < num_directions; i++)
@@ -511,14 +550,26 @@ void init()
 		//third number has two choices once the second and it's complement are removed
 	}
 
-	generate_points();
-
-	// The rest of the initialization
-	glClearColor( 0.618, 0.618, 0.618, 1.0 );
-	// glClearColor( 1.0, 1.0, 1.0, 1.0 );
 
 
-	glPointSize(point_size);
+
+	generate_points();	//this is going to become 48 times longer
+
+	//after this, we have the points - time to send to gpu
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -529,16 +580,24 @@ void init()
 	glGenVertexArrays( 1, &vao );
 	glBindVertexArray( vao );
 
-	// Create and initialize a buffer object
-	GLuint buffer;
-	glGenBuffers( 1, &buffer );
-	glBindBuffer( GL_ARRAY_BUFFER, buffer );
-	glBufferData( GL_ARRAY_BUFFER, NumVertices*sizeof(vec), NULL, GL_STATIC_DRAW );
+	// Create and initialize the buffer objects - 48x
 
-	// glBufferData( GL_ARRAY_BUFFER, sizeof(points) + sizeof(colors), NULL, GL_STATIC_DRAW );	//replace the above line with this to add buffer space for per-vertex colors
-	// glBufferSubData( GL_ARRAY_BUFFER, sizeof(points), sizeof(colors), colors );					  	//then use this to buffer this data
+	glGenBuffers( 48, &array_buffers[0] );
 
-	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices*sizeof(vec), points[0] );
+
+
+
+	//loop this 0 - 47
+
+	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[0] ); 																//this is what sets the active buffer
+	glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(vec), NULL, GL_STATIC_DRAW );	//initialize with NULL
+	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points[0] );			//send the data
+
+
+	// cout << NumVertices * sizeof(vec); //variable size, but defaults put it at 6 000 000 bytes
+
+
+
 
 
 	// Use the shader program ( compiled in the initialization )
@@ -1254,6 +1313,17 @@ int main( int argc, char **argv )
 }
 
 
+
+
+
+
+
+
+
+
+
+
+
 //UTILITIES
 
 void update_rotation()
@@ -1262,4 +1332,38 @@ void update_rotation()
 	rotation = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv( rotation_location, 1, GL_FALSE,  glm::value_ptr( rotation ) );
 
+}
+
+
+
+
+
+int calcOrder( const glm::vec3 & dir )
+{
+		int signs;
+
+		const int   sx = dir.x<0.0f;
+		const int   sy = dir.y<0.0f;
+		const int   sz = dir.z<0.0f;
+		const float ax = fabsf( dir.x );
+		const float ay = fabsf( dir.y );
+		const float az = fabsf( dir.z );
+
+		if( ax>ay && ax>az )
+		{
+				if( ay>az ) signs = 0 + ((sx<<2)|(sy<<1)|sz);
+				else        signs = 8 + ((sx<<2)|(sz<<1)|sy);
+		}
+		else if( ay>az )
+		{
+				if( ax>az ) signs = 16 + ((sy<<2)|(sx<<1)|sz);
+				else        signs = 24 + ((sy<<2)|(sz<<1)|sx);
+		}
+		else
+		{
+				if( ax>ay ) signs = 32 + ((sz<<2)|(sx<<1)|sy);
+				else        signs = 40 + ((sz<<2)|(sy<<1)|sx);
+		}
+
+		return signs;
 }
