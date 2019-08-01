@@ -61,7 +61,10 @@ int NumVertices = points_per_side * points_per_side * points_per_side;
 
 //and the array to hold them
 const int MaxVerticies = 64000000;
-vec points[MaxVerticies];
+
+const int num_directions = 48;
+
+vec *points[num_directions];
 
 
 
@@ -203,26 +206,8 @@ vec points[MaxVerticies];
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-GLuint array_buffers[48];
+//used to hold the handles for all the separate arrays - see above for how to pick
+GLuint array_buffers[48]; // there are 6 per quadrant, 8 quadrants for a total of 48
 
 
 
@@ -450,7 +435,7 @@ void generate_points()
 
 				z = start_dimension + z_step * increment;
 
-				points[index] = vec( x, y, z, 1.0f );
+				points[0][index] = vec( x, y, z, 1.0f );
 
 				// cout << index << endl;
 
@@ -511,6 +496,23 @@ void init()
 
 
 
+
+
+ 	//allocation of the arrays
+
+	for(int i = 0; i < num_directions; i++)
+	{
+		points[i] = new vec[MaxVerticies];
+
+		//generate the ordering for that entry in that array -
+
+		//first number is any one of the following 6 - (+x, -x, +y, -y, +z, -z)
+		//second number is one of the four remaining once the first and it's complement are removed
+		//third number has two choices once the second and it's complement are removed
+	}
+
+	generate_points();
+
 	// The rest of the initialization
 	glClearColor( 0.618, 0.618, 0.618, 1.0 );
 	// glClearColor( 1.0, 1.0, 1.0, 1.0 );
@@ -520,7 +522,6 @@ void init()
 
 
 
-	generate_points();
 
 
 	// Create a vertex array object
@@ -532,12 +533,12 @@ void init()
 	GLuint buffer;
 	glGenBuffers( 1, &buffer );
 	glBindBuffer( GL_ARRAY_BUFFER, buffer );
-	glBufferData( GL_ARRAY_BUFFER, sizeof(points), NULL, GL_STATIC_DRAW );
+	glBufferData( GL_ARRAY_BUFFER, NumVertices*sizeof(vec), NULL, GL_STATIC_DRAW );
 
 	// glBufferData( GL_ARRAY_BUFFER, sizeof(points) + sizeof(colors), NULL, GL_STATIC_DRAW );	//replace the above line with this to add buffer space for per-vertex colors
 	// glBufferSubData( GL_ARRAY_BUFFER, sizeof(points), sizeof(colors), colors );					  	//then use this to buffer this data
 
-	glBufferSubData( GL_ARRAY_BUFFER, 0, sizeof(points), points );
+	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices*sizeof(vec), points[0] );
 
 
 	// Use the shader program ( compiled in the initialization )

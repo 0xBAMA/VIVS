@@ -5,7 +5,7 @@ using std::endl;
 
 int main()
 {
-	for(int i = 70; i < 90; i++)
+	for(int i = 70; i < 90 ; i++)
 	{//output information on cylinders
 
 
