@@ -343,52 +343,6 @@ void generate_points()
 //	http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
 
 
-
-
-glm::vec3 sorting_test_point;
-glm::vec3 sorting_test_normal;
-
-
-int compare_by_distance(const void* p1, const void* p2)
-{
-	//the value of the test point is assigned outside this function
-
-	glm::vec3 vecp1 = *(glm::vec3 *) p1;
-	glm::vec3 vecp2 = *(glm::vec3 *) p2;
-
-	glm::vec3 p = sorting_test_point;
-	glm::vec3 n = sorting_test_normal;
-
-	// float p1_dist = glm::distance( vecp1, sorting_test_point);
-	// float p2_dist = glm::distance( vecp2, sorting_test_point);
-
-	float p1_dist = planetest( p, n, vecp1);
-	float p2_dist = planetest( p, n, vecp2);
-
-	//Return values
-	//
-	// 	<0	The element pointed to by p1 goes before the element pointed to by p2
-	// 	 0	The element pointed to by p1 is equivalent to the element pointed to by p2
-	//	>0	The element pointed to by p1 goes after the element pointed to by p2
-
-	if(p1_dist > p2_dist)
-	{// p1 is farther away, it comes first in the list
-		return(-1);
-	}
-
-	if(p2_dist > p1_dist)
-	{// p2 is farther away, it comes first in the list
-		return(1);
-	}
-
-	return 0;
-
-}
-
-
-
-
-
 void sort_48x()
 {
 
@@ -449,12 +403,7 @@ void sort_48x()
 
 	for(int i = 0; i < num_directions; i++)
 	{
-		cout << "\rsorting array " << i << std::flush;
 
-		sorting_test_point = glm::vec3(0.0f, 0.f, 0.0f) + 2.0f * view_vectors[i];
-		sorting_test_normal = view_vectors[i];
-
-		qsort(initial_points, NumVertices, sizeof(glm::vec3), compare_by_distance);
 
 		std::copy(initial_points, initial_points + NumVertices, points[i]);
 	}
@@ -944,18 +893,19 @@ void display( void )
 
 
 
-	// //get the vector to the camera
-	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-	//
-	// //find the index referenced by this vector
-	// int temp = calcOrder( dir );
-	//
-	// //check against what buffer is currently bound - update if needed
-	// if(temp != current_buffer_index)
-	// {
-	// 	current_buffer_index = temp;
-	// 	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	// }
+	//get the vector to the camera - unrotated, it looks towards the negative z
+	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+
+	//find the index referenced by this vector
+	int temp = calcOrder( dir );
+
+	//check against what buffer is currently bound - update if needed
+	if(temp != current_buffer_index)
+	{
+		current_buffer_index = temp;
+		cout << "swapping to buffer " << current_buffer_index << endl;
+		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	}
 
 
 
@@ -1419,6 +1369,8 @@ float planetest(glm::vec3 plane_point, glm::vec3 plane_normal, glm::vec3 test_po
 
 int calcOrder( const glm::vec3 & dir )
 {
+	//source: http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
+
 		int signs;
 
 		const int   sx = dir.x<0.0f;
@@ -1429,19 +1381,31 @@ int calcOrder( const glm::vec3 & dir )
 		const float az = fabsf( dir.z );
 
 		if( ax>ay && ax>az )
-		{
-				if( ay>az ) signs = 0 + ((sx<<2)|(sy<<1)|sz);
-				else        signs = 8 + ((sx<<2)|(sz<<1)|sy);
+		{	//ax is the greatest - outermost criteria is x
+
+				if( ay>az )	//middle criteria is y - innermost criteria is z
+					signs = 0 + ((sx<<2)|(sy<<1)|sz);
+				else				//middle criteria is z - innermost criteria is y
+					signs = 8 + ((sx<<2)|(sz<<1)|sy);
+
 		}
 		else if( ay>az )
-		{
-				if( ax>az ) signs = 16 + ((sy<<2)|(sx<<1)|sz);
-				else        signs = 24 + ((sy<<2)|(sz<<1)|sx);
+		{	//ay is the greatest - outermost criteria is y
+
+				if( ax>az )	//middle criteria is x - innermost criteria is z
+					signs = 16 + ((sy<<2)|(sx<<1)|sz);
+				else				//middle criteria is z - innermost criteria is x
+					signs = 24 + ((sy<<2)|(sz<<1)|sx);
+
 		}
 		else
-		{
-				if( ax>ay ) signs = 32 + ((sz<<2)|(sx<<1)|sy);
-				else        signs = 40 + ((sz<<2)|(sy<<1)|sx);
+		{	//az is the greatest - outermost criteria is z
+
+				if( ax>ay )	//middle criteria is x - innermost criteria is y
+					signs = 32 + ((sz<<2)|(sx<<1)|sy);
+				else				//middle criteria is y - innermost criteria is x
+					signs = 40 + ((sz<<2)|(sy<<1)|sx);
+
 		}
 
 		return signs;
