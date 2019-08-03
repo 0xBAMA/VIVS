@@ -70,8 +70,6 @@ const int MaxVerticies = 64000000;
 const int num_directions = 48;
 
 glm::vec3 *points[num_directions];
-glm::vec3 *initial_points;
-
 
 
 
@@ -293,41 +291,162 @@ void timer(int); //need to forward declare this for the initialization
 
 void generate_points()
 {
-	initial_points = new glm::vec3[MaxVerticies];	//keeping this separate from anything that goes to the GPU now
+
+	// for the following - if true, ordering is from + to -, else - to +
+
+
+	// outer is x, middle is y, inner is z
+
+	// 00 - sx = 0, sy = 0, sz = 0
+	// 01 - sx = 0, sy = 0, sz = 1
+	// 02 - sx = 0, sy = 1, sz = 0
+	// 03 - sx = 0, sy = 1, sz = 1
+	// 04 - sx = 1, sy = 0, sz = 0
+	// 05 - sx = 1, sy = 0, sz = 1
+	// 06 - sx = 1, sy = 1, sz = 0
+	// 07 - sx = 1, sy = 1, sz = 1
+
+
+
+	// outer is x, middle is z, inner is y
+
+	// 08 - sx = 0, sy = 0, sz = 0
+	// 09 - sx = 0, sy = 0, sz = 1
+	// 10 - sx = 0, sy = 1, sz = 0
+	// 11 - sx = 0, sy = 1, sz = 1
+	// 12 - sx = 1, sy = 0, sz = 0
+	// 13 - sx = 1, sy = 0, sz = 1
+	// 14 - sx = 1, sy = 1, sz = 0
+	// 15 - sx = 1, sy = 1, sz = 1
+
+
+
+	// outer is y, middle is x, inner is z
+
+	// 16 - sy = 0, sx = 0, sz = 0
+	// 17 - sy = 0, sx = 0, sz = 1
+	// 18 - sy = 0, sx = 1, sz = 0
+	// 19 - sy = 0, sx = 1, sz = 1
+	// 20 - sy = 1, sx = 0, sz = 0
+	// 21 - sy = 1, sx = 0, sz = 1
+	// 22 - sy = 1, sx = 1, sz = 0
+	// 23 - sy = 1, sx = 1, sz = 1
+
+
+
+	// outer is y, middle is z, inner is x
+
+	// 24 - sy = 0, sz = 0, sx = 0
+	// 25 - sy = 0, sz = 0, sx = 1
+	// 26 - sy = 0, sz = 1, sx = 0
+	// 27 - sy = 0, sz = 1, sx = 1
+	// 28 - sy = 1, sz = 0, sx = 0
+	// 29 - sy = 1, sz = 0, sx = 1
+	// 30 - sy = 1, sz = 1, sx = 0
+	// 31 - sy = 1, sz = 1, sx = 1
+
+
+
+	// outer is z, middle is x, inner is y
+
+	// 32 - sz = 0, sx = 0, sy = 0
+	// 33 - sz = 0, sx = 0, sy = 1
+	// 34 - sz = 0, sx = 1, sy = 0
+	// 35 - sz = 0, sx = 1, sy = 1
+	// 36 - sz = 1, sx = 0, sy = 0
+	// 37 - sz = 1, sx = 0, sy = 1
+	// 38 - sz = 1, sx = 1, sy = 0
+	// 39 - sz = 1, sx = 1, sy = 1
+
+
+
+	// outer is z, middle is y, inner is x
+
+	// 40 - sz = 0, sy = 0, sx = 0
+	// 41 - sz = 0, sy = 0, sx = 1
+	// 42 - sz = 0, sy = 1, sx = 0
+	// 43 - sz = 0, sy = 1, sx = 1
+	// 44 - sz = 1, sy = 0, sx = 0
+	// 45 - sz = 1, sy = 0, sx = 1
+	// 46 - sz = 1, sy = 1, sx = 0
+	// 47 - sz = 1, sy = 1, sx = 1
+
+
 
 	float total_edge_length = 1.0f;
 
-	// float total_edge_length = 0.8f;
 	float start_dimension = -1 * (total_edge_length / 2);
 
 	float increment = total_edge_length / points_per_side;
 	float x,y,z;
 
-	// cout << increment << endl << endl;
+	int index;
 
-	int index = 0;
 
-	for(float x_step = 0; x_step < points_per_side; x_step++ )
+	glm::vec3 temp;
+
+	for(int i = 0; i < num_directions; i++)
 	{
+		index = 0; //reset the index
 
-		x = start_dimension + x_step * increment;
-
-		for(float y_step = 0; y_step < points_per_side; y_step++ )
+		for(float outer = 0; outer < points_per_side; outer++)
 		{
-
-			y = start_dimension + y_step * increment;
-
-			for(float z_step = 0; z_step < points_per_side; z_step++ )
+			for(float middle = 0; middle < points_per_side; middle++)
 			{
+				for(float inner = 0; inner < points_per_side; inner++)
+				{
 
-				z = start_dimension + z_step * increment;
+					if(i >= 0 && i < 8)					// outer is x, middle is y, inner is z
+					{
+						switch(i)
+						{
 
-				initial_points[index] = vec( x, y, z, 1.0f );
+						}
+					}
+					else if(i >= 8 && i < 16)		// outer is x, middle is z, inner is y
+					{
+						switch(i)
+						{
+
+						}
+					}
+					else if(i >= 16 && i < 24)	// outer is y, middle is x, inner is z
+					{
+						switch(i)
+						{
+
+						}
+					}
+					else if(i >= 24 && i < 32)	// outer is y, middle is z, inner is x
+					{
+						switch(i)
+						{
+
+						}
+					}
+					else if(i >= 32 && i < 40)	// outer is z, middle is x, inner is y
+					{
+						switch(i)
+						{
+
+						}
+					}
+					else if(i >= 40 && i < 48)	// outer is z, middle is y, inner is x
+					{
+						switch(i)
+						{
+
+						}
+					}
 
 
-				// cout << index << endl;
 
-				index++;
+
+
+
+					points[i][index] = temp;
+					index++;
+				}
 			}
 		}
 	}
@@ -335,6 +454,30 @@ void generate_points()
 
 
 
+// for(float x_step = 0; x_step < points_per_side; x_step++ )
+// {
+	//
+	// 	x = start_dimension + x_step * increment;
+	//
+	// 	for(float y_step = 0; y_step < points_per_side; y_step++ )
+	// 	{
+		//
+		// 		y = start_dimension + y_step * increment;
+		//
+		// 		for(float z_step = 0; z_step < points_per_side; z_step++ )
+		// 		{
+			//
+			// 			z = start_dimension + z_step * increment;
+			//
+			// 			points[0][index] = vec( x, y, z, 1.0f );
+			//
+			//
+			// 			// cout << index << endl;
+			//
+			// 			index++;
+			// 		}
+			// 	}
+			// }
 
 
 //this is all the stuff related to sorting the 48 arrays
@@ -342,74 +485,74 @@ void generate_points()
 
 //	http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
 
-
-void sort_48x()
-{
-
-	glm::vec3 view_vectors[] = {
-	//these are ordered by the index that they map to
-		glm::vec3(   1.0f,   0.75f,   0.1f),
-		glm::vec3(   1.0f,   0.75f,  -0.1f),
-		glm::vec3(   1.0f,  -0.75f,   0.1f),
-		glm::vec3(   1.0f,  -0.75f,  -0.1f),
-		glm::vec3(  -1.0f,   0.75f,   0.1f),
-		glm::vec3(  -1.0f,   0.75f,  -0.1f),
-		glm::vec3(  -1.0f,  -0.75f,   0.1f),
-		glm::vec3(  -1.0f,  -0.75f,  -0.1f),
-		glm::vec3(   1.0f,    0.1f,  0.75f),
-		glm::vec3(   1.0f,   -0.1f,  0.75f),
-		glm::vec3(   1.0f,    0.1f, -0.75f),
-		glm::vec3(   1.0f,   -0.1f, -0.75f),
-		glm::vec3(  -1.0f,    0.1f,  0.75f),
-		glm::vec3(  -1.0f,   -0.1f,  0.75f),
-		glm::vec3(  -1.0f,    0.1f, -0.75f),
-		glm::vec3(  -1.0f,   -0.1f, -0.75f),
-		glm::vec3(  0.75f,    1.0f,   0.1f),
-		glm::vec3(  0.75f,    1.0f,  -0.1f),
-		glm::vec3( -0.75f,    1.0f,   0.1f),
-		glm::vec3( -0.75f,    1.0f,  -0.1f),
-		glm::vec3(  0.75f,   -1.0f,   0.1f),
-		glm::vec3(  0.75f,   -1.0f,  -0.1f),
-		glm::vec3( -0.75f,   -1.0f,   0.1f),
-		glm::vec3( -0.75f,   -1.0f,  -0.1f),
-		glm::vec3(   0.1f,    1.0f,  0.75f),
-		glm::vec3(  -0.1f,    1.0f,  0.75f),
-		glm::vec3(   0.1f,    1.0f, -0.75f),
-		glm::vec3(  -0.1f,    1.0f, -0.75f),
-		glm::vec3(   0.1f,   -1.0f,  0.75f),
-		glm::vec3(  -0.1f,   -1.0f,  0.75f),
-		glm::vec3(   0.1f,   -1.0f, -0.75f),
-		glm::vec3(  -0.1f,   -1.0f, -0.75f),
-		glm::vec3(  0.75f,    0.1f,   1.0f),
-		glm::vec3(  0.75f,   -0.1f,   1.0f),
-		glm::vec3( -0.75f,    0.1f,   1.0f),
-		glm::vec3( -0.75f,   -0.1f,   1.0f),
-		glm::vec3(  0.75f,    0.1f,  -1.0f),
-		glm::vec3(  0.75f,   -0.1f,  -1.0f),
-		glm::vec3( -0.75f,    0.1f,  -1.0f),
-		glm::vec3( -0.75f,   -0.1f,  -1.0f),
-		glm::vec3(   0.1f,   0.75f,   1.0f),
-		glm::vec3(  -0.1f,   0.75f,   1.0f),
-		glm::vec3(   0.1f,  -0.75f,   1.0f),
-		glm::vec3(  -0.1f,  -0.75f,   1.0f),
-		glm::vec3(   0.1f,   0.75f,  -1.0f),
-		glm::vec3(  -0.1f,   0.75f,  -1.0f),
-		glm::vec3(   0.1f,  -0.75f,  -1.0f),
-		glm::vec3(  -0.1f,  -0.75f,  -1.0f)
-
-	};
-
-	cout << endl;
-
-	for(int i = 0; i < num_directions; i++)
-	{
-
-
-		std::copy(initial_points, initial_points + NumVertices, points[i]);
-	}
-
-	cout << "\rall arrays sorted     " << endl;
-}
+//
+// void sort_48x()
+// {
+//
+// 	glm::vec3 view_vectors[] = {
+// 	//these are ordered by the index that they map to
+// 		glm::vec3(   1.0f,   0.75f,   0.1f),
+// 		glm::vec3(   1.0f,   0.75f,  -0.1f),
+// 		glm::vec3(   1.0f,  -0.75f,   0.1f),
+// 		glm::vec3(   1.0f,  -0.75f,  -0.1f),
+// 		glm::vec3(  -1.0f,   0.75f,   0.1f),
+// 		glm::vec3(  -1.0f,   0.75f,  -0.1f),
+// 		glm::vec3(  -1.0f,  -0.75f,   0.1f),
+// 		glm::vec3(  -1.0f,  -0.75f,  -0.1f),
+// 		glm::vec3(   1.0f,    0.1f,  0.75f),
+// 		glm::vec3(   1.0f,   -0.1f,  0.75f),
+// 		glm::vec3(   1.0f,    0.1f, -0.75f),
+// 		glm::vec3(   1.0f,   -0.1f, -0.75f),
+// 		glm::vec3(  -1.0f,    0.1f,  0.75f),
+// 		glm::vec3(  -1.0f,   -0.1f,  0.75f),
+// 		glm::vec3(  -1.0f,    0.1f, -0.75f),
+// 		glm::vec3(  -1.0f,   -0.1f, -0.75f),
+// 		glm::vec3(  0.75f,    1.0f,   0.1f),
+// 		glm::vec3(  0.75f,    1.0f,  -0.1f),
+// 		glm::vec3( -0.75f,    1.0f,   0.1f),
+// 		glm::vec3( -0.75f,    1.0f,  -0.1f),
+// 		glm::vec3(  0.75f,   -1.0f,   0.1f),
+// 		glm::vec3(  0.75f,   -1.0f,  -0.1f),
+// 		glm::vec3( -0.75f,   -1.0f,   0.1f),
+// 		glm::vec3( -0.75f,   -1.0f,  -0.1f),
+// 		glm::vec3(   0.1f,    1.0f,  0.75f),
+// 		glm::vec3(  -0.1f,    1.0f,  0.75f),
+// 		glm::vec3(   0.1f,    1.0f, -0.75f),
+// 		glm::vec3(  -0.1f,    1.0f, -0.75f),
+// 		glm::vec3(   0.1f,   -1.0f,  0.75f),
+// 		glm::vec3(  -0.1f,   -1.0f,  0.75f),
+// 		glm::vec3(   0.1f,   -1.0f, -0.75f),
+// 		glm::vec3(  -0.1f,   -1.0f, -0.75f),
+// 		glm::vec3(  0.75f,    0.1f,   1.0f),
+// 		glm::vec3(  0.75f,   -0.1f,   1.0f),
+// 		glm::vec3( -0.75f,    0.1f,   1.0f),
+// 		glm::vec3( -0.75f,   -0.1f,   1.0f),
+// 		glm::vec3(  0.75f,    0.1f,  -1.0f),
+// 		glm::vec3(  0.75f,   -0.1f,  -1.0f),
+// 		glm::vec3( -0.75f,    0.1f,  -1.0f),
+// 		glm::vec3( -0.75f,   -0.1f,  -1.0f),
+// 		glm::vec3(   0.1f,   0.75f,   1.0f),
+// 		glm::vec3(  -0.1f,   0.75f,   1.0f),
+// 		glm::vec3(   0.1f,  -0.75f,   1.0f),
+// 		glm::vec3(  -0.1f,  -0.75f,   1.0f),
+// 		glm::vec3(   0.1f,   0.75f,  -1.0f),
+// 		glm::vec3(  -0.1f,   0.75f,  -1.0f),
+// 		glm::vec3(   0.1f,  -0.75f,  -1.0f),
+// 		glm::vec3(  -0.1f,  -0.75f,  -1.0f)
+//
+// 	};
+//
+// 	cout << endl;
+//
+// 	for(int i = 0; i < num_directions; i++)
+// 	{
+//
+//
+// 		std::copy(initial_points, initial_points + NumVertices, points[i]);
+// 	}
+//
+// 	cout << "\rall arrays sorted     " << endl;
+// }
 
 
 
@@ -498,20 +641,7 @@ void init()
 
 	generate_points();
 
-	//after this, we have the points
-
-
-	sort_48x();
-
-	//after this, we have 48 arrays
-
-
-
-
-
-
-
-
+	//after this, we have the 48 different sets of points
 
 
 
@@ -1373,12 +1503,88 @@ int calcOrder( const glm::vec3 & dir )
 
 		int signs;
 
-		const int   sx = dir.x<0.0f;
-		const int   sy = dir.y<0.0f;
-		const int   sz = dir.z<0.0f;
+		const int   sx = dir.x < 0.0f; //if true, x ordering is from + to -, else - to +
+		const int   sy = dir.y < 0.0f; //if true, y ordering is from + to -, else - to +
+		const int   sz = dir.z < 0.0f; //if true, z ordering is from + to -, else - to +
 		const float ax = fabsf( dir.x );
 		const float ay = fabsf( dir.y );
 		const float az = fabsf( dir.z );
+
+		// outer is x, middle is y, inner is z
+
+		// 00 - sx = 0, sy = 0, sz = 0
+		// 01 - sx = 0, sy = 0, sz = 1
+		// 02 - sx = 0, sy = 1, sz = 0
+		// 03 - sx = 0, sy = 1, sz = 1
+		// 04 - sx = 1, sy = 0, sz = 0
+		// 05 - sx = 1, sy = 0, sz = 1
+		// 06 - sx = 1, sy = 1, sz = 0
+		// 07 - sx = 1, sy = 1, sz = 1
+
+
+
+		// outer is x, middle is z, inner is y
+
+		// 08 - sx = 0, sy = 0, sz = 0
+		// 09 - sx = 0, sy = 0, sz = 1
+		// 10 - sx = 0, sy = 1, sz = 0
+		// 11 - sx = 0, sy = 1, sz = 1
+		// 12 - sx = 1, sy = 0, sz = 0
+		// 13 - sx = 1, sy = 0, sz = 1
+		// 14 - sx = 1, sy = 1, sz = 0
+		// 15 - sx = 1, sy = 1, sz = 1
+
+
+
+		// outer is y, middle is x, inner is z
+
+		// 16 - sy = 0, sx = 0, sz = 0
+		// 17 - sy = 0, sx = 0, sz = 1
+		// 18 - sy = 0, sx = 1, sz = 0
+		// 19 - sy = 0, sx = 1, sz = 1
+		// 20 - sy = 1, sx = 0, sz = 0
+		// 21 - sy = 1, sx = 0, sz = 1
+		// 22 - sy = 1, sx = 1, sz = 0
+		// 23 - sy = 1, sx = 1, sz = 1
+
+
+
+		// outer is y, middle is z, inner is x
+
+		// 24 - sy = 0, sz = 0, sx = 0
+		// 25 - sy = 0, sz = 0, sx = 1
+		// 26 - sy = 0, sz = 1, sx = 0
+		// 27 - sy = 0, sz = 1, sx = 1
+		// 28 - sy = 1, sz = 0, sx = 0
+		// 29 - sy = 1, sz = 0, sx = 1
+		// 30 - sy = 1, sz = 1, sx = 0
+		// 31 - sy = 1, sz = 1, sx = 1
+
+
+
+		// outer is z, middle is x, inner is y
+
+		// 32 - sz = 0, sx = 0, sy = 0
+		// 33 - sz = 0, sx = 0, sy = 1
+		// 34 - sz = 0, sx = 1, sy = 0
+		// 35 - sz = 0, sx = 1, sy = 1
+		// 36 - sz = 1, sx = 0, sy = 0
+		// 37 - sz = 1, sx = 0, sy = 1
+		// 38 - sz = 1, sx = 1, sy = 0
+		// 39 - sz = 1, sx = 1, sy = 1
+
+
+
+		// outer is z, middle is y, inner is x
+
+		// 40 - sz = 0, sy = 0, sx = 0
+		// 41 - sz = 0, sy = 0, sx = 1
+		// 42 - sz = 0, sy = 1, sx = 0
+		// 43 - sz = 0, sy = 1, sx = 1
+		// 44 - sz = 1, sy = 0, sx = 0
+		// 45 - sz = 1, sy = 0, sx = 1
+		// 46 - sz = 1, sy = 1, sx = 0
+		// 47 - sz = 1, sy = 1, sx = 1
 
 		if( ax>ay && ax>az )
 		{	//ax is the greatest - outermost criteria is x
