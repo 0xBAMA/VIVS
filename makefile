@@ -16,6 +16,28 @@ exe: main.cc
 	$(CC) main.cc $(GL_FLAGS) $(LODEPNG_FLAGS) $(MAKE_EXE) exe
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # example executables are kept in the associated folder, along with their shaders
 
 # the shader files are referenced in such a way that you'll have to be in the
@@ -24,6 +46,7 @@ exe: main.cc
 # example usage: 	make examples (or directly, make <example_name>)
 #									cd examples/<example_name>
 #									<example_name> <optional argument: num_points_per_side>
+
 
 
 examples: david ico bars crankshaft ngine
