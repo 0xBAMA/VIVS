@@ -14,7 +14,7 @@ void main()
 	}
 	else
 	{
-		fColor = vec4(color.rgb, color.a * (1.0f-distance(vec2(0.5f, 0.5f), gl_PointCoord)));
+		fColor = vec4(color.rgb, color.a * (1.0f - pow(distance(vec2(0.5f, 0.5f), gl_PointCoord),3.0f)));
 	}
 
 }

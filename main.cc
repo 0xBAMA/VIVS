@@ -282,8 +282,13 @@ GLuint texture; //handle for the texture
 
 //utilities
 void update_rotation();
+
+float planetest(glm::vec3 plane_point, glm::vec3 plane_normal, glm::vec3 test_point);
+
 int calcOrder( const glm::vec3 & dir ); // thanks Inigo - source: http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
+
 void timer(int); //need to forward declare this for the initialization
+
 
 
 void generate_points()
@@ -341,6 +346,8 @@ void generate_points()
 
 
 glm::vec3 sorting_test_point;
+glm::vec3 sorting_test_normal;
+
 
 int compare_by_distance(const void* p1, const void* p2)
 {
@@ -349,8 +356,14 @@ int compare_by_distance(const void* p1, const void* p2)
 	glm::vec3 vecp1 = *(glm::vec3 *) p1;
 	glm::vec3 vecp2 = *(glm::vec3 *) p2;
 
-	float p1_dist = glm::distance( vecp1, sorting_test_point);
-	float p2_dist = glm::distance( vecp2, sorting_test_point);
+	glm::vec3 p = sorting_test_point;
+	glm::vec3 n = sorting_test_normal;
+
+	// float p1_dist = glm::distance( vecp1, sorting_test_point);
+	// float p2_dist = glm::distance( vecp2, sorting_test_point);
+
+	float p1_dist = planetest( p, n, vecp1);
+	float p2_dist = planetest( p, n, vecp2);
 
 	//Return values
 	//
@@ -439,6 +452,7 @@ void sort_48x()
 		cout << "\rsorting array " << i << std::flush;
 
 		sorting_test_point = glm::vec3(0.0f, 0.f, 0.0f) + 2.0f * view_vectors[i];
+		sorting_test_normal = view_vectors[i];
 
 		qsort(initial_points, NumVertices, sizeof(glm::vec3), compare_by_distance);
 
@@ -930,18 +944,18 @@ void display( void )
 
 
 
-	//get the vector to the camera
-	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-
-	//find the index referenced by this vector
-	int temp = calcOrder( dir );
-
-	//check against what buffer is currently bound - update if needed
-	if(temp != current_buffer_index)
-	{
-		current_buffer_index = temp;
-		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	}
+	// //get the vector to the camera
+	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+	//
+	// //find the index referenced by this vector
+	// int temp = calcOrder( dir );
+	//
+	// //check against what buffer is currently bound - update if needed
+	// if(temp != current_buffer_index)
+	// {
+	// 	current_buffer_index = temp;
+	// 	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	// }
 
 
 
@@ -1361,6 +1375,43 @@ void update_rotation()
 	glUniformMatrix4fv( rotation_location, 1, GL_FALSE,  glm::value_ptr( rotation ) );
 
 }
+
+
+
+
+
+float planetest(glm::vec3 plane_point, glm::vec3 plane_normal, glm::vec3 test_point)
+{
+	// Determines whether a point is above or below a plane
+
+  //		return false if the point is above the plane
+	//		return true if the point is below the plane
+
+	float result = 0.0;
+
+	//equation of plane
+
+	// a (x-x1) + b (y-y1) + c (z-z1) = 0
+
+	float a = plane_normal.x;
+	float b = plane_normal.y;
+	float c = plane_normal.z;
+
+	float x1 = plane_point.x;
+	float y1 = plane_point.y;
+	float z1 = plane_point.z;
+
+	float x = test_point.x;
+	float y = test_point.y;
+	float z = test_point.z;
+
+	result = a * (x - x1) + b * (y - y1) + c * (z - z1);
+
+	// return (result < 0) ? true : false;
+	return result;
+
+}
+
 
 
 
