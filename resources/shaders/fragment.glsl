@@ -8,6 +8,13 @@ void main()
 
 	//use gl_PointCoord used to find distance from the upper left corner of the point primitive
 
-  fColor = color;
+	if(color.a == 0)
+	{
+  	fColor = color;
+	}
+	else
+	{
+		fColor = vec4(color.rgb, color.a * (1.0f-distance(vec2(0.5f, 0.5f), gl_PointCoord)));
+	}
 
 }

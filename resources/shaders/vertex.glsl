@@ -1,7 +1,7 @@
 #version 450 core
 
 // layout(location = 0) in vec4 vColor;
-layout(location = 1) in vec4 vPosition;
+layout(location = 1) in vec3 vPosition;
 
 layout(location = 2) uniform mat4 view;
 layout(location = 3) uniform mat4 rotation;
@@ -138,7 +138,7 @@ bool planetest(vec3 plane_point, vec3 plane_normal, vec3 test_point);
 
 void main()
 {
-  gl_Position = view * rotation * vPosition;
+  gl_Position = view * rotation * vec4(vPosition, 1.0f);
 	// This is the same, regardless of anything that happens subsequently
 
 	color = vec4(0.0f, 0.0f, 0.0f, 0.0f);

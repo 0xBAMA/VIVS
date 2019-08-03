@@ -5,6 +5,10 @@ using std::cin;
 
 #include <vector>   //container
 
+#include <algorithm> //std::copy
+
+#include <stdlib.h> //qsort
+
 #include <string>
 using std::string;
 
@@ -65,142 +69,10 @@ const int MaxVerticies = 64000000;
 
 const int num_directions = 48;
 
-vec *points[num_directions];
-vec *initial_points;
+glm::vec3 *points[num_directions];
+glm::vec3 *initial_points;
 
 
-
-//trying something new to get around the alpha limitations - keeping
-//48 copies of the vertex array
-
-//	http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
-
-// TEXT FROM THAT PAGE:
-//
-//
-// Intro
-// Let's say you have a set of objects that you want to alpha blend. Let's say
-// the position of these objects is constant. And let's assume also that your
-// objects are all positioned along a 2d or 3d grid. Then, you can very easily
-// sort this objects at virtually zero performance cost, and this article will
-// explain you how.
-//
-// It might look like the premises are too restrictive, not applicable to "real
-// life". However, imagine you have a field of grass, and you want to draw the
-// blades in back-to-front order. You can probably afford aligning them into a
-// 2D grid, and might be apply random scale and orientation to break the
-// regulartity. Or may be you have a cloud rendering engine using billboards,
-// and you have to sort them also to properly alpha blend the particles. Or you
-// could even have a point-cloud viewer showing some nice Julia sets coming
-// froma 1024^3 voxel (like the one in the end of this article).
-//
-//
-//
-// In 2D
-// To explain the techinque, let's first think about the problem in 2D.
-// Let's say you have a grid of objects like the one below. Now let's say you
-// are looking to this grid of objects from the view point indicated by the
-// orange arrow in the diagram. Now, try to agree with the fact that given this
-// situation you could draw your objects line by line, starting from the line a,
-// b-... until the line p, q-...
-//
-// That's obviously because we are looking roughly from bottom to top. Note also
-// that because we are a bit skewed to the left, we better draw the objects from
-// "left to right" within each line; ie, a, c, d, ... instead of ..., e, d, c, b, a.
-//
-// Good. In a very similar way, the correct order to render the objects in the
-// grid for a view point like the one indicated with the green arrow should be
-// left to rigth for the columns, and then botton to top within each column:
-// ..., p, k, f, a, ..., q, l, g, b, ...
-//
-// So it's quite simple. We can determine the order just based on the view
-// vector. If instead of "left to right" and "botton to up" we use +x, -x, +y
-// and -y, we can easily see that there 8 different possible orders:
-// { +x+y, +x-y, -x+y, +x-y, +y+x, +y-x, -y+x, -y-x } (basically we have
-// 4 options for the first axis (+x, -x, +y, -y) and the there is only 2
-// remaining for the second (+x, -x or +y, -y, depending on the first option).
-//
-// The transition between one order and another is done on half quadrants, as
-// you can see. The figure showing 2D square split in 8 sections shows the areas
-// where the same order is valid (you can see the orange and green areas
-// corresponding to the arrows we used as example in the previous diagram).
-// The trick now is clear: precompute 8 index arrays and save the in video
-// memory, one for each possible order. For each rendering pass, take the view
-// direction and compute wich of the orders is the good one, and use it to
-// render. So, we basically skip any sorting time, and also bus trafic between
-// the CPU and the GPU. The only drawback is that we need 8 copies of the index
-// arrays in memory instead of 8, and as we will see inmediatly, it is even
-// worse in 3D... But again, is so cool to have zero sorting cost!
-//
-//
-//
-//
-// When the view vector stays in any
-// point of a colored area, the order
-// is the same.
-//
-// In 3D
-// In 3D the situation is quite the same, we only have one axis more. The
-// difference is that now the amount of possible orders is quite bigger. For the
-// first axis's order we have 6 options (-x,+x,-y,+y,-z,+z), for the second we
-// have 4 (assume we choosed -x, the we still have -y,+y,-z,+z) and 2 for the
-// last axis (assuming we chose +z, we still have -y and +y). So that's a total
-// of 48 posibilities! This can be a lot of video memory depending of the
-// application. There is some simple tricks to help of course. For example, we
-// keep the 48 copies in system memory and just upload the one we need. Assuming
-// frame to frame coherence, this should happen not to often. We can even have a
-// small thread runing in parallel to the rendering just calculating the index
-// array instead of precalculating and storing it in system memory. We can even
-// anticipate the camera movement and precompute (asynchronously) the next
-// expected index array.
-//
-// Another trick is to have a top level grid to sort cells of objects, and then
-// let random ordered drawing of the objects in the cell. If the objects where a
-// field of grass, this can work pretty well. Or even, if we allready have an
-// octree data structure to do frustum culling and occlussion queries on the
-// dataset, we can sort the octree nodes with this technique and then do
-// standard CPU sorting in the visible node, or even have precomputed index
-// arrays per-node.
-//
-// Now the view vector can belong to 48 possible sections in the surface of a
-// cube, as shown in the picture below.
-//
-// In 3D, we have 48 areas for the view vector.
-//
-// Implementation
-// To finish the article, a bit of code to show how you can get the order index
-// (from 0 to 47) from the 3D view vector. There is probably a more simple
-// (read compact) way to do it.
-//
-// int calcOrder( const vec3 & dir )
-// {
-//     int signs;
-//
-//     const int   sx = dir.x<0.0f;
-//     const int   sy = dir.y<0.0f;
-//     const int   sz = dir.z<0.0f;
-//     const float ax = fabsf( dir.x );
-//     const float ay = fabsf( dir.y );
-//     const float az = fabsf( dir.z );
-//
-//     if( ax>ay && ax>az )
-//     {
-//         if( ay>az ) signs = 0 + ((sx<<2)|(sy<<1)|sz);
-//         else        signs = 8 + ((sx<<2)|(sz<<1)|sy);
-//     }
-//     else if( ay>az )
-//     {
-//         if( ax>az ) signs = 16 + ((sy<<2)|(sx<<1)|sz);
-//         else        signs = 24 + ((sy<<2)|(sz<<1)|sx);
-//     }
-//     else
-//     {
-//         if( ax>ay ) signs = 32 + ((sz<<2)|(sx<<1)|sy);
-//         else        signs = 40 + ((sz<<2)|(sy<<1)|sx);
-//     }
-//
-//     return signs;
-// }
 
 
 
@@ -389,7 +261,7 @@ glm::mat4 projection = glm::ortho(left, right, top, bottom, zNear, zFar);
 float point_size = 2.0;
 bool rotate_triangle = true;
 bool rotate_hexahedrons = true;
-int current_buffer_index;	//the currently bound buffer - used to check if you need to bind a new one
+int current_buffer_index = 0;	//the currently bound buffer - used to check if you need to bind a new one
 
 
 
@@ -416,9 +288,7 @@ void timer(int); //need to forward declare this for the initialization
 
 void generate_points()
 {
-
-
-	initial_points = new vec[MaxVerticies];
+	initial_points = new glm::vec3[MaxVerticies];	//keeping this separate from anything that goes to the GPU now
 
 	float total_edge_length = 1.0f;
 
@@ -457,6 +327,54 @@ void generate_points()
 		}
 	}
 }
+
+
+
+
+
+//this is all the stuff related to sorting the 48 arrays
+//trying this to get around the alpha limitations
+
+//	http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
+
+
+
+
+glm::vec3 sorting_test_point;
+
+int compare_by_distance(const void* p1, const void* p2)
+{
+	//the value of the test point is assigned outside this function
+
+	glm::vec3 vecp1 = *(glm::vec3 *) p1;
+	glm::vec3 vecp2 = *(glm::vec3 *) p2;
+
+	float p1_dist = glm::distance( vecp1, sorting_test_point);
+	float p2_dist = glm::distance( vecp2, sorting_test_point);
+
+	//Return values
+	//
+	// 	<0	The element pointed to by p1 goes before the element pointed to by p2
+	// 	 0	The element pointed to by p1 is equivalent to the element pointed to by p2
+	//	>0	The element pointed to by p1 goes after the element pointed to by p2
+
+	if(p1_dist > p2_dist)
+	{// p1 is farther away, it comes first in the list
+		return(-1);
+	}
+
+	if(p2_dist > p1_dist)
+	{// p2 is farther away, it comes first in the list
+		return(1);
+	}
+
+	return 0;
+
+}
+
+
+
+
 
 void sort_48x()
 {
@@ -514,9 +432,20 @@ void sort_48x()
 
 	};
 
+	cout << endl;
 
+	for(int i = 0; i < num_directions; i++)
+	{
+		cout << "\rsorting array " << i << std::flush;
 
+		sorting_test_point = glm::vec3(0.0f, 0.f, 0.0f) + 2.0f * view_vectors[i];
 
+		qsort(initial_points, NumVertices, sizeof(glm::vec3), compare_by_distance);
+
+		std::copy(initial_points, initial_points + NumVertices, points[i]);
+	}
+
+	cout << "\rall arrays sorted     " << endl;
 }
 
 
@@ -588,27 +517,11 @@ void init()
 
 
 
-
-
-
-
-	//this is going to require writing it out
-	glm::vec3 directions[48];
-
-
-
-
-
-
-
-
-
-
  	//allocation of the arrays
 
 	for(int i = 0; i < num_directions; i++)
 	{
-		points[i] = new vec[MaxVerticies];
+		points[i] = new glm::vec3[MaxVerticies];
 
 		//generate the ordering for that entry in that array -
 
@@ -660,11 +573,11 @@ void init()
 	for(int i = 0; i < 48; i++)
 	{
 
-		//loop this 0 - 47 - I need to figure out how the fuck these are ordered
+		//loop this 0 - 47
 
-		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[i] ); 																//this is what sets the active buffer
-		glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(vec), NULL, GL_STATIC_DRAW );	//initialize with NULL
-		glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points[i] );			//send the data
+		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[i] ); 																			//this is what sets the active buffer
+		glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(glm::vec3), NULL, GL_STATIC_DRAW );	//initialize with NULL
+		glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(glm::vec3), points[i] );			//send the data
 
 	}
 
@@ -1017,18 +930,18 @@ void display( void )
 
 
 
-	// //get the vector to the camera
-	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-	//
-	// //find the index referenced by this vector
-	// int temp = calcOrder( dir );
-	//
-	// //check against what buffer is currently bound - update if needed
-	// if(temp != current_buffer_index)
-	// {
-	// 	current_buffer_index = temp;
-	// 	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	// }
+	//get the vector to the camera
+	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+
+	//find the index referenced by this vector
+	int temp = calcOrder( dir );
+
+	//check against what buffer is currently bound - update if needed
+	if(temp != current_buffer_index)
+	{
+		current_buffer_index = temp;
+		glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	}
 
 
 
@@ -1292,6 +1205,14 @@ void keyboard( unsigned char key, int x, int y )
 
 			break;
 
+		case 'k':
+			current_buffer_index++;
+			glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+			break;
+		case 'l':
+			current_buffer_index--;
+			glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+			break;
 	}
 
 }
