@@ -66,6 +66,7 @@ const int MaxVerticies = 64000000;
 const int num_directions = 48;
 
 vec *points[num_directions];
+vec *initial_points;
 
 
 
@@ -415,6 +416,10 @@ void timer(int); //need to forward declare this for the initialization
 
 void generate_points()
 {
+
+
+	initial_points = new vec[MaxVerticies];
+
 	float total_edge_length = 1.0f;
 
 	// float total_edge_length = 0.8f;
@@ -442,7 +447,7 @@ void generate_points()
 
 				z = start_dimension + z_step * increment;
 
-				points[0][index] = vec( x, y, z, 1.0f );
+				initial_points[index] = vec( x, y, z, 1.0f );
 
 
 				// cout << index << endl;
@@ -451,6 +456,67 @@ void generate_points()
 			}
 		}
 	}
+}
+
+void sort_48x()
+{
+
+	glm::vec3 view_vectors[] = {
+	//these are ordered by the index that they map to
+		glm::vec3(   1.0f,   0.75f,   0.1f),
+		glm::vec3(   1.0f,   0.75f,  -0.1f),
+		glm::vec3(   1.0f,  -0.75f,   0.1f),
+		glm::vec3(   1.0f,  -0.75f,  -0.1f),
+		glm::vec3(  -1.0f,   0.75f,   0.1f),
+		glm::vec3(  -1.0f,   0.75f,  -0.1f),
+		glm::vec3(  -1.0f,  -0.75f,   0.1f),
+		glm::vec3(  -1.0f,  -0.75f,  -0.1f),
+		glm::vec3(   1.0f,    0.1f,  0.75f),
+		glm::vec3(   1.0f,   -0.1f,  0.75f),
+		glm::vec3(   1.0f,    0.1f, -0.75f),
+		glm::vec3(   1.0f,   -0.1f, -0.75f),
+		glm::vec3(  -1.0f,    0.1f,  0.75f),
+		glm::vec3(  -1.0f,   -0.1f,  0.75f),
+		glm::vec3(  -1.0f,    0.1f, -0.75f),
+		glm::vec3(  -1.0f,   -0.1f, -0.75f),
+		glm::vec3(  0.75f,    1.0f,   0.1f),
+		glm::vec3(  0.75f,    1.0f,  -0.1f),
+		glm::vec3( -0.75f,    1.0f,   0.1f),
+		glm::vec3( -0.75f,    1.0f,  -0.1f),
+		glm::vec3(  0.75f,   -1.0f,   0.1f),
+		glm::vec3(  0.75f,   -1.0f,  -0.1f),
+		glm::vec3( -0.75f,   -1.0f,   0.1f),
+		glm::vec3( -0.75f,   -1.0f,  -0.1f),
+		glm::vec3(   0.1f,    1.0f,  0.75f),
+		glm::vec3(  -0.1f,    1.0f,  0.75f),
+		glm::vec3(   0.1f,    1.0f, -0.75f),
+		glm::vec3(  -0.1f,    1.0f, -0.75f),
+		glm::vec3(   0.1f,   -1.0f,  0.75f),
+		glm::vec3(  -0.1f,   -1.0f,  0.75f),
+		glm::vec3(   0.1f,   -1.0f, -0.75f),
+		glm::vec3(  -0.1f,   -1.0f, -0.75f),
+		glm::vec3(  0.75f,    0.1f,   1.0f),
+		glm::vec3(  0.75f,   -0.1f,   1.0f),
+		glm::vec3( -0.75f,    0.1f,   1.0f),
+		glm::vec3( -0.75f,   -0.1f,   1.0f),
+		glm::vec3(  0.75f,    0.1f,  -1.0f),
+		glm::vec3(  0.75f,   -0.1f,  -1.0f),
+		glm::vec3( -0.75f,    0.1f,  -1.0f),
+		glm::vec3( -0.75f,   -0.1f,  -1.0f),
+		glm::vec3(   0.1f,   0.75f,   1.0f),
+		glm::vec3(  -0.1f,   0.75f,   1.0f),
+		glm::vec3(   0.1f,  -0.75f,   1.0f),
+		glm::vec3(  -0.1f,  -0.75f,   1.0f),
+		glm::vec3(   0.1f,   0.75f,  -1.0f),
+		glm::vec3(  -0.1f,   0.75f,  -1.0f),
+		glm::vec3(   0.1f,  -0.75f,  -1.0f),
+		glm::vec3(  -0.1f,  -0.75f,  -1.0f)
+
+	};
+
+
+
+
 }
 
 
@@ -554,12 +620,14 @@ void init()
 
 
 
-	generate_points();	//this is going to become 48 times longer
+	generate_points();
 
-	//after this, we have the points - time to send to gpu
+	//after this, we have the points
 
 
+	sort_48x();
 
+	//after this, we have 48 arrays
 
 
 
@@ -599,6 +667,11 @@ void init()
 		glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(vec), points[i] );			//send the data
 
 	}
+
+
+
+
+
 
 
 
