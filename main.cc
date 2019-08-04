@@ -291,97 +291,17 @@ void timer(int); //need to forward declare this for the initialization
 
 void generate_points()
 {
-
-	// for the following - if true, ordering is from + to -, else - to +
-
-
-	// outer is x, middle is y, inner is z
-
-	// 00 - sx = 0, sy = 0, sz = 0
-	// 01 - sx = 0, sy = 0, sz = 1
-	// 02 - sx = 0, sy = 1, sz = 0
-	// 03 - sx = 0, sy = 1, sz = 1
-	// 04 - sx = 1, sy = 0, sz = 0
-	// 05 - sx = 1, sy = 0, sz = 1
-	// 06 - sx = 1, sy = 1, sz = 0
-	// 07 - sx = 1, sy = 1, sz = 1
-
-
-
-	// outer is x, middle is z, inner is y
-
-	// 08 - sx = 0, sy = 0, sz = 0
-	// 09 - sx = 0, sy = 0, sz = 1
-	// 10 - sx = 0, sy = 1, sz = 0
-	// 11 - sx = 0, sy = 1, sz = 1
-	// 12 - sx = 1, sy = 0, sz = 0
-	// 13 - sx = 1, sy = 0, sz = 1
-	// 14 - sx = 1, sy = 1, sz = 0
-	// 15 - sx = 1, sy = 1, sz = 1
-
-
-
-	// outer is y, middle is x, inner is z
-
-	// 16 - sy = 0, sx = 0, sz = 0
-	// 17 - sy = 0, sx = 0, sz = 1
-	// 18 - sy = 0, sx = 1, sz = 0
-	// 19 - sy = 0, sx = 1, sz = 1
-	// 20 - sy = 1, sx = 0, sz = 0
-	// 21 - sy = 1, sx = 0, sz = 1
-	// 22 - sy = 1, sx = 1, sz = 0
-	// 23 - sy = 1, sx = 1, sz = 1
-
-
-
-	// outer is y, middle is z, inner is x
-
-	// 24 - sy = 0, sz = 0, sx = 0
-	// 25 - sy = 0, sz = 0, sx = 1
-	// 26 - sy = 0, sz = 1, sx = 0
-	// 27 - sy = 0, sz = 1, sx = 1
-	// 28 - sy = 1, sz = 0, sx = 0
-	// 29 - sy = 1, sz = 0, sx = 1
-	// 30 - sy = 1, sz = 1, sx = 0
-	// 31 - sy = 1, sz = 1, sx = 1
-
-
-
-	// outer is z, middle is x, inner is y
-
-	// 32 - sz = 0, sx = 0, sy = 0
-	// 33 - sz = 0, sx = 0, sy = 1
-	// 34 - sz = 0, sx = 1, sy = 0
-	// 35 - sz = 0, sx = 1, sy = 1
-	// 36 - sz = 1, sx = 0, sy = 0
-	// 37 - sz = 1, sx = 0, sy = 1
-	// 38 - sz = 1, sx = 1, sy = 0
-	// 39 - sz = 1, sx = 1, sy = 1
-
-
-
-	// outer is z, middle is y, inner is x
-
-	// 40 - sz = 0, sy = 0, sx = 0
-	// 41 - sz = 0, sy = 0, sx = 1
-	// 42 - sz = 0, sy = 1, sx = 0
-	// 43 - sz = 0, sy = 1, sx = 1
-	// 44 - sz = 1, sy = 0, sx = 0
-	// 45 - sz = 1, sy = 0, sx = 1
-	// 46 - sz = 1, sy = 1, sx = 0
-	// 47 - sz = 1, sy = 1, sx = 1
-
-
-
 	float total_edge_length = 1.0f;
 
-	float start_dimension = -1 * (total_edge_length / 2);
+	float start_dimension = -1 * (total_edge_length / 2.0f);
+	float end_dimension = (total_edge_length / 2.0f);
 
 	float increment = total_edge_length / points_per_side;
 	float x,y,z;
 
 	int index;
 
+	cout << endl;
 
 	glm::vec3 temp;
 
@@ -396,88 +316,363 @@ void generate_points()
 				for(float inner = 0; inner < points_per_side; inner++)
 				{
 
-					if(i >= 0 && i < 8)					// outer is x, middle is y, inner is z
-					{
+					//reset
+					temp = glm::vec3(0.0f, 0.0f, 0.0f);
+					x = y = z = 0.0f;
+
+
+					// for the following - if true, ordering is from descending, else ascending
+
+					if(i >= 0 && i < 8)
+					{	// outer is x, middle is y, inner is z
+
+						// 00 - sx = 0, sy = 0, sz = 0
+						// 01 - sx = 0, sy = 0, sz = 1
+						// 02 - sx = 0, sy = 1, sz = 0
+						// 03 - sx = 0, sy = 1, sz = 1
+						// 04 - sx = 1, sy = 0, sz = 0
+						// 05 - sx = 1, sy = 0, sz = 1
+						// 06 - sx = 1, sy = 1, sz = 0
+						// 07 - sx = 1, sy = 1, sz = 1
 						switch(i)
 						{
-
+							case 0:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 1:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 2:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 3:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 4:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 5:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 6:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 7:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-					else if(i >= 8 && i < 16)		// outer is x, middle is z, inner is y
+					else if(i >= 8 && i < 16)
 					{
 						switch(i)
-						{
+						{	// outer is x, middle is z, inner is y
 
+							// 08 - sx = 0, sz = 0, sy = 0
+							// 09 - sx = 0, sz = 0, sy = 1
+							// 10 - sx = 0, sz = 1, sy = 0
+							// 11 - sx = 0, sz = 1, sy = 1
+							// 12 - sx = 1, sz = 0, sy = 0
+							// 13 - sx = 1, sz = 0, sy = 1
+							// 14 - sx = 1, sz = 1, sy = 0
+							// 15 - sx = 1, sz = 1, sy = 1
+							case 8:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 9:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 10:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 11:
+								x = start_dimension + outer * increment;	//outer - ascending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 12:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 13:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 14:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 15:
+								x = end_dimension - outer * increment;	//outer - descending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-					else if(i >= 16 && i < 24)	// outer is y, middle is x, inner is z
+					else if(i >= 16 && i < 24)
 					{
 						switch(i)
-						{
+						{	// outer is y, middle is x, inner is z
 
+							// 16 - sy = 0, sx = 0, sz = 0
+							// 17 - sy = 0, sx = 0, sz = 1
+							// 18 - sy = 0, sx = 1, sz = 0
+							// 19 - sy = 0, sx = 1, sz = 1
+							// 20 - sy = 1, sx = 0, sz = 0
+							// 21 - sy = 1, sx = 0, sz = 1
+							// 22 - sy = 1, sx = 1, sz = 0
+							// 23 - sy = 1, sx = 1, sz = 1
+							case 16:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 17:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 18:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 19:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 20:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 21:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
+							case 22:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = start_dimension + inner * increment;	//inner - ascending
+								break;
+							case 23:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = end_dimension - inner * increment;	//inner - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-					else if(i >= 24 && i < 32)	// outer is y, middle is z, inner is x
+					else if(i >= 24 && i < 32)
 					{
 						switch(i)
-						{
+						{	// outer is y, middle is z, inner is x
 
+							// 24 - sy = 0, sz = 0, sx = 0
+							// 25 - sy = 0, sz = 0, sx = 1
+							// 26 - sy = 0, sz = 1, sx = 0
+							// 27 - sy = 0, sz = 1, sx = 1
+							// 28 - sy = 1, sz = 0, sx = 0
+							// 29 - sy = 1, sz = 0, sx = 1
+							// 30 - sy = 1, sz = 1, sx = 0
+							// 31 - sy = 1, sz = 1, sx = 1
+							case 24:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 25:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 26:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 27:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = start_dimension + outer * increment;	//outer - ascending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 28:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 29:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = start_dimension + middle * increment;	//middle - ascending
+								break;
+							case 30:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
+							case 31:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = end_dimension - outer * increment;	//outer - descending
+								z = end_dimension - middle * increment;	//middle - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-					else if(i >= 32 && i < 40)	// outer is z, middle is x, inner is y
+					else if(i >= 32 && i < 40)
 					{
 						switch(i)
-						{
+						{	// outer is z, middle is x, inner is y
 
+							// 32 - sz = 0, sx = 0, sy = 0
+							// 33 - sz = 0, sx = 0, sy = 1
+							// 34 - sz = 0, sx = 1, sy = 0
+							// 35 - sz = 0, sx = 1, sy = 1
+							// 36 - sz = 1, sx = 0, sy = 0
+							// 37 - sz = 1, sx = 0, sy = 1
+							// 38 - sz = 1, sx = 1, sy = 0
+							// 39 - sz = 1, sx = 1, sy = 1
+							case 32:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 33:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 34:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 35:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 36:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 37:
+								x = start_dimension + middle * increment;	//middle - ascending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 38:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = start_dimension + inner * increment;	//inner - ascending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 39:
+								x = end_dimension - middle * increment;	//middle - descending
+								y = end_dimension - inner * increment;	//inner - descending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-					else if(i >= 40 && i < 48)	// outer is z, middle is y, inner is x
+					else if(i >= 40 && i < 48)
 					{
 						switch(i)
-						{
+						{	// outer is z, middle is y, inner is x
 
+							// 40 - sz = 0, sy = 0, sx = 0
+							// 41 - sz = 0, sy = 0, sx = 1
+							// 42 - sz = 0, sy = 1, sx = 0
+							// 43 - sz = 0, sy = 1, sx = 1
+							// 44 - sz = 1, sy = 0, sx = 0
+							// 45 - sz = 1, sy = 0, sx = 1
+							// 46 - sz = 1, sy = 1, sx = 0
+							// 47 - sz = 1, sy = 1, sx = 1
+							case 40:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 41:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 42:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 43:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = start_dimension + outer * increment;	//outer - ascending
+								break;
+							case 44:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 45:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = start_dimension + middle * increment;	//middle - ascending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 46:
+								x = start_dimension + inner * increment;	//inner - ascending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
+							case 47:
+								x = end_dimension - inner * increment;	//inner - descending
+								y = end_dimension - middle * increment;	//middle - descending
+								z = end_dimension - outer * increment;	//outer - descending
+								break;
 						}
+						temp = glm::vec3(x,y,z);
 					}
-
-
-
-
-
 
 					points[i][index] = temp;
 					index++;
+
 				}
 			}
 		}
+		cout << "\rFinished array number " << i;
 	}
+	cout << "\rAll arrays complete          " << endl;
 }
 
 
 
-// for(float x_step = 0; x_step < points_per_side; x_step++ )
-// {
-	//
-	// 	x = start_dimension + x_step * increment;
-	//
-	// 	for(float y_step = 0; y_step < points_per_side; y_step++ )
-	// 	{
-		//
-		// 		y = start_dimension + y_step * increment;
-		//
-		// 		for(float z_step = 0; z_step < points_per_side; z_step++ )
-		// 		{
-			//
-			// 			z = start_dimension + z_step * increment;
-			//
-			// 			points[0][index] = vec( x, y, z, 1.0f );
-			//
-			//
-			// 			// cout << index << endl;
-			//
-			// 			index++;
-			// 		}
-			// 	}
-			// }
 
 
 //this is all the stuff related to sorting the 48 arrays
@@ -491,6 +686,7 @@ void generate_points()
 //
 // 	glm::vec3 view_vectors[] = {
 // 	//these are ordered by the index that they map to
+//	// they are representative vectors for each of the 48 sectors
 // 		glm::vec3(   1.0f,   0.75f,   0.1f),
 // 		glm::vec3(   1.0f,   0.75f,  -0.1f),
 // 		glm::vec3(   1.0f,  -0.75f,   0.1f),
@@ -542,16 +738,6 @@ void generate_points()
 //
 // 	};
 //
-// 	cout << endl;
-//
-// 	for(int i = 0; i < num_directions; i++)
-// 	{
-//
-//
-// 		std::copy(initial_points, initial_points + NumVertices, points[i]);
-// 	}
-//
-// 	cout << "\rall arrays sorted     " << endl;
 // }
 
 
@@ -623,17 +809,11 @@ void init()
 
 
 
- 	//allocation of the arrays
+ 	//CPU-side allocation of the arrays
 
 	for(int i = 0; i < num_directions; i++)
 	{
 		points[i] = new glm::vec3[MaxVerticies];
-
-		//generate the ordering for that entry in that array -
-
-		//first number is any one of the following 6 - (+x, -x, +y, -y, +z, -z)
-		//second number is one of the four remaining once the first and it's complement are removed
-		//third number has two choices once the second and it's complement are removed
 	}
 
 
@@ -675,6 +855,7 @@ void init()
 	}
 
 
+	glBindBuffer( GL_ARRAY_BUFFER, array_buffers[0] );
 
 
 
@@ -1525,14 +1706,14 @@ int calcOrder( const glm::vec3 & dir )
 
 		// outer is x, middle is z, inner is y
 
-		// 08 - sx = 0, sy = 0, sz = 0
-		// 09 - sx = 0, sy = 0, sz = 1
-		// 10 - sx = 0, sy = 1, sz = 0
-		// 11 - sx = 0, sy = 1, sz = 1
-		// 12 - sx = 1, sy = 0, sz = 0
-		// 13 - sx = 1, sy = 0, sz = 1
-		// 14 - sx = 1, sy = 1, sz = 0
-		// 15 - sx = 1, sy = 1, sz = 1
+		// 08 - sx = 0, sz = 0, sy = 0
+		// 09 - sx = 0, sz = 0, sy = 1
+		// 10 - sx = 0, sz = 1, sy = 0
+		// 11 - sx = 0, sz = 1, sy = 1
+		// 12 - sx = 1, sz = 0, sy = 0
+		// 13 - sx = 1, sz = 0, sy = 1
+		// 14 - sx = 1, sz = 1, sy = 0
+		// 15 - sx = 1, sz = 1, sy = 1
 
 
 
