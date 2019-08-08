@@ -291,41 +291,310 @@ void timer(int); //need to forward declare this for the initialization
 
 void generate_points()
 {
+
+	//OLD CODE
+	//
+	// float total_edge_length = 1.0f;
+	//
+	// // float total_edge_length = 0.8f;
+	// float start_dimension = -1 * (total_edge_length / 2);
+	//
+	// float increment = total_edge_length / points_per_side;
+	// float x,y,z;
+	//
+	// // cout << increment << endl << endl;
+	//
+	// int index = 0;
+	//
+	// for(float x_step = 0; x_step < points_per_side; x_step++ )
+	// {
+	//
+	// 	x = start_dimension + x_step * increment;
+	//
+	// 	for(float y_step = 0; y_step < points_per_side; y_step++ )
+	// 	{
+	//
+	// 		y = start_dimension + y_step * increment;
+	//
+	// 		for(float z_step = 0; z_step < points_per_side; z_step++ )
+	// 		{
+	//
+	// 			z = start_dimension + z_step * increment;
+	//
+	// 			points[index] = glm::vec3( x, y, z );
+	//
+	// 			// cout << index << endl;
+	//
+	// 			index++;
+	// 		}
+	// 	}
+	// }
+
 	float total_edge_length = 1.0f;
 
-	// float total_edge_length = 0.8f;
-	float start_dimension = -1 * (total_edge_length / 2);
+	float dedge = total_edge_length / points_per_side;		//the increment along the edge
 
-	float increment = total_edge_length / points_per_side;
+	int pps = points_per_side;
+	int pps_squared = points_per_side * points_per_side;
+	int pps_cubed = points_per_side * points_per_side * points_per_side;
+
+
+
+
+	float * asc;	//list of ascending values
+	float * dsc;	//list of descending values
+
+	asc = new float[points_per_side];
+	dsc = new float[points_per_side];
+
+	for(int k = 0; k < points_per_side; k++)
+		asc[k] = -1 * (total_edge_length / 2) + k * dedge;	//goes from -0.5 to 0.5
+
+	for(int k = 0; k < points_per_side; k++)
+		dsc[k] = asc[(points_per_side - 1) - k];				//this is just the opposite ordering
+
+
+
+
+	int index;																		// starting at the zero-th element
+
 	float x,y,z;
 
-	// cout << increment << endl << endl;
 
-	int index = 0;
-
-	for(float x_step = 0; x_step < points_per_side; x_step++ )
+	for(int n = 0; n < 48; n++)												// for the 48 orderings
 	{
-
-		x = start_dimension + x_step * increment;
-
-		for(float y_step = 0; y_step < points_per_side; y_step++ )
+		for(int o = 0; o < points_per_side; o++)				//	outer
 		{
-
-			y = start_dimension + y_step * increment;
-
-			for(float z_step = 0; z_step < points_per_side; z_step++ )
+			for(int m = 0; m < points_per_side; m++)			//	middle
 			{
+				for(int i = 0; i < points_per_side; i++)		//	inner
+				{
+					x = 0.0f; y = 0.0f; z = 0.0f;
 
-				z = start_dimension + z_step * increment;
+					index = i  +  pps * m  +  pps_squared * o  +  pps_cubed * n; 
 
-				points[index] = glm::vec3( x, y, z );
+					switch(n)
+					{
+						case 0:
+						// 00 - sx = 0, sy = 0, sz = 0
+							x = 0.1f; y = 0.1f; z = 0.2f;
+							break;
 
-				// cout << index << endl;
+						case 1:
+						// 01 - sx = 0, sy = 0, sz = 1
+							break;
 
-				index++;
+						case 2:
+						// 02 - sx = 0, sy = 1, sz = 0
+							break;
+
+
+						case 3:
+						// 03 - sx = 0, sy = 1, sz = 1
+							break;
+
+						case 4:
+						// 04 - sx = 1, sy = 0, sz = 0
+							break;
+
+						case 5:
+						// 05 - sx = 1, sy = 0, sz = 1
+							break;
+
+						case 6:
+						// 06 - sx = 1, sy = 1, sz = 0
+							break;
+
+						case 7:
+						// 07 - sx = 1, sy = 1, sz = 1
+							break;
+
+
+						case 8:
+						// 08 - sx = 0, sz = 0, sy = 0
+							break;
+
+						case 9:
+						// 09 - sx = 0, sz = 0, sy = 1
+							break;
+
+						case 10:
+						// 10 - sx = 0, sz = 1, sy = 0
+							break;
+
+						case 11:
+						// 11 - sx = 0, sz = 1, sy = 1
+							break;
+
+						case 12:
+						// 12 - sx = 1, sz = 0, sy = 0
+							break;
+
+						case 13:
+						// 13 - sx = 1, sz = 0, sy = 1
+							break;
+
+						case 14:
+						// 14 - sx = 1, sz = 1, sy = 0
+							x = asc[o];
+							y = dsc[i];
+							z =	asc[m];
+							// cout << x << " " << y << " " << z << endl;
+							break;
+
+						case 15:
+						// 15 - sx = 1, sz = 1, sy = 1
+							break;
+
+
+						case 16:
+						// 16 - sy = 0, sx = 0, sz = 0
+							break;
+
+						case 17:
+						// 17 - sy = 0, sx = 0, sz = 1
+							break;
+
+						case 18:
+						// 18 - sy = 0, sx = 1, sz = 0
+							break;
+
+						case 19:
+						// 19 - sy = 0, sx = 1, sz = 1
+							break;
+
+						case 20:
+						// 20 - sy = 1, sx = 0, sz = 0
+							break;
+
+						case 21:
+						// 21 - sy = 1, sx = 0, sz = 1
+							break;
+
+						case 22:
+						// 22 - sy = 1, sx = 1, sz = 0
+							break;
+
+						case 23:
+						// 23 - sy = 1, sx = 1, sz = 1
+							break;
+
+
+						case 24:
+						// 24 - sy = 0, sz = 0, sx = 0
+							break;
+
+						case 25:
+						// 25 - sy = 0, sz = 0, sx = 1
+							break;
+
+						case 26:
+						// 26 - sy = 0, sz = 1, sx = 0
+							break;
+
+						case 27:
+						// 27 - sy = 0, sz = 1, sx = 1
+							break;
+
+						case 28:
+						// 28 - sy = 1, sz = 0, sx = 0
+							break;
+
+						case 29:
+						// 29 - sy = 1, sz = 0, sx = 1
+							break;
+
+						case 30:
+						// 30 - sy = 1, sz = 1, sx = 0
+							break;
+
+						case 31:
+						// 31 - sy = 1, sz = 1, sx = 1
+							break;
+
+
+						case 32:
+						// 32 - sz = 0, sx = 0, sy = 0
+							break;
+
+						case 33:
+						// 33 - sz = 0, sx = 0, sy = 1
+							break;
+
+						case 34:
+						// 34 - sz = 0, sx = 1, sy = 0
+							break;
+
+						case 35:
+						// 35 - sz = 0, sx = 1, sy = 1
+							break;
+
+						case 36:
+						// 36 - sz = 1, sx = 0, sy = 0
+							break;
+
+						case 37:
+						// 37 - sz = 1, sx = 0, sy = 1
+							break;
+
+						case 38:
+						// 38 - sz = 1, sx = 1, sy = 0
+							break;
+
+						case 39:
+						// 39 - sz = 1, sx = 1, sy = 1
+							break;
+
+
+
+						case 40:
+						// 40 - sz = 0, sy = 0, sx = 0
+							break;
+
+						case 41:
+						// 41 - sz = 0, sy = 0, sx = 1
+							break;
+
+						case 42:
+						// 42 - sz = 0, sy = 1, sx = 0
+							break;
+
+						case 43:
+						// 43 - sz = 0, sy = 1, sx = 1
+							break;
+
+						case 44:
+						// 44 - sz = 1, sy = 0, sx = 0
+							break;
+
+						case 45:
+						// 45 - sz = 1, sy = 0, sx = 1
+							break;
+
+						case 46:
+						// 46 - sz = 1, sy = 1, sx = 0
+							break;
+
+						case 47:
+						// 47 - sz = 1, sy = 1, sx = 1
+							break;
+
+						// default:
+						// 	cout << "fuck" << endl;
+						// 	break;
+					}
+
+					points[index] = glm::vec3(x,y,z);
+					index++;
+				}
 			}
 		}
 	}
+
+
+
+
+
 }
 
 
@@ -343,177 +612,153 @@ void generate_points()
 //
 // 	glm::vec3 view_vectors[] = {
 // 	//these are ordered by the index that they map to
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//		00 		-			 sx = 0, sy = 0, sz = 0
+//
+//		00 		-			sx = 0, sy = 0, sz = 0
 // 		glm::vec3(   1.0f,   0.75f,   0.1f),
 //
-//		01 		-			 sx = 0, sy = 0, sz = 1
+//		01 		-			sx = 0, sy = 0, sz = 1
 // 		glm::vec3(   1.0f,   0.75f,  -0.1f),
 //
-//		02 		-			 sx = 0, sy = 1, sz = 0
+//		02 		-			sx = 0, sy = 1, sz = 0
 // 		glm::vec3(   1.0f,  -0.75f,   0.1f),
 //
-//		03 		-			 sx = 0, sy = 1, sz = 1
+//		03 		-			sx = 0, sy = 1, sz = 1
 // 		glm::vec3(   1.0f,  -0.75f,  -0.1f),
 //
-//		04 		-			 sx = 1, sy = 0, sz = 0
+//		04 		-			sx = 1, sy = 0, sz = 0
 // 		glm::vec3(  -1.0f,   0.75f,   0.1f),
 //
-//		05 		-			 sx = 1, sy = 0, sz = 1
+//		05 		-			sx = 1, sy = 0, sz = 1
 // 		glm::vec3(  -1.0f,   0.75f,  -0.1f),
 //
-//		06 		-			 sx = 1, sy = 1, sz = 0
+//		06 		-			sx = 1, sy = 1, sz = 0
 // 		glm::vec3(  -1.0f,  -0.75f,   0.1f),
 //
-//		07 		-			 sx = 1, sy = 1, sz = 1
+//		07 		-			sx = 1, sy = 1, sz = 1
 // 		glm::vec3(  -1.0f,  -0.75f,  -0.1f),
 //
-//		08 		-			 sx = 0, sz = 0, sy = 0
+//		08 		-			sx = 0, sz = 0, sy = 0
 // 		glm::vec3(   1.0f,    0.1f,  0.75f),
 //
-//		09 		-			 sx = 0, sz = 0, sy = 1
+//		09 		-			sx = 0, sz = 0, sy = 1
 // 		glm::vec3(   1.0f,   -0.1f,  0.75f),
 //
-//		10 		-			 sx = 0, sz = 1, sy = 0
+//		10 		-			sx = 0, sz = 1, sy = 0
 // 		glm::vec3(   1.0f,    0.1f, -0.75f),
 //
-//		11 		-			 sx = 0, sz = 1, sy = 1
+//		11 		-			sx = 0, sz = 1, sy = 1
 // 		glm::vec3(   1.0f,   -0.1f, -0.75f),
 //
-//		12 		-			 sx = 1, sz = 0, sy = 0
+//		12 		-			sx = 1, sz = 0, sy = 0
 // 		glm::vec3(  -1.0f,    0.1f,  0.75f),
 //
-//		13 		-			 sx = 1, sz = 0, sy = 1
+//		13 		-			sx = 1, sz = 0, sy = 1
 // 		glm::vec3(  -1.0f,   -0.1f,  0.75f),
 //
-//		14 		-			 sx = 1, sz = 1, sy = 0
+//		14 		-			sx = 1, sz = 1, sy = 0
 // 		glm::vec3(  -1.0f,    0.1f, -0.75f),
 //
-//		15 		-			 sx = 1, sz = 1, sy = 1
+//		15 		-			sx = 1, sz = 1, sy = 1
 // 		glm::vec3(  -1.0f,   -0.1f, -0.75f),
 //
-//		16 		-			 sy = 0, sx = 0, sz = 0
+//		16 		-			sy = 0, sx = 0, sz = 0
 // 		glm::vec3(  0.75f,    1.0f,   0.1f),
 //
-//		17 		-			 sy = 0, sx = 0, sz = 1
+//		17 		-			sy = 0, sx = 0, sz = 1
 // 		glm::vec3(  0.75f,    1.0f,  -0.1f),
 //
-//		18 		-			 sy = 0, sx = 1, sz = 0
+//		18 		-			sy = 0, sx = 1, sz = 0
 // 		glm::vec3( -0.75f,    1.0f,   0.1f),
 //
-//		19 		-			 sy = 0, sx = 1, sz = 1
+//		19 		-			sy = 0, sx = 1, sz = 1
 // 		glm::vec3( -0.75f,    1.0f,  -0.1f),
 //
-//		20 		-			 sy = 1, sx = 0, sz = 0
+//		20 		-			sy = 1, sx = 0, sz = 0
 // 		glm::vec3(  0.75f,   -1.0f,   0.1f),
 //
-//		21 		-			 sy = 1, sx = 0, sz = 1
+//		21 		-			sy = 1, sx = 0, sz = 1
 // 		glm::vec3(  0.75f,   -1.0f,  -0.1f),
 //
-//		22 		-			 sy = 1, sx = 1, sz = 0
+//		22 		-			sy = 1, sx = 1, sz = 0
 // 		glm::vec3( -0.75f,   -1.0f,   0.1f),
 //
-//		23 		-			 sy = 1, sx = 1, sz = 1
+//		23 		-			sy = 1, sx = 1, sz = 1
 // 		glm::vec3( -0.75f,   -1.0f,  -0.1f),
 //
-//		24 		-			 sy = 0, sz = 0, sx = 0
+//		24 		-			sy = 0, sz = 0, sx = 0
 // 		glm::vec3(   0.1f,    1.0f,  0.75f),
 //
-//		25 		-			 sy = 0, sz = 0, sx = 1
+//		25 		-			sy = 0, sz = 0, sx = 1
 // 		glm::vec3(  -0.1f,    1.0f,  0.75f),
 //
-//		26 		-			 sy = 0, sz = 1, sx = 0
+//		26 		-			sy = 0, sz = 1, sx = 0
 // 		glm::vec3(   0.1f,    1.0f, -0.75f),
 //
-//		27 		-			 sy = 0, sz = 1, sx = 1
+//		27 		-			sy = 0, sz = 1, sx = 1
 // 		glm::vec3(  -0.1f,    1.0f, -0.75f),
 //
-//		28 		-			 sy = 1, sz = 0, sx = 0
+//		28 		-			sy = 1, sz = 0, sx = 0
 // 		glm::vec3(   0.1f,   -1.0f,  0.75f),
 //
-//		29 		-			 sy = 1, sz = 0, sx = 1
+//		29 		-			sy = 1, sz = 0, sx = 1
 // 		glm::vec3(  -0.1f,   -1.0f,  0.75f),
 //
-//		30 		-			 sy = 1, sz = 1, sx = 0
+//		30 		-			sy = 1, sz = 1, sx = 0
 // 		glm::vec3(   0.1f,   -1.0f, -0.75f),
 //
-//		31 		-			 sy = 1, sz = 1, sx = 1
+//		31 		-			sy = 1, sz = 1, sx = 1
 // 		glm::vec3(  -0.1f,   -1.0f, -0.75f),
 //
-//		32 		-			 sz = 0, sx = 0, sy = 0
+//		32 		-			sz = 0, sx = 0, sy = 0
 // 		glm::vec3(  0.75f,    0.1f,   1.0f),
 //
-//		33 		-			 sz = 0, sx = 0, sy = 1
+//		33 		-			sz = 0, sx = 0, sy = 1
 // 		glm::vec3(  0.75f,   -0.1f,   1.0f),
 //
-//		34 		-			 sz = 0, sx = 1, sy = 0
+//		34 		-			sz = 0, sx = 1, sy = 0
 // 		glm::vec3( -0.75f,    0.1f,   1.0f),
 //
-//		35 		-			 sz = 0, sx = 1, sy = 1
+//		35 		-			sz = 0, sx = 1, sy = 1
 // 		glm::vec3( -0.75f,   -0.1f,   1.0f),
 //
-//		36 		-			 sz = 1, sx = 0, sy = 0
+//		36 		-			sz = 1, sx = 0, sy = 0
 // 		glm::vec3(  0.75f,    0.1f,  -1.0f),
 //
-//		37 		-			 sz = 1, sx = 0, sy = 1
+//		37 		-			sz = 1, sx = 0, sy = 1
 // 		glm::vec3(  0.75f,   -0.1f,  -1.0f),
 //
-//		38 		-			 sz = 1, sx = 1, sy = 0
+//		38 		-			sz = 1, sx = 1, sy = 0
 // 		glm::vec3( -0.75f,    0.1f,  -1.0f),
 //
-//		39 		-			 sz = 1, sx = 1, sy = 1
+//		39 		-			sz = 1, sx = 1, sy = 1
 // 		glm::vec3( -0.75f,   -0.1f,  -1.0f),
 //
-//		40 		-			 sz = 0, sy = 0, sx = 0
+//		40 		-			sz = 0, sy = 0, sx = 0
 // 		glm::vec3(   0.1f,   0.75f,   1.0f),
 //
-//		41 		-			 sz = 0, sy = 0, sx = 1
+//		41 		-			sz = 0, sy = 0, sx = 1
 // 		glm::vec3(  -0.1f,   0.75f,   1.0f),
 //
-//		42 		-			 sz = 0, sy = 1, sx = 0
+//		42 		-			sz = 0, sy = 1, sx = 0
 // 		glm::vec3(   0.1f,  -0.75f,   1.0f),
 //
-//		43 		-			 sz = 0, sy = 1, sx = 1
+//		43 		-			sz = 0, sy = 1, sx = 1
 // 		glm::vec3(  -0.1f,  -0.75f,   1.0f),
 //
-//		44 		-			 sz = 1, sy = 0, sx = 0
+//		44 		-			sz = 1, sy = 0, sx = 0
 // 		glm::vec3(   0.1f,   0.75f,  -1.0f),
 //
-//		45 		-			 sz = 1, sy = 0, sx = 1
+//		45 		-			sz = 1, sy = 0, sx = 1
 // 		glm::vec3(  -0.1f,   0.75f,  -1.0f),
 //
-//		46 		-			 sz = 1, sy = 1, sx = 0
+//		46 		-			sz = 1, sy = 1, sx = 0
 // 		glm::vec3(   0.1f,  -0.75f,  -1.0f),
 //
-//		47 		-			 sz = 1, sy = 1, sx = 1
+//		47 		-			sz = 1, sy = 1, sx = 1
 // 		glm::vec3(  -0.1f,  -0.75f,  -1.0f)
 //
 // 	};
-//
-// 	cout << endl;
-//
-// 	for(int i = 0; i < num_directions; i++)
-// 	{
-//
-//
-// 		std::copy(initial_points, initial_points + NumVertices, points[i]);
-// 	}
-//
-// 	cout << "\rall arrays sorted     " << endl;
+
 // }
 
 
@@ -635,8 +880,8 @@ void init()
 
 
 	glBindBuffer( GL_ARRAY_BUFFER, array_buffer ); 																					//this is what sets the active buffer
-	glBufferData( GL_ARRAY_BUFFER, NumVertices * sizeof(glm::vec3), NULL, GL_STATIC_DRAW );	//initialize with NULL
-	glBufferSubData( GL_ARRAY_BUFFER, 0, NumVertices * sizeof(glm::vec3), points );			//send the data
+	glBufferData( GL_ARRAY_BUFFER, 48 * NumVertices * sizeof(glm::vec3), NULL, GL_STATIC_DRAW );	//initialize with NULL
+	glBufferSubData( GL_ARRAY_BUFFER, 0, 48 * NumVertices * sizeof(glm::vec3), points );			//send the data
 
 
 
@@ -1017,19 +1262,19 @@ void display( void )
 
 
 
-	//get the vector to the camera - unrotated, it looks towards the negative z
-	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-
-	//find the index referenced by this vector
-	int temp = calcOrder( dir );
-
-	//check against what buffer is currently bound - update if needed
-	if(temp != current_buffer_index)
-	{
-		current_buffer_index = temp;
-		cout << "swapping to buffer " << current_buffer_index << endl;
-		// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	}
+	// //get the vector to the camera - unrotated, it looks towards the negative z
+	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+	//
+	// //find the index referenced by this vector
+	// int temp = calcOrder( dir );
+	//
+	// //check against what buffer is currently bound - update if needed
+	// if(temp != current_buffer_index)
+	// {
+	// 	current_buffer_index = temp;
+	// 	cout << "swapping to buffer " << current_buffer_index << endl;
+	// 	// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	// }
 
 
 
@@ -1039,7 +1284,9 @@ void display( void )
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	//draw geometry into back buffer
-	glDrawArrays( GL_POINTS, 0, NumVertices );
+	// glDrawArrays( GL_POINTS, 0, NumVertices );
+	glDrawArrays(GL_POINTS, current_buffer_index * NumVertices, NumVertices);
+	// glDrawArrays(GL_POINTS, 13*NumVertices, NumVertices);
 
 	//swap to display
 	glutSwapBuffers();
@@ -1299,6 +1546,16 @@ void keyboard( unsigned char key, int x, int y )
 
 			break;
 
+		case 'k':
+			current_buffer_index++;
+			cout << "swapping to buffer " << current_buffer_index << endl;
+			break;
+
+		case 'l':
+			current_buffer_index--;
+			cout << "swapping to buffer " << current_buffer_index << endl;
+			break;
+
 	}
 
 }
@@ -1349,7 +1606,7 @@ int main( int argc, char **argv )
 	glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 	glutCreateWindow( "GLUT Window" );
-	glutFullScreen();
+	// glutFullScreen();
 
 	// glutGameModeString("640x480");
 	//
