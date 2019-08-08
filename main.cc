@@ -371,7 +371,7 @@ void generate_points()
 				{
 					x = 0.0f; y = 0.0f; z = 0.0f;
 
-					index = i  +  pps * m  +  pps_squared * o  +  pps_cubed * n; 
+					index = i  +  pps * m  +  pps_squared * o  +  pps_cubed * n;
 
 					switch(n)
 					{
@@ -601,166 +601,6 @@ void generate_points()
 
 
 
-// //this is all the stuff related to sorting the 48 arrays
-// //trying this to get around the alpha limitations
-//
-// //	http://www.iquilezles.org/www/articles/volumesort/volumesort.htm
-//
-//
-// void sort_48x()
-// {
-//
-// 	glm::vec3 view_vectors[] = {
-// 	//these are ordered by the index that they map to
-//
-//		00 		-			sx = 0, sy = 0, sz = 0
-// 		glm::vec3(   1.0f,   0.75f,   0.1f),
-//
-//		01 		-			sx = 0, sy = 0, sz = 1
-// 		glm::vec3(   1.0f,   0.75f,  -0.1f),
-//
-//		02 		-			sx = 0, sy = 1, sz = 0
-// 		glm::vec3(   1.0f,  -0.75f,   0.1f),
-//
-//		03 		-			sx = 0, sy = 1, sz = 1
-// 		glm::vec3(   1.0f,  -0.75f,  -0.1f),
-//
-//		04 		-			sx = 1, sy = 0, sz = 0
-// 		glm::vec3(  -1.0f,   0.75f,   0.1f),
-//
-//		05 		-			sx = 1, sy = 0, sz = 1
-// 		glm::vec3(  -1.0f,   0.75f,  -0.1f),
-//
-//		06 		-			sx = 1, sy = 1, sz = 0
-// 		glm::vec3(  -1.0f,  -0.75f,   0.1f),
-//
-//		07 		-			sx = 1, sy = 1, sz = 1
-// 		glm::vec3(  -1.0f,  -0.75f,  -0.1f),
-//
-//		08 		-			sx = 0, sz = 0, sy = 0
-// 		glm::vec3(   1.0f,    0.1f,  0.75f),
-//
-//		09 		-			sx = 0, sz = 0, sy = 1
-// 		glm::vec3(   1.0f,   -0.1f,  0.75f),
-//
-//		10 		-			sx = 0, sz = 1, sy = 0
-// 		glm::vec3(   1.0f,    0.1f, -0.75f),
-//
-//		11 		-			sx = 0, sz = 1, sy = 1
-// 		glm::vec3(   1.0f,   -0.1f, -0.75f),
-//
-//		12 		-			sx = 1, sz = 0, sy = 0
-// 		glm::vec3(  -1.0f,    0.1f,  0.75f),
-//
-//		13 		-			sx = 1, sz = 0, sy = 1
-// 		glm::vec3(  -1.0f,   -0.1f,  0.75f),
-//
-//		14 		-			sx = 1, sz = 1, sy = 0
-// 		glm::vec3(  -1.0f,    0.1f, -0.75f),
-//
-//		15 		-			sx = 1, sz = 1, sy = 1
-// 		glm::vec3(  -1.0f,   -0.1f, -0.75f),
-//
-//		16 		-			sy = 0, sx = 0, sz = 0
-// 		glm::vec3(  0.75f,    1.0f,   0.1f),
-//
-//		17 		-			sy = 0, sx = 0, sz = 1
-// 		glm::vec3(  0.75f,    1.0f,  -0.1f),
-//
-//		18 		-			sy = 0, sx = 1, sz = 0
-// 		glm::vec3( -0.75f,    1.0f,   0.1f),
-//
-//		19 		-			sy = 0, sx = 1, sz = 1
-// 		glm::vec3( -0.75f,    1.0f,  -0.1f),
-//
-//		20 		-			sy = 1, sx = 0, sz = 0
-// 		glm::vec3(  0.75f,   -1.0f,   0.1f),
-//
-//		21 		-			sy = 1, sx = 0, sz = 1
-// 		glm::vec3(  0.75f,   -1.0f,  -0.1f),
-//
-//		22 		-			sy = 1, sx = 1, sz = 0
-// 		glm::vec3( -0.75f,   -1.0f,   0.1f),
-//
-//		23 		-			sy = 1, sx = 1, sz = 1
-// 		glm::vec3( -0.75f,   -1.0f,  -0.1f),
-//
-//		24 		-			sy = 0, sz = 0, sx = 0
-// 		glm::vec3(   0.1f,    1.0f,  0.75f),
-//
-//		25 		-			sy = 0, sz = 0, sx = 1
-// 		glm::vec3(  -0.1f,    1.0f,  0.75f),
-//
-//		26 		-			sy = 0, sz = 1, sx = 0
-// 		glm::vec3(   0.1f,    1.0f, -0.75f),
-//
-//		27 		-			sy = 0, sz = 1, sx = 1
-// 		glm::vec3(  -0.1f,    1.0f, -0.75f),
-//
-//		28 		-			sy = 1, sz = 0, sx = 0
-// 		glm::vec3(   0.1f,   -1.0f,  0.75f),
-//
-//		29 		-			sy = 1, sz = 0, sx = 1
-// 		glm::vec3(  -0.1f,   -1.0f,  0.75f),
-//
-//		30 		-			sy = 1, sz = 1, sx = 0
-// 		glm::vec3(   0.1f,   -1.0f, -0.75f),
-//
-//		31 		-			sy = 1, sz = 1, sx = 1
-// 		glm::vec3(  -0.1f,   -1.0f, -0.75f),
-//
-//		32 		-			sz = 0, sx = 0, sy = 0
-// 		glm::vec3(  0.75f,    0.1f,   1.0f),
-//
-//		33 		-			sz = 0, sx = 0, sy = 1
-// 		glm::vec3(  0.75f,   -0.1f,   1.0f),
-//
-//		34 		-			sz = 0, sx = 1, sy = 0
-// 		glm::vec3( -0.75f,    0.1f,   1.0f),
-//
-//		35 		-			sz = 0, sx = 1, sy = 1
-// 		glm::vec3( -0.75f,   -0.1f,   1.0f),
-//
-//		36 		-			sz = 1, sx = 0, sy = 0
-// 		glm::vec3(  0.75f,    0.1f,  -1.0f),
-//
-//		37 		-			sz = 1, sx = 0, sy = 1
-// 		glm::vec3(  0.75f,   -0.1f,  -1.0f),
-//
-//		38 		-			sz = 1, sx = 1, sy = 0
-// 		glm::vec3( -0.75f,    0.1f,  -1.0f),
-//
-//		39 		-			sz = 1, sx = 1, sy = 1
-// 		glm::vec3( -0.75f,   -0.1f,  -1.0f),
-//
-//		40 		-			sz = 0, sy = 0, sx = 0
-// 		glm::vec3(   0.1f,   0.75f,   1.0f),
-//
-//		41 		-			sz = 0, sy = 0, sx = 1
-// 		glm::vec3(  -0.1f,   0.75f,   1.0f),
-//
-//		42 		-			sz = 0, sy = 1, sx = 0
-// 		glm::vec3(   0.1f,  -0.75f,   1.0f),
-//
-//		43 		-			sz = 0, sy = 1, sx = 1
-// 		glm::vec3(  -0.1f,  -0.75f,   1.0f),
-//
-//		44 		-			sz = 1, sy = 0, sx = 0
-// 		glm::vec3(   0.1f,   0.75f,  -1.0f),
-//
-//		45 		-			sz = 1, sy = 0, sx = 1
-// 		glm::vec3(  -0.1f,   0.75f,  -1.0f),
-//
-//		46 		-			sz = 1, sy = 1, sx = 0
-// 		glm::vec3(   0.1f,  -0.75f,  -1.0f),
-//
-//		47 		-			sz = 1, sy = 1, sx = 1
-// 		glm::vec3(  -0.1f,  -0.75f,  -1.0f)
-//
-// 	};
-
-// }
-
 
 
 // ----------------------
@@ -878,14 +718,16 @@ void init()
 
 
 
-
-	glBindBuffer( GL_ARRAY_BUFFER, array_buffer ); 																					//this is what sets the active buffer
-	glBufferData( GL_ARRAY_BUFFER, 48 * NumVertices * sizeof(glm::vec3), NULL, GL_STATIC_DRAW );	//initialize with NULL
-	glBufferSubData( GL_ARRAY_BUFFER, 0, 48 * NumVertices * sizeof(glm::vec3), points );			//send the data
+	int num_bytes = 48 * NumVertices * sizeof(glm::vec3);
 
 
+	glBindBuffer( GL_ARRAY_BUFFER, array_buffer ); 										//this is what sets the active buffer
+	glBufferData( GL_ARRAY_BUFFER, num_bytes, NULL, GL_STATIC_DRAW );	//initialize with NULL
+	glBufferSubData( GL_ARRAY_BUFFER, 0, num_bytes, points );					//send the data
 
-	cout << endl << "total size of all arrays is " << (48.0f * NumVertices * sizeof(glm::vec3)) / 1000.0f << " kb" << endl;
+
+
+	cout << endl << "total size of all arrays is " << (float) num_bytes / 1000.0f << " kb" << endl;
 
 
 
@@ -901,7 +743,7 @@ void init()
 	// vertex locations
 	vPosition_index = glGetAttribLocation( shader_handle, "vPosition" );
 	glEnableVertexAttribArray( vPosition_index );
-	glVertexAttribPointer( vPosition_index, 4, GL_FLOAT, GL_FALSE, 0, (GLvoid*) (0) );
+	glVertexAttribPointer( vPosition_index, 3, GL_FLOAT, GL_FALSE, 0, (GLvoid*) (0) );
 
 
 	// // vertex colors
@@ -1262,19 +1104,19 @@ void display( void )
 
 
 
-	// //get the vector to the camera - unrotated, it looks towards the negative z
-	// glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-	//
-	// //find the index referenced by this vector
-	// int temp = calcOrder( dir );
-	//
-	// //check against what buffer is currently bound - update if needed
-	// if(temp != current_buffer_index)
-	// {
-	// 	current_buffer_index = temp;
-	// 	cout << "swapping to buffer " << current_buffer_index << endl;
-	// 	// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	// }
+	//get the vector to the camera - unrotated, it looks towards the negative z
+	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+
+	//find the index referenced by this vector
+	int temp = calcOrder( dir );
+
+	//check against what buffer is currently bound - update if needed
+	if(temp != current_buffer_index)
+	{
+		current_buffer_index = temp;
+		cout << "swapping to buffer " << current_buffer_index << endl;
+		// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	}
 
 
 
