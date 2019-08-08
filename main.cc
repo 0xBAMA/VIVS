@@ -417,6 +417,9 @@ void generate_points()
 							break;
 
 
+
+
+
 						case 8:
 			// 08 - sx = 0,     sz = 0,     sy = 0
 							x = dsc[o];	z = dsc[m];	y = dsc[i];
@@ -456,6 +459,9 @@ void generate_points()
 			// 15 - sx = 1,     sz = 1,     sy = 1
 							x = asc[o];	z = asc[m];	y = asc[i];
 							break;
+
+
+
 
 
 						case 16:
@@ -499,6 +505,8 @@ void generate_points()
 							break;
 
 
+
+
 						case 24:
 			// 24 - sy = 0,     sz = 0,     sx = 0
 							y = dsc[o];	z = dsc[m];	x = dsc[i];
@@ -540,6 +548,9 @@ void generate_points()
 							break;
 
 
+
+
+
 						case 32:
 			// 32 - sz = 0,     sx = 0,     sy = 0
 							z = dsc[o];	x = dsc[m];	y = dsc[i];
@@ -579,6 +590,8 @@ void generate_points()
 			// 39 - sz = 1,     sx = 1,     sy = 1
 							z = asc[o];	x = asc[m];	y = asc[i];
 							break;
+
+
 
 
 
@@ -1485,7 +1498,7 @@ int main( int argc, char **argv )
 	glutInitContextVersion( 4, 5 );
 	glutInitContextProfile( GLUT_CORE_PROFILE );
 	glutCreateWindow( "GLUT Window" );
-	// glutFullScreen();
+	glutFullScreen();
 
 	// glutGameModeString("640x480");
 	//
