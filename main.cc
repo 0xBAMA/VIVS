@@ -376,207 +376,250 @@ void generate_points()
 					switch(n)
 					{
 						case 0:
-						// 00 - sx = 0, sy = 0, sz = 0
-							x = 0.1f; y = 0.1f; z = 0.2f;
+			// 00 - sx = 0,     sy = 0,     sz = 0
+							x = dsc[o];	y = dsc[m]; z = dsc[i];
 							break;
 
 						case 1:
-						// 01 - sx = 0, sy = 0, sz = 1
+			// 01 - sx = 0,     sy = 0,     sz = 1
+							x = dsc[o];	y = dsc[m]; z = asc[i];
 							break;
 
 						case 2:
-						// 02 - sx = 0, sy = 1, sz = 0
+			// 02 - sx = 0,     sy = 1,     sz = 0
+							x = dsc[o];	y = asc[m];	z = dsc[i];
 							break;
 
 
 						case 3:
-						// 03 - sx = 0, sy = 1, sz = 1
+			// 03 - sx = 0,     sy = 1,     sz = 1
+							x = dsc[o];	y = asc[m];	z = asc[i];
 							break;
 
 						case 4:
-						// 04 - sx = 1, sy = 0, sz = 0
+			// 04 - sx = 1,     sy = 0,     sz = 0
+							x = asc[o];	y = dsc[m];	z = dsc[i];
 							break;
 
 						case 5:
-						// 05 - sx = 1, sy = 0, sz = 1
+			// 05 - sx = 1,     sy = 0,     sz = 1
+							x = asc[o];	y = dsc[m];	z = asc[i];
 							break;
 
 						case 6:
-						// 06 - sx = 1, sy = 1, sz = 0
+			// 06 - sx = 1,     sy = 1,     sz = 0
+							x = asc[o];	y = asc[m];	z = dsc[i];
 							break;
 
 						case 7:
-						// 07 - sx = 1, sy = 1, sz = 1
+			// 07 - sx = 1,     sy = 1,     sz = 1
+							x = asc[o];	y = asc[m];	z = asc[i];
 							break;
 
 
 						case 8:
-						// 08 - sx = 0, sz = 0, sy = 0
+			// 08 - sx = 0,     sz = 0,     sy = 0
+							x = dsc[o];	z = dsc[m];	y = dsc[i];
 							break;
 
 						case 9:
-						// 09 - sx = 0, sz = 0, sy = 1
+			// 09 - sx = 0,     sz = 0,     sy = 1
+							x = dsc[o];	z = dsc[m];	y = asc[i];
 							break;
 
 						case 10:
-						// 10 - sx = 0, sz = 1, sy = 0
+			// 10 - sx = 0,     sz = 1,     sy = 0
+							x = dsc[o]; z = asc[m];	y = dsc[i];
 							break;
 
 						case 11:
-						// 11 - sx = 0, sz = 1, sy = 1
+			// 11 - sx = 0,     sz = 1,     sy = 1
+							x = dsc[o];	z = asc[m];	y = asc[i];
 							break;
 
 						case 12:
-						// 12 - sx = 1, sz = 0, sy = 0
+			// 12 - sx = 1,     sz = 0,     sy = 0
+							x = asc[o];	z = dsc[m];	y = dsc[i];
 							break;
 
 						case 13:
-						// 13 - sx = 1, sz = 0, sy = 1
+			// 13 - sx = 1,     sz = 0,     sy = 1
+							x = asc[o];	z = dsc[m];	y = asc[i];
 							break;
 
 						case 14:
-						// 14 - sx = 1, sz = 1, sy = 0
-							x = asc[o];
-							y = dsc[i];
-							z =	asc[m];
-							// cout << x << " " << y << " " << z << endl;
+			// 14 - sx = 1,     sz = 1,     sy = 0
+							x = asc[o];	z =	asc[m];	y = dsc[i];
 							break;
 
 						case 15:
-						// 15 - sx = 1, sz = 1, sy = 1
+			// 15 - sx = 1,     sz = 1,     sy = 1
+							x = asc[o];	z = asc[m];	y = asc[i];
 							break;
 
 
 						case 16:
-						// 16 - sy = 0, sx = 0, sz = 0
+			// 16 - sy = 0,     sx = 0,     sz = 0
+							y = dsc[o];	x = dsc[m];	z = dsc[i];
 							break;
 
 						case 17:
-						// 17 - sy = 0, sx = 0, sz = 1
+			// 17 - sy = 0,     sx = 0,     sz = 1
+							y = dsc[o];	x = dsc[m];	z = asc[i];
 							break;
 
 						case 18:
-						// 18 - sy = 0, sx = 1, sz = 0
+			// 18 - sy = 0,     sx = 1,     sz = 0
+							y = dsc[o];	x = asc[m];	z = dsc[i];
 							break;
 
 						case 19:
-						// 19 - sy = 0, sx = 1, sz = 1
+			// 19 - sy = 0,     sx = 1,     sz = 1
+							y = dsc[o];	x = asc[m];	z = asc[i];
 							break;
 
 						case 20:
-						// 20 - sy = 1, sx = 0, sz = 0
+			// 20 - sy = 1,     sx = 0,     sz = 0
+							y = asc[o];	x = dsc[m];	z = dsc[i];
 							break;
 
 						case 21:
-						// 21 - sy = 1, sx = 0, sz = 1
+			// 21 - sy = 1,     sx = 0,     sz = 1
+							y = asc[o];	x = dsc[m];	z = asc[i];
 							break;
 
 						case 22:
-						// 22 - sy = 1, sx = 1, sz = 0
+			// 22 - sy = 1,     sx = 1,     sz = 0
+							y = asc[o];	x = asc[m];	z = dsc[i];
 							break;
 
 						case 23:
-						// 23 - sy = 1, sx = 1, sz = 1
+			// 23 - sy = 1,     sx = 1,     sz = 1
+							y = asc[o];	x = asc[m];	z = asc[i];
 							break;
 
 
 						case 24:
-						// 24 - sy = 0, sz = 0, sx = 0
+			// 24 - sy = 0,     sz = 0,     sx = 0
+							y = dsc[o];	z = dsc[m];	x = dsc[i];
 							break;
 
 						case 25:
-						// 25 - sy = 0, sz = 0, sx = 1
+			// 25 - sy = 0,     sz = 0,     sx = 1
+							y = dsc[o];	z = dsc[m];	x = asc[i];
 							break;
 
 						case 26:
-						// 26 - sy = 0, sz = 1, sx = 0
+			// 26 - sy = 0,     sz = 1,     sx = 0
+							y = dsc[o];	z = asc[m];	x = dsc[i];
 							break;
 
 						case 27:
-						// 27 - sy = 0, sz = 1, sx = 1
+			// 27 - sy = 0,     sz = 1,     sx = 1
+							y = dsc[o];	z = asc[m];	x = asc[i];
 							break;
 
 						case 28:
-						// 28 - sy = 1, sz = 0, sx = 0
+			// 28 - sy = 1,     sz = 0,     sx = 0
+							y = asc[o];	z = dsc[m];	x = dsc[i];
 							break;
 
 						case 29:
-						// 29 - sy = 1, sz = 0, sx = 1
+			// 29 - sy = 1,     sz = 0,     sx = 1
+							y = asc[o];	z = dsc[m];	x = asc[i];
 							break;
 
 						case 30:
-						// 30 - sy = 1, sz = 1, sx = 0
+			// 30 - sy = 1,     sz = 1,     sx = 0
+							y = asc[o];	z = asc[m];	x = dsc[i];
 							break;
 
 						case 31:
-						// 31 - sy = 1, sz = 1, sx = 1
+			// 31 - sy = 1,     sz = 1,     sx = 1
+							y = asc[o];	z = asc[m];	x = asc[i];
 							break;
 
 
 						case 32:
-						// 32 - sz = 0, sx = 0, sy = 0
+			// 32 - sz = 0,     sx = 0,     sy = 0
+							z = dsc[o];	x = dsc[m];	y = dsc[i];
 							break;
 
 						case 33:
-						// 33 - sz = 0, sx = 0, sy = 1
+			// 33 - sz = 0,     sx = 0,     sy = 1
+							z = dsc[o];	x = dsc[m];	y = asc[i];
 							break;
 
 						case 34:
-						// 34 - sz = 0, sx = 1, sy = 0
+			// 34 - sz = 0,     sx = 1,     sy = 0
+							z = dsc[o];	x = asc[m];	y = dsc[i];
 							break;
 
 						case 35:
-						// 35 - sz = 0, sx = 1, sy = 1
+			// 35 - sz = 0,     sx = 1,     sy = 1
+							z = dsc[o];	x = asc[m];	y = asc[i];
 							break;
 
 						case 36:
-						// 36 - sz = 1, sx = 0, sy = 0
+			// 36 - sz = 1,     sx = 0,     sy = 0
+							z = asc[o];	x = dsc[m];	y = dsc[i];
 							break;
 
 						case 37:
-						// 37 - sz = 1, sx = 0, sy = 1
+			// 37 - sz = 1,     sx = 0,     sy = 1
+							z = asc[o];	x = dsc[m];	y = asc[i];
 							break;
 
 						case 38:
-						// 38 - sz = 1, sx = 1, sy = 0
+			// 38 - sz = 1,     sx = 1,     sy = 0
+							z = asc[o];	x = asc[m];	y = dsc[i];
 							break;
 
 						case 39:
-						// 39 - sz = 1, sx = 1, sy = 1
+			// 39 - sz = 1,     sx = 1,     sy = 1
+							z = asc[o];	x = asc[m];	y = asc[i];
 							break;
 
 
 
 						case 40:
-						// 40 - sz = 0, sy = 0, sx = 0
+			// 40 - sz = 0,     sy = 0,     sx = 0
+							z = dsc[o];	y = dsc[m];	x = dsc[i];
 							break;
 
 						case 41:
-						// 41 - sz = 0, sy = 0, sx = 1
+			// 41 - sz = 0,     sy = 0,     sx = 1
+							z = dsc[o];	y = dsc[m];	x = asc[i];
 							break;
 
 						case 42:
-						// 42 - sz = 0, sy = 1, sx = 0
+			// 42 - sz = 0,     sy = 1,     sx = 0
+							z = dsc[o];	y = asc[m];	x = dsc[i];
 							break;
 
 						case 43:
-						// 43 - sz = 0, sy = 1, sx = 1
+			// 43 - sz = 0,     sy = 1,     sx = 1
+							z = dsc[o];	y = asc[m];	x = asc[i];
 							break;
 
 						case 44:
-						// 44 - sz = 1, sy = 0, sx = 0
+			// 44 - sz = 1,     sy = 0,     sx = 0
+							z = asc[o];	y = dsc[m];	x = dsc[i];
 							break;
 
 						case 45:
-						// 45 - sz = 1, sy = 0, sx = 1
+			// 45 - sz = 1,     sy = 0,     sx = 1
+							z = asc[o];	y = dsc[m];	x = asc[i];
 							break;
 
 						case 46:
-						// 46 - sz = 1, sy = 1, sx = 0
+			// 46 - sz = 1,     sy = 1,     sx = 0
+							z = asc[o];	y = asc[m];	x = dsc[i];
 							break;
 
 						case 47:
-						// 47 - sz = 1, sy = 1, sx = 1
+			// 47 - sz = 1,     sy = 1,     sx = 1
+							z = asc[o];	y = asc[m];	x = asc[i];
 							break;
 
 						// default:
@@ -1102,33 +1145,12 @@ void init()
 void display( void )
 {
 
-
-
-	//get the vector to the camera - unrotated, it looks towards the negative z
-	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
-
-	//find the index referenced by this vector
-	int temp = calcOrder( dir );
-
-	//check against what buffer is currently bound - update if needed
-	if(temp != current_buffer_index)
-	{
-		current_buffer_index = temp;
-		cout << "swapping to buffer " << current_buffer_index << endl;
-		// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
-	}
-
-
-
-
-
 	//clear the screen
   glClear( GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT );
 
 	//draw geometry into back buffer
 	// glDrawArrays( GL_POINTS, 0, NumVertices );
 	glDrawArrays(GL_POINTS, current_buffer_index * NumVertices, NumVertices);
-	// glDrawArrays(GL_POINTS, 13*NumVertices, NumVertices);
 
 	//swap to display
 	glutSwapBuffers();
@@ -1224,7 +1246,22 @@ void timer(int)
 
 void idle( void )
 {
-	// glutPostRedisplay();
+
+	//get the vector to the camera - unrotated, it looks towards the negative z
+	glm::vec3 dir = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f)) * vec(0.0f, 0.0f, -1.0f, 0.0f); 	//the direction from the camera to the center
+
+	//find the index referenced by this vector
+	int temp = calcOrder( dir );
+
+	//check against what buffer is currently bound - update if needed
+	if(temp != current_buffer_index)
+	{
+		current_buffer_index = temp;
+		cout << "swapping to buffer " << current_buffer_index << endl;
+		// glBindBuffer( GL_ARRAY_BUFFER, array_buffers[current_buffer_index] );
+	}
+
+	glutPostRedisplay();
 }
 
 
@@ -1388,15 +1425,15 @@ void keyboard( unsigned char key, int x, int y )
 
 			break;
 
-		case 'k':
-			current_buffer_index++;
-			cout << "swapping to buffer " << current_buffer_index << endl;
-			break;
-
-		case 'l':
-			current_buffer_index--;
-			cout << "swapping to buffer " << current_buffer_index << endl;
-			break;
+		// case 'k':
+		// 	current_buffer_index++;
+		// 	cout << "swapping to buffer " << current_buffer_index << endl;
+		// 	break;
+		//
+		// case 'l':
+		// 	current_buffer_index--;
+		// 	cout << "swapping to buffer " << current_buffer_index << endl;
+		// 	break;
 
 	}
 
@@ -1541,6 +1578,29 @@ int main( int argc, char **argv )
 
 void update_rotation()
 { // uses global x rotation, y rotation, z rotation
+
+	float two_pi = 2.0f * 3.14159265359f;
+
+	if(x_rot > two_pi)
+		x_rot -= two_pi;
+
+	if(x_rot < 0.0f)
+		x_rot += two_pi;
+
+
+	if(y_rot > two_pi)
+		y_rot -= two_pi;
+
+	if(y_rot < 0.0f)
+		y_rot += two_pi;
+
+
+	if(z_rot > two_pi)
+		z_rot -= two_pi;
+
+	if(z_rot < 0.0f)
+		z_rot += two_pi;
+
 
 	rotation = glm::rotate( x_rot, glm::vec3(1.0f, 0.0f, 0.0f)) * glm::rotate(y_rot, glm::vec3(0.0f, 1.0f, 0.0f)) * glm::rotate(z_rot, glm::vec3(0.0f, 0.0f, 1.0f));
 	glUniformMatrix4fv( rotation_location, 1, GL_FALSE,  glm::value_ptr( rotation ) );
